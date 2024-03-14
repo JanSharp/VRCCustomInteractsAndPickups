@@ -1,0 +1,13 @@
+
+- [ ] interact script, probably an abstract base class or something
+  - [ ] interact text
+- [ ] pickup script
+  - [ ] pickup on desktop, longest range
+  - [ ] pickup in vr at a medium distance, using a ray cast directly from the hand tracking position
+  - [ ] pickup in vr through close proximity, a sphere cast at the hand tracking position
+  - [ ] pickupable objects are identified through colliders with the Pickup layer
+  - [ ] the pickup colliders can be on children of the root object
+- [ ] add an outline and highlight to interactible objects when they are in reach
+- [ ] when multiple objects are in reach, pick the closest one
+  - [ ] preferably determined using ray cast distance or some other api to find the closest point on the object
+- [ ] possibly customizable highlight color per object
