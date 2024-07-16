@@ -1,7 +1,7 @@
 {
-    "name": "Jansharp.CustomInteracts.Editor",
+    "name": "Jansharp.CustomInteractsAndPickups.Editor",
     "references": [
-        "JanSharp.CustomInteracts",
+        "JanSharp.CustomInteractsAndPickups",
         "JanSharp.Common",
         "JanSharp.Common.Editor",
         "UdonSharp.Runtime",

@@ -1,5 +1,5 @@
 {
-    "name": "JanSharp.CustomInteracts",
+    "name": "JanSharp.CustomInteractsAndPickups",
     "references": [
         "JanSharp.Common",
         "UdonSharp.Runtime",
