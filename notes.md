@@ -5,9 +5,10 @@
   - [ ] proximity, working the same way as pickups described below
 - [ ] pickup script
   - [ ] require kinematic rigid bodies
-  - [ ] pickup on desktop, longest range
+  - [x] pickup on desktop, longest range
   - [ ] pickup in vr at a medium distance, using a ray cast directly from the hand tracking position
   - [ ] pickup in vr through close proximity, a sphere cast at the hand tracking position
+  - [ ] proper tooltip
   - [ ] pickupable objects are identified through colliders with the Pickup layer
   - [ ] the pickup colliders can be on children of the root object
   - [ ] option for restricted pickups, which enables the use of a user provided function which takes the position and rotation the object would have if it was not restricted, and returns the position and rotation it is allowed to have

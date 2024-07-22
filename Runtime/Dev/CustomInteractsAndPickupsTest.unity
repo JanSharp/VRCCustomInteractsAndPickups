@@ -1822,6 +1822,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1544414557}
+  proximity: 0.5
   interactText: Take
   autoHold: 1
   exactGrip: {fileID: 785965930}
@@ -2510,6 +2511,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 2127346678}
+  proximity: 0.5
   interactText: Hi! Hello there!
   listeners:
   - {fileID: 648672849}

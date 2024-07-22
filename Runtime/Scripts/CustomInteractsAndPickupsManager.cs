@@ -20,6 +20,7 @@ namespace JanSharp
         private LayerMask interactLayer = (LayerMask)(1 << 8);
         private LayerMask pickupLayer = (LayerMask)(1 << 13);
         private Vector3 desktopOffsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f);
+        private const float RaycastProximityMultiplier = 4f;
 
         private VRCPlayerApi localPlayer;
         private VRCPlayerApi.TrackingData head;
@@ -90,11 +91,16 @@ namespace JanSharp
             Transform hitTransform = hit.transform;
             if (hitTransform == null) // Some VRC internal that we're not allowed to access so we get null instead,
                 return null; // even though in normal Unity if we have a hit... this is not possible to be null.
-            hitPoint = hit.point;
             isInteract = hitTransform.gameObject.layer == interactLayerNumber;
-            return isInteract
+            CustomInteractiveBase interactive = isInteract
                 ? (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomInteract>()
                 : (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomPickup>();
+            if (interactive == null)
+                return null;
+            hitPoint = hit.point;
+            if (Vector3.Distance(headPosition, hitPoint) > interactive.proximity * RaycastProximityMultiplier)
+                return null;
+            return interactive;
         }
 
         private void ClearActiveScript()

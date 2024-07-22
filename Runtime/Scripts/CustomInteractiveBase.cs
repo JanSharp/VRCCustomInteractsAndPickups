@@ -7,6 +7,8 @@ namespace JanSharp
 {
     public abstract class CustomInteractiveBase : UdonSharpBehaviour
     {
+        [Range(0, 10)]
+        public float proximity = 0.5f;
         public string interactText;
         [System.NonSerialized] public CustomInteractsAndPickupsManager manager;
         protected bool initialized;
