@@ -1,4 +1,4 @@
-﻿using UdonSharp;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -179,7 +179,7 @@ namespace JanSharp
                 DropActivePickup();
                 return;
             }
-            if (!value)
+            if (!value || isHolding)
                 return;
 
             isHolding = true;
