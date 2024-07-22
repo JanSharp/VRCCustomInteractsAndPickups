@@ -169,10 +169,14 @@ namespace JanSharp
             highlightTextTransform.localScale = Vector3.one * Vector3.Distance(headPosition, interactPosition);
         }
 
+        private float lastInputUse = -1;
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            if (!value || !hasActiveInteract)
+            if (!value || !hasActiveInteract || lastInputUse == Time.time)
                 return;
+            // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
+            // VRChat is raising the InputUse event twice when I click the mouse button once.
+            lastInputUse = Time.time;
             activeInteract.DispatchOnInteract();
         }
 
