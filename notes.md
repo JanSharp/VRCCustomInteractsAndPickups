@@ -1,13 +1,28 @@
 
-- [ ] interact script, probably an abstract base class or something
-  - [ ] interact text
+- [x] interact script
+  - [ ] probably an abstract base class or something
+  - [x] interact text
+  - [ ] proximity, working the same way as pickups described below
 - [ ] pickup script
+  - [ ] require kinematic rigid bodies
   - [ ] pickup on desktop, longest range
   - [ ] pickup in vr at a medium distance, using a ray cast directly from the hand tracking position
   - [ ] pickup in vr through close proximity, a sphere cast at the hand tracking position
   - [ ] pickupable objects are identified through colliders with the Pickup layer
   - [ ] the pickup colliders can be on children of the root object
-- [ ] add an outline and highlight to interactible objects when they are in reach
+  - [ ] option for restricted pickups, which enables the use of a user provided function which takes the position and rotation the object would have if it was not restricted, and returns the position and rotation it is allowed to have
+  - [ ] most likely expose the position and rotation offset from the hand to the object (on desktop it would be from the head to the object)
+- [x] add an fresnel effect to interactive objects when they are in reach
 - [ ] when multiple objects are in reach, pick the closest one
   - [ ] preferably determined using ray cast distance or some other api to find the closest point on the object
 - [ ] possibly customizable highlight color per object
+- [ ] force interact objects to be on the interactive layer
+- [ ] support multiple interact scripts on one object, there's a few options:
+  - simply allow multiple on an object and arbitrarily choose one which controls proximity and text
+  - allow multiple but have a "component priority" where the script with highest priority controls the interact settings, but this has likely confusing UX
+  - allow multiple but give the user the option to choose which one is used, which requires some editor scripting gymnastics especially when prefabs are involved
+  - only allow one and have it have "child" or "chained" interact scripts which also get triggered when the main one does
+- [ ] force pickup objects to be on the pickup layer
+- [ ] only allow one pickup script per object
+- [ ] disallow interact and pickup scripts to be on the same object
+- [ ] maybe a desktop key bind to highlight all interactive objects, mainly for debugging
