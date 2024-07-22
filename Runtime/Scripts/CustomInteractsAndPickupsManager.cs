@@ -16,6 +16,7 @@ namespace JanSharp
         public Transform highlightTextTransform;
         public TextMeshPro highlightText;
 
+        private int interactLayerNumber = 8;
         private LayerMask interactLayer = (LayerMask)(1 << 8);
         private LayerMask pickupLayer = (LayerMask)(1 << 13);
 
@@ -24,8 +25,13 @@ namespace JanSharp
         private Vector3 headPosition;
         private Quaternion headRotation;
         private Vector3 headForward;
-        private CustomInteract interact;
-        private Transform interactTransform;
+
+        private bool hasActiveInteract;
+        private bool hasActivePickup;
+        private CustomInteract activeInteract;
+        private CustomPickup activePickup;
+        private CustomInteractiveBase activeScript;
+        private Transform activeTransform;
 
         private void Start()
         {
@@ -34,20 +40,19 @@ namespace JanSharp
 
         private void Update()
         {
-            if (interact != null)
-            {
-                interact.HideHighlight();
-                interact = null;
-                highlightTextRoot.gameObject.SetActive(false);
-            }
             FetchHeadValues();
-            CustomInteract newInteract = TryGetInteract();
-            if (newInteract == interact)
+
+            CustomInteractiveBase newActiveScript = TryGetInteractive(out bool isInteract);
+            if (newActiveScript == activeScript)
             {
                 UpdateHighlightText();
                 return;
             }
-            SetInteract(newInteract);
+
+            if (isInteract)
+                SetActiveInteract((CustomInteract)newActiveScript);
+            else
+                SetActivePickup((CustomPickup)newActiveScript);
         }
 
         private void FetchHeadValues()
@@ -58,32 +63,60 @@ namespace JanSharp
             headForward = headRotation * Vector3.forward;
         }
 
-        private CustomInteract TryGetInteract()
+        private CustomInteractiveBase TryGetInteractive(out bool isInteract)
         {
-            if (!Physics.Raycast(headPosition, headForward, out RaycastHit hit, 100f, interactLayer, QueryTriggerInteraction.Collide))
+            isInteract = false;
+            if (!Physics.Raycast(headPosition, headForward, out RaycastHit hit, 100f, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
                 return null;
             Transform hitTransform = hit.transform;
             if (hitTransform == null) // Some VRC internal that we're not allowed to access so we get null instead,
                 return null; // even though in normal Unity if we have a hit... this is not possible to be null.
-            return hitTransform.GetComponentInParent<CustomInteract>();
+            isInteract = hitTransform.gameObject.layer == interactLayerNumber;
+            return isInteract
+                ? (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomInteract>()
+                : (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomPickup>();
         }
 
-        private void SetInteract(CustomInteract newInteract)
+        private void ClearActiveScript()
         {
-            if (newInteract == null)
-            {
-                if (interact == null)
-                    return;
-                interact.HideHighlight();
-                interact = null;
-                interactTransform = null;
-                HideHighlightText();
+            if (activeScript == null)
                 return;
-            }
-            interact = newInteract;
-            interactTransform = newInteract.transform;
-            interact.manager = this;
-            interact.ShowHighlight();
+            activeScript.HideHighlight();
+            HideHighlightText();
+            hasActiveInteract = false;
+            hasActivePickup = false;
+            activeInteract = null;
+            activePickup = null;
+            activeScript = null;
+            activeTransform = null;
+        }
+
+        private void SetActiveInteract(CustomInteract newInteract)
+        {
+            ClearActiveScript();
+            if (newInteract == null)
+                return;
+            hasActiveInteract = true;
+            activeInteract = newInteract;
+            SetActiveScriptGeneric(newInteract);
+        }
+
+        private void SetActivePickup(CustomPickup newPickup)
+        {
+            ClearActiveScript();
+            if (newPickup == null)
+                return;
+            hasActivePickup = true;
+            activePickup = newPickup;
+            SetActiveScriptGeneric(newPickup);
+        }
+
+        private void SetActiveScriptGeneric(CustomInteractiveBase newActiveScript)
+        {
+            activeScript = newActiveScript;
+            activeTransform = activeScript.transform;
+            activeScript.manager = this;
+            activeScript.ShowHighlight();
             UpdateHighlightText();
             ShowHighlightText();
         }
@@ -100,11 +133,11 @@ namespace JanSharp
 
         private void UpdateHighlightText()
         {
-            if (interact == null)
+            if (activeScript == null)
                 return;
-            highlightText.text = interact.interactText;
+            highlightText.text = activeScript.interactText;
             // TODO: Maybe calculate the total bounds of all renderers and use the center of the bounds instead.
-            Vector3 interactPosition = interactTransform.position;
+            Vector3 interactPosition = activeTransform.position;
             highlightTextRoot.position = interactPosition;
             highlightTextRoot.rotation = headRotation;
             highlightTextTransform.localScale = Vector3.one * Vector3.Distance(headPosition, interactPosition);
@@ -112,9 +145,9 @@ namespace JanSharp
 
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            if (!value || interact == null)
+            if (!value || !hasActiveInteract)
                 return;
-            interact.DispatchOnInteract();
+            activeInteract.DispatchOnInteract();
         }
     }
 }
