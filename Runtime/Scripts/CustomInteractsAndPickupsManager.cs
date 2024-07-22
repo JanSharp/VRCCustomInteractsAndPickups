@@ -19,6 +19,7 @@ namespace JanSharp
         private int interactLayerNumber = 8;
         private LayerMask interactLayer = (LayerMask)(1 << 8);
         private LayerMask pickupLayer = (LayerMask)(1 << 13);
+        private Vector3 desktopOffsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f);
 
         private VRCPlayerApi localPlayer;
         private VRCPlayerApi.TrackingData head;
@@ -32,6 +33,11 @@ namespace JanSharp
         private CustomPickup activePickup;
         private CustomInteractiveBase activeScript;
         private Transform activeTransform;
+        private Vector3 hitPoint;
+
+        private bool isHolding;
+        private Vector3 heldOffsetVector;
+        private Quaternion heldOffsetRotation;
 
         private void Start()
         {
@@ -40,6 +46,12 @@ namespace JanSharp
 
         private void Update()
         {
+            if (isHolding)
+            {
+                UpdateHeldPickup();
+                return;
+            }
+
             FetchHeadValues();
 
             CustomInteractiveBase newActiveScript = TryGetInteractive(out bool isInteract);
@@ -53,6 +65,13 @@ namespace JanSharp
                 SetActiveInteract((CustomInteract)newActiveScript);
             else
                 SetActivePickup((CustomPickup)newActiveScript);
+        }
+
+        private void UpdateHeldPickup()
+        {
+            FetchHeadValues();
+            activeTransform.position = headPosition + headRotation * heldOffsetVector;
+            activeTransform.rotation = headRotation * heldOffsetRotation;
         }
 
         private void FetchHeadValues()
@@ -71,6 +90,7 @@ namespace JanSharp
             Transform hitTransform = hit.transform;
             if (hitTransform == null) // Some VRC internal that we're not allowed to access so we get null instead,
                 return null; // even though in normal Unity if we have a hit... this is not possible to be null.
+            hitPoint = hit.point;
             isInteract = hitTransform.gameObject.layer == interactLayerNumber;
             return isInteract
                 ? (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomInteract>()
@@ -148,6 +168,42 @@ namespace JanSharp
             if (!value || !hasActiveInteract)
                 return;
             activeInteract.DispatchOnInteract();
+        }
+
+        public override void InputGrab(bool value, UdonInputEventArgs args)
+        {
+            if (!hasActivePickup)
+                return;
+            if (!value && isHolding && !activePickup.autoHold)
+            {
+                DropActivePickup();
+                return;
+            }
+            if (!value)
+                return;
+
+            isHolding = true;
+            Quaternion inverseHeadRotation = Quaternion.Inverse(headRotation);
+            Vector3 distanceFromHead = inverseHeadRotation * (hitPoint - headPosition);
+            heldOffsetVector = inverseHeadRotation * (activeTransform.position - headPosition);
+            heldOffsetVector = heldOffsetVector - distanceFromHead + desktopOffsetVectorShift;
+            heldOffsetRotation = inverseHeadRotation * activeTransform.rotation;
+            activePickup.HideHighlight();
+            HideHighlightText();
+        }
+
+        public override void InputDrop(bool value, UdonInputEventArgs args)
+        {
+            // Maybe use on release instead.
+            if (!value || !isHolding)
+                return;
+            DropActivePickup();
+        }
+
+        private void DropActivePickup()
+        {
+            isHolding = false;
+            ClearActiveScript();
         }
     }
 }

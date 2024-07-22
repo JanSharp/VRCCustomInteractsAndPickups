@@ -9,6 +9,6 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomPickup : CustomInteractiveBase
     {
-
+        public bool autoHold;
     }
 }
