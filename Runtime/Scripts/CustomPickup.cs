@@ -10,5 +10,6 @@ namespace JanSharp
     public class CustomPickup : CustomInteractiveBase
     {
         public bool autoHold;
+        public Transform exactGrip;
     }
 }

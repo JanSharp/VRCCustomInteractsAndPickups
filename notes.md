@@ -27,3 +27,4 @@
 - [ ] disallow interact and pickup scripts to be on the same object
 - [ ] maybe a desktop key bind to highlight all interactive objects, mainly for debugging
 - [ ] make sure to null check everything that's held while foreign code could run since objects could get destroyed
+- [ ] maybe support modifying the exact grip transform at runtime

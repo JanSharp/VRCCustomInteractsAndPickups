@@ -1,4 +1,4 @@
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -183,11 +183,26 @@ namespace JanSharp
                 return;
 
             isHolding = true;
-            Quaternion inverseHeadRotation = Quaternion.Inverse(headRotation);
-            Vector3 distanceFromHead = inverseHeadRotation * (hitPoint - headPosition);
-            heldOffsetVector = inverseHeadRotation * (activeTransform.position - headPosition);
-            heldOffsetVector = heldOffsetVector - distanceFromHead + desktopOffsetVectorShift;
-            heldOffsetRotation = inverseHeadRotation * activeTransform.rotation;
+
+            Transform exactGrip = activePickup.exactGrip;
+            if (exactGrip == null)
+            {
+                // Desktop, move to hand.
+                Quaternion inverseHeadRotation = Quaternion.Inverse(headRotation);
+                Vector3 distanceFromHead = inverseHeadRotation * (hitPoint - headPosition);
+                heldOffsetVector = inverseHeadRotation * (activeTransform.position - headPosition);
+                heldOffsetVector = heldOffsetVector - distanceFromHead + desktopOffsetVectorShift;
+                heldOffsetRotation = inverseHeadRotation * activeTransform.rotation;
+            }
+            else
+            {
+                // Desktop, exact grip.
+                Quaternion activeRotation = activeTransform.rotation;
+                Vector3 offsetVector = Quaternion.Inverse(activeRotation) * (activeTransform.position - exactGrip.position);
+                heldOffsetRotation = Quaternion.Inverse(exactGrip.rotation) * activeRotation;
+                heldOffsetVector = heldOffsetRotation * offsetVector + desktopOffsetVectorShift;
+            }
+
             activePickup.HideHighlight();
             HideHighlightText();
         }
