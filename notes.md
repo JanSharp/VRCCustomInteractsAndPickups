@@ -17,6 +17,8 @@
     - [x] drop event
     - [x] use down event
     - [x] use up event
+    - [ ] rotation changed event
+  - [ ] desktop rotation
   - [x] use text
   - [ ] api
     - [ ] isHeld
