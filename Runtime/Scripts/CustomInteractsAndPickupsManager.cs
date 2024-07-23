@@ -1,4 +1,4 @@
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -21,9 +21,11 @@ namespace JanSharp
         private LayerMask pickupLayer = (LayerMask)(1 << 13);
         private Vector3 desktopOffsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f);
         private const float HighlightTextScale = 0.5f;
-        private const float RaycastProximityMultiplier = 4f;
+        private const float RaycastProximityMultiplier = 5f;
 
         private VRCPlayerApi localPlayer;
+        private float eyeHeight = 2f;
+        private float eyeHeightScale = 1f;
         private VRCPlayerApi.TrackingData head;
         private Vector3 headPosition;
         private Quaternion headRotation;
@@ -44,6 +46,38 @@ namespace JanSharp
         private void Start()
         {
             localPlayer = Networking.LocalPlayer;
+            UpdateEyeHeightLoop();
+        }
+
+        public override void OnAvatarEyeHeightChanged(VRCPlayerApi player, float prevEyeHeightAsMeters)
+        {
+            if (!player.isLocal)
+                return;
+            UpdatePlayerEyeHeight();
+        }
+
+        public override void OnAvatarChanged(VRCPlayerApi player)
+        {
+            if (!player.isLocal)
+                return;
+            UpdatePlayerEyeHeight();
+        }
+
+        /// <summary>
+        /// <para>Major trust issues. The 2 events above should handle everything already.</para>
+        /// </summary>
+        public void UpdateEyeHeightLoop()
+        {
+            UpdatePlayerEyeHeight();
+            SendCustomEventDelayedSeconds(nameof(UpdateEyeHeightLoop), 10f);
+        }
+
+        private void UpdatePlayerEyeHeight()
+        {
+            eyeHeight = localPlayer.GetAvatarEyeHeightAsMeters();
+            // Being twice has big only increases scale by 0.5f instead of 1f.
+            // Being twice as small only reduces scale by 0.25f instead of 0.5f.
+            eyeHeightScale = (eyeHeight / 2f - 1f) / 2f + 1f;
         }
 
         private void Update()
@@ -99,7 +133,7 @@ namespace JanSharp
             if (interactive == null)
                 return null;
             hitPoint = hit.point;
-            if (Vector3.Distance(headPosition, hitPoint) > interactive.proximity * RaycastProximityMultiplier)
+            if (Vector3.Distance(headPosition, hitPoint) > interactive.proximity * eyeHeightScale * RaycastProximityMultiplier)
                 return null;
             return interactive;
         }
