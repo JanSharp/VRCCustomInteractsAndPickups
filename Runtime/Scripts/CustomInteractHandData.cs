@@ -10,7 +10,8 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomInteractHandData : UdonSharpBehaviour
     {
-        [System.NonSerialized] public VRCPlayerApi.TrackingDataType handType;
+        [System.NonSerialized] public VRCPlayerApi.TrackingDataType trackingHandType;
+        [System.NonSerialized] public HandType handType;
         [System.NonSerialized] public Quaternion rotationNormalization;
         [System.NonSerialized] public Vector3 offsetVectorShift;
         [System.NonSerialized] public CustomInteractsAndPickupsManager manager;
@@ -122,7 +123,7 @@ namespace JanSharp
 
         private void FetchHandValues(CustomInteractHandData data)
         {
-            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(data.handType);
+            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(data.trackingHandType);
             handPosition = hand.position;
             handRotation = hand.rotation * data.rotationNormalization;
             handForward = handRotation * Vector3.forward;
@@ -261,7 +262,7 @@ namespace JanSharp
         private float lastInputUse = -1;
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            if (!value || !hasActiveInteract || lastInputUse == Time.time)
+            if ((isInVR && args.handType != handType) || !value || !hasActiveInteract || lastInputUse == Time.time)
                 return;
             // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
             // VRChat is raising the InputUse event twice when I click the mouse button once.
@@ -271,7 +272,7 @@ namespace JanSharp
 
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
-            if (!hasActivePickup)
+            if ((isInVR && args.handType != handType) || !hasActivePickup)
                 return;
             if (!value && isHolding && !activePickup.autoHold)
             {
@@ -308,7 +309,7 @@ namespace JanSharp
 
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
-            if (value || !isHolding)
+            if ((isInVR && args.handType != handType) || value || !isHolding)
                 return;
             // Dropped on InputDropUp, matching VRCHat's behaviour.
             DropActivePickup();

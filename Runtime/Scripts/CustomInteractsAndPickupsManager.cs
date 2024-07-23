@@ -2,6 +2,7 @@
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Common;
 
 namespace JanSharp
 {
@@ -22,18 +23,21 @@ namespace JanSharp
             isInVR = localPlayer.IsUserInVR();
             if (isInVR)
             {
-                leftHand.handType = VRCPlayerApi.TrackingDataType.LeftHand;
+                leftHand.trackingHandType = VRCPlayerApi.TrackingDataType.LeftHand;
+                leftHand.handType = HandType.LEFT;
                 leftHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward);
                 leftHand.offsetVectorShift = Vector3.zero;
                 leftHand.manager = this;
-                rightHand.handType = VRCPlayerApi.TrackingDataType.RightHand;
+                rightHand.trackingHandType = VRCPlayerApi.TrackingDataType.RightHand;
+                leftHand.handType = HandType.RIGHT;
                 rightHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.back);
                 rightHand.offsetVectorShift = Vector3.zero;
                 rightHand.manager = this;
             }
             else
             {
-                leftHand.handType = VRCPlayerApi.TrackingDataType.Head;
+                leftHand.trackingHandType = VRCPlayerApi.TrackingDataType.Head;
+                leftHand.handType = HandType.LEFT; // Does not matter, is not used.
                 leftHand.rotationNormalization = Quaternion.identity;
                 leftHand.offsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f); // TODO: should this scale with eye height.
                 leftHand.manager = this;
