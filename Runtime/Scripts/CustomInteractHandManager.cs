@@ -8,7 +8,7 @@ using TMPro;
 namespace JanSharp
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class CustomInteractHandData : UdonSharpBehaviour
+    public class CustomInteractHandManager : UdonSharpBehaviour
     {
         [System.NonSerialized] public VRCPlayerApi.TrackingDataType trackingHandType;
         [System.NonSerialized] public HandType handType;

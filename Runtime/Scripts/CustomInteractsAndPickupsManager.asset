@@ -170,7 +170,7 @@ MonoBehaviour:
       Data: 9|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: JanSharp.CustomInteractHandData, JanSharp.CustomInteractsAndPickups
+      Data: JanSharp.CustomInteractHandManager, JanSharp.CustomInteractsAndPickups
     - Name: 
       Entry: 8
       Data: 

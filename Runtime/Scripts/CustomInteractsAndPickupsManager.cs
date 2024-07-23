@@ -11,8 +11,8 @@ namespace JanSharp
     {
         public Material highlightMat;
         public GameObject highlightPartPrefab;
-        public CustomInteractHandData leftHand;
-        public CustomInteractHandData rightHand;
+        public CustomInteractHandManager leftHand;
+        public CustomInteractHandManager rightHand;
 
         private VRCPlayerApi localPlayer;
         private bool isInVR = true;
