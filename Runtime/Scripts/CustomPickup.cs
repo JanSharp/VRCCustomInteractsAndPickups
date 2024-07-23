@@ -10,6 +10,7 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomPickup : CustomInteractiveBase
     {
+        public string useText;
         public bool autoHold;
         [Tooltip("Imagine making finger guns with your hands. The index finger would match the forward vector "
             + "(blue), the thumb would match the up vector (green) of this Exact Grip transform.\nIn terms of "

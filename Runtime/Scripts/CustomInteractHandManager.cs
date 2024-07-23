@@ -1,4 +1,4 @@
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -16,9 +16,16 @@ namespace JanSharp
         [System.NonSerialized] public Vector3 offsetVectorShift;
         [System.NonSerialized] public CustomInteractsAndPickupsManager manager;
 
-        public Transform highlightTextRoot;
-        public Transform highlightTextTransform;
-        public TextMeshPro highlightText;
+        public Transform interactTextRoot;
+        public Transform interactTextTransform;
+        public TextMeshPro interactTextElem;
+        [Space]
+        public Transform useTextRoot;
+        public Transform useTextTransform;
+        public TextMeshPro useTextElem;
+        [Space]
+        public GameObject useTextRootDesktop;
+        public TextMeshProUGUI useTextElemDesktop;
 
         private Vector3 handPosition;
         private Quaternion handRotation;
@@ -41,7 +48,7 @@ namespace JanSharp
         private int interactLayerNumber = 8;
         private LayerMask interactLayer = (LayerMask)(1 << 8);
         private LayerMask pickupLayer = (LayerMask)(1 << 13);
-        private const float HighlightTextScale = 0.5f;
+        private const float InteractAndUseTextScale = 0.5f;
         // TODO: adjust based on feedback, also update CustomInteractBase proximity tooltip.
         private const float RaycastProximityMultiplierVR = 5f;
         private const float RaycastProximityMultiplierDesktop = 5f;
@@ -82,7 +89,7 @@ namespace JanSharp
                 newActiveScript = TryGetNearInteractive(out isInteract);
                 if (newActiveScript == activeScript)
                 {
-                    UpdateHighlightText();
+                    UpdateInteractText();
                     return;
                 }
 
@@ -98,7 +105,7 @@ namespace JanSharp
             newActiveScript = TryGetInteractive(out isInteract);
             if (newActiveScript == activeScript)
             {
-                UpdateHighlightText();
+                UpdateInteractText();
                 return;
             }
 
@@ -113,6 +120,7 @@ namespace JanSharp
             FetchHandValues();
             activeTransform.position = handPosition + handRotation * heldOffsetVector;
             activeTransform.rotation = handRotation * heldOffsetRotation;
+            UpdateUseText();
         }
 
         private void FetchHandValues()
@@ -191,13 +199,14 @@ namespace JanSharp
             if (activeScript == null)
                 return;
             activeScript.HideHighlight();
-            HideHighlightText();
+            HideInteractText();
             hasActiveInteract = false;
             hasActivePickup = false;
             activeInteract = null;
             activePickup = null;
             activeScript = null;
             activeTransform = null;
+            UpdateUseText();
         }
 
         private void SetActiveInteract(CustomInteract newInteract)
@@ -226,32 +235,62 @@ namespace JanSharp
             activeTransform = activeScript.transform;
             activeScript.manager = manager;
             activeScript.ShowHighlight();
-            UpdateHighlightText();
-            ShowHighlightText();
+            UpdateInteractText();
+            ShowInteractText();
         }
 
-        private void ShowHighlightText()
+        private void ShowInteractText()
         {
-            highlightTextRoot.gameObject.SetActive(true);
+            interactTextRoot.gameObject.SetActive(true);
         }
 
-        private void HideHighlightText()
+        private void HideInteractText()
         {
-            highlightTextRoot.gameObject.SetActive(false);
+            interactTextRoot.gameObject.SetActive(false);
         }
 
-        private void UpdateHighlightText()
+        private void UpdateInteractText()
         {
             if (activeScript == null)
                 return;
-            highlightText.text = activeScript.interactText;
+            interactTextElem.text = activeScript.interactText;
             // TODO: Maybe calculate the total bounds of all renderers and use the center of the bounds instead.
             Vector3 interactPosition = activeTransform.position;
-            highlightTextRoot.position = interactPosition;
+            interactTextRoot.position = interactPosition;
             VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-            highlightTextRoot.rotation = head.rotation;
-            float scale = Vector3.Distance(head.position, interactPosition) * HighlightTextScale;
-            highlightTextTransform.localScale = Vector3.one * scale;
+            interactTextRoot.rotation = head.rotation;
+            float scale = Vector3.Distance(head.position, interactPosition) * InteractAndUseTextScale;
+            interactTextTransform.localScale = Vector3.one * scale;
+        }
+
+        private void UpdateUseText()
+        {
+            if (!isHolding)
+            {
+                if (!isInVR)
+                    useTextRootDesktop.SetActive(false);
+                return;
+            }
+
+            string useText = activePickup.useText;
+            if (!isInVR)
+            {
+                bool hasText = useText != "";
+                useTextRootDesktop.SetActive(hasText);
+                if (!hasText)
+                    return;
+                useTextElemDesktop.text = useText;
+                return;
+            }
+
+            useTextElem.text = useText;
+            // TODO: Maybe calculate the total bounds of all renderers and use the center of the bounds instead.
+            Vector3 pickupPosition = activeTransform.position;
+            useTextRoot.position = pickupPosition;
+            VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+            useTextRoot.rotation = head.rotation;
+            float scale = Vector3.Distance(head.position, pickupPosition) * InteractAndUseTextScale;
+            useTextTransform.localScale = Vector3.one * scale;
         }
 
         private float lastInputUse = -1;
@@ -306,7 +345,8 @@ namespace JanSharp
             Transform exactGrip = activePickup.exactGrip;
             if (exactGrip == null)
             {
-                // Desktop, move to hand.
+                // Move to hand.
+                // TODO: add interpolation
                 Quaternion inverseHandRotation = Quaternion.Inverse(handRotation);
                 Vector3 distanceFromHead = inverseHandRotation * (hitPoint - handPosition);
                 heldOffsetVector = inverseHandRotation * (activeTransform.position - handPosition);
@@ -315,7 +355,7 @@ namespace JanSharp
             }
             else
             {
-                // Desktop, exact grip.
+                // Exact grip.
                 Quaternion activeRotation = activeTransform.rotation;
                 Vector3 offsetVector = Quaternion.Inverse(activeRotation) * (activeTransform.position - exactGrip.position);
                 heldOffsetRotation = Quaternion.Inverse(exactGrip.rotation) * activeRotation;
@@ -323,7 +363,8 @@ namespace JanSharp
             }
 
             activePickup.HideHighlight();
-            HideHighlightText();
+            HideInteractText();
+            UpdateUseText();
 
             activePickup.DispatchOnPickup();
         }

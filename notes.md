@@ -17,7 +17,7 @@
     - [x] drop event
     - [x] use down event
     - [x] use up event
-  - [ ] use text
+  - [x] use text
   - [ ] api
     - [ ] isHeld
     - [ ] heldHand
@@ -40,6 +40,7 @@
 - [ ] maybe support modifying the exact grip transform at runtime
 - [x] calculate max raycast length, instead of just blindly using 100
 - [ ] teleport dummy vrc pickups to the hand when interacting or picking up something to prevent interaction with vrc interacts, vrc pickups or UIs when interacting or holding one of the custom interacts/pickups
+- [ ] handle null interactText and useText
 
 # VR Testing
 
