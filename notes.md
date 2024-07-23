@@ -20,10 +20,12 @@
     - [ ] rotation changed event
   - [ ] desktop rotation
   - [x] use text
-  - [ ] api
-    - [ ] isHeld
-    - [ ] heldHand
-  - [ ] most likely expose the position and rotation offset from the hand to the object (on desktop it would be from the head to the object)
+  - [x] api
+    - [x] isHeld
+    - [x] heldHand
+    - [ ] setting held items...
+  - [x] most likely expose the position and rotation offset from the hand to the object (on desktop it would be from the head to the object)
+  - [ ] improve api. Just like make it better idk
 - [x] add an fresnel effect to interactive objects when they are in reach
 - [x] when multiple objects are in reach, pick the closest one
   - [x] preferably determined using ray cast distance or some other api to find the closest point on the object

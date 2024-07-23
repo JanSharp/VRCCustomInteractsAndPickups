@@ -20,6 +20,16 @@ namespace JanSharp
         [Space]
         public UdonSharpBehaviour[] listeners;
 
+        [System.NonSerialized] public bool isHeld;
+        /// <summary>
+        /// <para>One of <see cref="VRCPlayerApi.TrackingDataType.LeftHand"/> (VR),
+        /// <see cref="VRCPlayerApi.TrackingDataType.RightHand"/> (VR) or
+        /// <see cref="VRCPlayerApi.TrackingDataType.Head"/> (desktop).</para>
+        /// </summary>
+        [System.NonSerialized] public VRCPlayerApi.TrackingDataType heldTrackingData;
+        [System.NonSerialized] public Vector3 heldOffsetVector;
+        [System.NonSerialized] public Quaternion heldOffsetRotation;
+
         public void DispatchOnPickup()
         {
             foreach (UdonSharpBehaviour listener in listeners)

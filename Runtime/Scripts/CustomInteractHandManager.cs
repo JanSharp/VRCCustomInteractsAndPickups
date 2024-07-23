@@ -338,7 +338,19 @@ namespace JanSharp
             }
             if (!value || isHolding)
                 return;
+            PickupActivePickup();
+        }
 
+        public override void InputDrop(bool value, UdonInputEventArgs args)
+        {
+            if ((isInVR && args.handType != handType) || value || !isHolding)
+                return;
+            // Dropped on InputDropUp, matching VRCHat's behaviour.
+            DropActivePickup();
+        }
+
+        private void PickupActivePickup()
+        {
             isHolding = true;
             pickedUpAt = Time.time;
 
@@ -366,15 +378,11 @@ namespace JanSharp
             HideInteractText();
             UpdateUseText();
 
+            activePickup.isHeld = true;
+            activePickup.heldTrackingData = trackingHandType;
+            activePickup.heldOffsetVector = heldOffsetVector;
+            activePickup.heldOffsetRotation = heldOffsetRotation;
             activePickup.DispatchOnPickup();
-        }
-
-        public override void InputDrop(bool value, UdonInputEventArgs args)
-        {
-            if ((isInVR && args.handType != handType) || value || !isHolding)
-                return;
-            // Dropped on InputDropUp, matching VRCHat's behaviour.
-            DropActivePickup();
         }
 
         private void DropActivePickup()
@@ -386,7 +394,11 @@ namespace JanSharp
             {
                 isHoldingUseButton = false;
                 prevActivePickup.DispatchOnPickupUseUp();
+                // Once the api has been implemented the state of this script could have changed completely...
+                // and this function should therefore probably be marked as recursive, because it could be called
+                // recursively... but so could every calling function so uhhhhh idk typical Udon moment I guess.
             }
+            prevActivePickup.isHeld = false;
             prevActivePickup.DispatchOnDrop();
         }
     }
