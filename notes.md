@@ -29,7 +29,7 @@
   - allow multiple but give the user the option to choose which one is used, which requires some editor scripting gymnastics especially when prefabs are involved
   - only allow one and have it have "child" or "chained" interact scripts which also get triggered when the main one does
 - [ ] force pickup objects to be on the pickup layer
-- [ ] only allow one pickup script per object
+- [x] only allow one pickup script per object
 - [ ] disallow interact and pickup scripts to be on the same object
 - [ ] maybe a desktop key bind to highlight all interactive objects, mainly for debugging
 - [ ] make sure to null check everything that's held while foreign code could run since objects could get destroyed

@@ -6,6 +6,7 @@ using VRC.Udon;
 namespace JanSharp
 {
     [RequireComponent(typeof(Rigidbody))]
+    [DisallowMultipleComponent]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomPickup : CustomInteractiveBase
     {
