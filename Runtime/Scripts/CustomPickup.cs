@@ -16,5 +16,31 @@ namespace JanSharp
             + "position, this transform would be exactly at your hand tracking position, which I believe to "
             + "be around the palm.")]
         public Transform exactGrip;
+        [Space]
+        public UdonSharpBehaviour[] listeners;
+
+        public void DispatchOnPickup()
+        {
+            foreach (UdonSharpBehaviour listener in listeners)
+                listener.SendCustomEvent("_onPickup");
+        }
+
+        public void DispatchOnDrop()
+        {
+            foreach (UdonSharpBehaviour listener in listeners)
+                listener.SendCustomEvent("_onDrop");
+        }
+
+        public void DispatchOnPickupUseDown()
+        {
+            foreach (UdonSharpBehaviour listener in listeners)
+                listener.SendCustomEvent("_onPickupUseDown");
+        }
+
+        public void DispatchOnPickupUseUp()
+        {
+            foreach (UdonSharpBehaviour listener in listeners)
+                listener.SendCustomEvent("_onPickupUseUp");
+        }
     }
 }

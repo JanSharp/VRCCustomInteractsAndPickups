@@ -9,6 +9,7 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomInteract : CustomInteractiveBase
     {
+        [Space]
         public UdonSharpBehaviour[] listeners;
 
         public void DispatchOnInteract()

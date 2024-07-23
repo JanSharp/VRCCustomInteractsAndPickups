@@ -33,8 +33,10 @@ namespace JanSharp
         private Vector3 hitPoint;
 
         private bool isHolding;
+        private float allowInputUseAtTime = -1;
         private Vector3 heldOffsetVector;
         private Quaternion heldOffsetRotation;
+        private bool isHoldingUseButton;
 
         private int interactLayerNumber = 8;
         private LayerMask interactLayer = (LayerMask)(1 << 8);
@@ -43,6 +45,7 @@ namespace JanSharp
         // TODO: adjust based on feedback, also update CustomInteractBase proximity tooltip.
         private const float RaycastProximityMultiplierVR = 5f;
         private const float RaycastProximityMultiplierDesktop = 5f;
+        private const float AllowInputUseAfterHoldingFor = 0.1f;
 
         private VRCPlayerApi localPlayer;
         private bool isInVR = true;
@@ -262,12 +265,35 @@ namespace JanSharp
         private float lastInputUse = -1;
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            if ((isInVR && args.handType != handType) || !value || !hasActiveInteract || lastInputUse == Time.time)
+            if ((isInVR && args.handType != handType) || lastInputUse == Time.time)
                 return;
             // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
             // VRChat is raising the InputUse event twice when I click the mouse button once.
             lastInputUse = Time.time;
-            activeInteract.DispatchOnInteract();
+            if (hasActiveInteract)
+            {
+                if (value)
+                    activeInteract.DispatchOnInteract();
+            }
+            if (hasActivePickup && isHolding && Time.time > allowInputUseAtTime)
+            {
+                if (value)
+                {
+                    if (!isHoldingUseButton)
+                    {
+                        isHoldingUseButton = true;
+                        activePickup.DispatchOnPickupUseDown();
+                    }
+                }
+                else
+                {
+                    if (isHoldingUseButton)
+                    {
+                        isHoldingUseButton = false;
+                        activePickup.DispatchOnPickupUseUp();
+                    }
+                }
+            }
         }
 
         public override void InputGrab(bool value, UdonInputEventArgs args)
@@ -283,6 +309,7 @@ namespace JanSharp
                 return;
 
             isHolding = true;
+            allowInputUseAtTime = Time.time + AllowInputUseAfterHoldingFor;
 
             Transform exactGrip = activePickup.exactGrip;
             if (exactGrip == null)
@@ -305,6 +332,8 @@ namespace JanSharp
 
             activePickup.HideHighlight();
             HideHighlightText();
+
+            activePickup.DispatchOnPickup();
         }
 
         public override void InputDrop(bool value, UdonInputEventArgs args)
@@ -318,7 +347,14 @@ namespace JanSharp
         private void DropActivePickup()
         {
             isHolding = false;
+            CustomPickup prevActivePickup = activePickup;
             ClearActiveScript();
+            if (isHoldingUseButton)
+            {
+                isHoldingUseButton = false;
+                prevActivePickup.DispatchOnPickupUseUp();
+            }
+            prevActivePickup.DispatchOnDrop();
         }
     }
 }
