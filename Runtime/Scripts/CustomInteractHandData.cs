@@ -70,9 +70,29 @@ namespace JanSharp
                 return;
             }
 
-            FetchHeadValues();
+            FetchHeadValues(); // TODO: fix
 
-            CustomInteractiveBase newActiveScript = TryGetInteractive(out bool isInteract);
+            CustomInteractiveBase newActiveScript;
+            bool isInteract;
+            if (isInVR)
+            {
+                newActiveScript = TryGetNearInteractive(out isInteract);
+                if (newActiveScript == activeScript)
+                {
+                    UpdateHighlightText();
+                    return;
+                }
+
+                if (newActiveScript != null)
+                {
+                    if (isInteract)
+                        SetActiveInteract((CustomInteract)newActiveScript);
+                    else
+                        SetActivePickup((CustomPickup)newActiveScript);
+                }
+            }
+
+            newActiveScript = TryGetInteractive(out isInteract);
             if (newActiveScript == activeScript)
             {
                 UpdateHighlightText();
@@ -83,9 +103,6 @@ namespace JanSharp
                 SetActiveInteract((CustomInteract)newActiveScript);
             else
                 SetActivePickup((CustomPickup)newActiveScript);
-
-            // FetchHandValues(handType, rotationNormalization);
-            // CustomInteractiveBase newActiveScript = TryGetInteractive(handPosition, handForward, out bool isInteract);
         }
 
         private void UpdateHeldPickup()
@@ -133,6 +150,45 @@ namespace JanSharp
             if (Vector3.Distance(handPosition, hitPoint) > interactive.proximity * eyeHeightScale * raycastProximityMultiplier)
                 return null;
             return interactive;
+        }
+
+        private CustomInteractiveBase TryGetNearInteractive(out bool isInteract)
+        {
+            float maxRadius = 10f // Max proximity.
+                * ((5f - 2f) / 2f + 1f); // Max eyeHeightScale.
+
+            bool closestIsInteract = false;
+            CustomInteractiveBase closestInteractive = null;
+            float closestDistance = float.PositiveInfinity;
+            Vector3 closestHitPoint = Vector3.zero;
+
+            Collider[] colliders = Physics.OverlapSphere(handPosition, maxRadius, interactLayer | pickupLayer, QueryTriggerInteraction.Collide);
+            foreach (Collider collider in colliders)
+            {
+                if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
+                    continue; // even though in normal Unity if we have a hit... this is not possible to be null.
+                Transform hitTransform = collider.transform;
+                bool currentIsInteract = hitTransform.gameObject.layer == interactLayerNumber;
+                CustomInteractiveBase interactive = currentIsInteract
+                    ? (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomInteract>()
+                    : (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomPickup>();
+                if (interactive == null)
+                    continue;
+                Vector3 closestPoint = collider.ClosestPoint(handPosition);
+                float distance = Vector3.Distance(handPosition, closestPoint);
+                if (distance > interactive.proximity * eyeHeightScale)
+                    continue;
+                if (distance >= closestDistance)
+                    continue;
+                closestIsInteract = currentIsInteract;
+                closestInteractive = interactive;
+                closestDistance = distance;
+                closestHitPoint = closestPoint;
+            }
+
+            isInteract = closestIsInteract;
+            hitPoint = closestHitPoint;
+            return closestInteractive;
         }
 
         private void ClearActiveScript()

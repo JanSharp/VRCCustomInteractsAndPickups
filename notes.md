@@ -2,20 +2,25 @@
 - [x] interact script
   - [ ] probably an abstract base class or something
   - [x] interact text
-  - [ ] proximity, working the same way as pickups described below
+  - [x] proximity, working the same way as pickups described below
 - [ ] pickup script
   - [x] require kinematic rigid bodies
   - [x] pickup on desktop, longest range
-  - [ ] pickup in vr at a medium distance, using a ray cast directly from the hand tracking position
-  - [ ] pickup in vr through close proximity, a sphere cast at the hand tracking position
+  - [x] pickup in vr at a medium distance, using a ray cast directly from the hand tracking position
+  - [x] pickup in vr through close proximity, a sphere cast at the hand tracking position
   - [x] proper tooltip
   - [x] pickupable objects are identified through colliders with the Pickup layer
   - [x] the pickup colliders can be on children of the root object
   - [ ] option for restricted pickups, which enables the use of a user provided function which takes the position and rotation the object would have if it was not restricted, and returns the position and rotation it is allowed to have
   - [ ] most likely expose the position and rotation offset from the hand to the object (on desktop it would be from the head to the object)
+  - [ ] raising events
+    - [ ] pickup event
+    - [ ] drop event
+    - [ ] use down event
+    - [ ] use up event
 - [x] add an fresnel effect to interactive objects when they are in reach
-- [ ] when multiple objects are in reach, pick the closest one
-  - [ ] preferably determined using ray cast distance or some other api to find the closest point on the object
+- [x] when multiple objects are in reach, pick the closest one
+  - [x] preferably determined using ray cast distance or some other api to find the closest point on the object
 - [ ] possibly customizable highlight color per object
 - [ ] force interact objects to be on the interactive layer
 - [ ] support multiple interact scripts on one object, there's a few options:
@@ -30,3 +35,9 @@
 - [ ] make sure to null check everything that's held while foreign code could run since objects could get destroyed
 - [ ] maybe support modifying the exact grip transform at runtime
 - [x] calculate max raycast length, instead of just blindly using 100
+
+# VR Testing
+
+- [ ] what is the rotation of hand tracking data?
+- [ ] pointing at interactive objects
+- [ ] interacting with near objects
