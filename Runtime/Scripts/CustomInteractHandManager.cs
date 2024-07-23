@@ -33,7 +33,7 @@ namespace JanSharp
         private Vector3 hitPoint;
 
         private bool isHolding;
-        private float allowInputUseAtTime = -1;
+        private float pickedUpAt = -1;
         private Vector3 heldOffsetVector;
         private Quaternion heldOffsetRotation;
         private bool isHoldingUseButton;
@@ -45,7 +45,6 @@ namespace JanSharp
         // TODO: adjust based on feedback, also update CustomInteractBase proximity tooltip.
         private const float RaycastProximityMultiplierVR = 5f;
         private const float RaycastProximityMultiplierDesktop = 5f;
-        private const float AllowInputUseAfterHoldingFor = 0.1f;
 
         private VRCPlayerApi localPlayer;
         private bool isInVR = true;
@@ -267,7 +266,7 @@ namespace JanSharp
                 if (value)
                     activeInteract.DispatchOnInteract();
             }
-            if (hasActivePickup && isHolding && Time.time > allowInputUseAtTime)
+            if (hasActivePickup && isHolding && Time.time != pickedUpAt)
             {
                 if (value)
                 {
@@ -301,7 +300,7 @@ namespace JanSharp
                 return;
 
             isHolding = true;
-            allowInputUseAtTime = Time.time + AllowInputUseAfterHoldingFor;
+            pickedUpAt = Time.time;
 
             Transform exactGrip = activePickup.exactGrip;
             if (exactGrip == null)
