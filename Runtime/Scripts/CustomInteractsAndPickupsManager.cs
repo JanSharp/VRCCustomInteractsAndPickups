@@ -21,9 +21,13 @@ namespace JanSharp
         private LayerMask pickupLayer = (LayerMask)(1 << 13);
         private Vector3 desktopOffsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f);
         private const float HighlightTextScale = 0.5f;
-        private const float RaycastProximityMultiplier = 5f;
+        // TODO: adjust based on feedback, also update CustomInteractBase proximity tooltip.
+        private const float RaycastProximityMultiplierVR = 5f;
+        private const float RaycastProximityMultiplierDesktop = 5f;
 
         private VRCPlayerApi localPlayer;
+        private bool isInVR = true;
+        private float raycastProximityMultiplier = RaycastProximityMultiplierVR;
         private float eyeHeight = 2f;
         private float eyeHeightScale = 1f;
         private VRCPlayerApi.TrackingData head;
@@ -46,6 +50,8 @@ namespace JanSharp
         private void Start()
         {
             localPlayer = Networking.LocalPlayer;
+            isInVR = localPlayer.IsUserInVR();
+            raycastProximityMultiplier = isInVR ? RaycastProximityMultiplierVR : RaycastProximityMultiplierDesktop;
             UpdateEyeHeightLoop();
         }
 
@@ -133,7 +139,7 @@ namespace JanSharp
             if (interactive == null)
                 return null;
             hitPoint = hit.point;
-            if (Vector3.Distance(headPosition, hitPoint) > interactive.proximity * eyeHeightScale * RaycastProximityMultiplier)
+            if (Vector3.Distance(headPosition, hitPoint) > interactive.proximity * eyeHeightScale * raycastProximityMultiplier)
                 return null;
             return interactive;
         }
