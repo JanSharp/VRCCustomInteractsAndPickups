@@ -126,8 +126,12 @@ namespace JanSharp
 
         private CustomInteractiveBase TryGetInteractive(out bool isInteract)
         {
+            float maxDistance = 10f // Max proximity.
+                * ((5f - 2f) / 2f + 1f) // Max eyeHeightScale.
+                * raycastProximityMultiplier;
+
             isInteract = false;
-            if (!Physics.Raycast(headPosition, headForward, out RaycastHit hit, 100f, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
+            if (!Physics.Raycast(headPosition, headForward, out RaycastHit hit, maxDistance, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
                 return null;
             Transform hitTransform = hit.transform;
             if (hitTransform == null) // Some VRC internal that we're not allowed to access so we get null instead,

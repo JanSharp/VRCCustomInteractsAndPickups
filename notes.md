@@ -29,4 +29,4 @@
 - [ ] maybe a desktop key bind to highlight all interactive objects, mainly for debugging
 - [ ] make sure to null check everything that's held while foreign code could run since objects could get destroyed
 - [ ] maybe support modifying the exact grip transform at runtime
-- [ ] calculate max raycast length, instead of just blindly using 100
+- [x] calculate max raycast length, instead of just blindly using 100
