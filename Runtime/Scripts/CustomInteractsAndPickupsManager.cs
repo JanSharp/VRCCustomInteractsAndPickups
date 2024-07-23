@@ -1,4 +1,4 @@
-﻿using UdonSharp;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -20,6 +20,7 @@ namespace JanSharp
         private LayerMask interactLayer = (LayerMask)(1 << 8);
         private LayerMask pickupLayer = (LayerMask)(1 << 13);
         private Vector3 desktopOffsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f);
+        private const float HighlightTextScale = 0.5f;
         private const float RaycastProximityMultiplier = 4f;
 
         private VRCPlayerApi localPlayer;
@@ -166,7 +167,8 @@ namespace JanSharp
             Vector3 interactPosition = activeTransform.position;
             highlightTextRoot.position = interactPosition;
             highlightTextRoot.rotation = headRotation;
-            highlightTextTransform.localScale = Vector3.one * Vector3.Distance(headPosition, interactPosition);
+            float scale = Vector3.Distance(headPosition, interactPosition) * HighlightTextScale;
+            highlightTextTransform.localScale = Vector3.one * scale;
         }
 
         private float lastInputUse = -1;
