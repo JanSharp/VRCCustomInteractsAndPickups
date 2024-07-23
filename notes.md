@@ -12,13 +12,16 @@
   - [x] pickupable objects are identified through colliders with the Pickup layer
   - [x] the pickup colliders can be on children of the root object
   - [ ] option for restricted pickups, which enables the use of a user provided function which takes the position and rotation the object would have if it was not restricted, and returns the position and rotation it is allowed to have
-  - [ ] most likely expose the position and rotation offset from the hand to the object (on desktop it would be from the head to the object)
   - [x] raising events
     - [x] pickup event
     - [x] drop event
     - [x] use down event
     - [x] use up event
   - [ ] use text
+  - [ ] api
+    - [ ] isHeld
+    - [ ] heldHand
+  - [ ] most likely expose the position and rotation offset from the hand to the object (on desktop it would be from the head to the object)
 - [x] add an fresnel effect to interactive objects when they are in reach
 - [x] when multiple objects are in reach, pick the closest one
   - [x] preferably determined using ray cast distance or some other api to find the closest point on the object
