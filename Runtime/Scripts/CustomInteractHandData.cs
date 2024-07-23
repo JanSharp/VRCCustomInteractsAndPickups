@@ -308,9 +308,9 @@ namespace JanSharp
 
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
-            // Maybe use on release instead.
-            if (!value || !isHolding)
+            if (value || !isHolding)
                 return;
+            // Dropped on InputDropUp, matching VRCHat's behaviour.
             DropActivePickup();
         }
 
