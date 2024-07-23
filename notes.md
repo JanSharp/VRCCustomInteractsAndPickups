@@ -9,8 +9,8 @@
   - [ ] pickup in vr at a medium distance, using a ray cast directly from the hand tracking position
   - [ ] pickup in vr through close proximity, a sphere cast at the hand tracking position
   - [x] proper tooltip
-  - [ ] pickupable objects are identified through colliders with the Pickup layer
-  - [ ] the pickup colliders can be on children of the root object
+  - [x] pickupable objects are identified through colliders with the Pickup layer
+  - [x] the pickup colliders can be on children of the root object
   - [ ] option for restricted pickups, which enables the use of a user provided function which takes the position and rotation the object would have if it was not restricted, and returns the position and rotation it is allowed to have
   - [ ] most likely expose the position and rotation offset from the hand to the object (on desktop it would be from the head to the object)
 - [x] add an fresnel effect to interactive objects when they are in reach
