@@ -8,32 +8,20 @@ using TMPro;
 namespace JanSharp
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class CustomInteractsAndPickupsManager : UdonSharpBehaviour
+    public class CustomInteractHandData : UdonSharpBehaviour
     {
-        public Material highlightMat;
-        public GameObject highlightPartPrefab;
+        [System.NonSerialized] public VRCPlayerApi.TrackingDataType handType;
+        [System.NonSerialized] public Quaternion rotationNormalization;
+        [System.NonSerialized] public Vector3 offsetVectorShift;
+        [System.NonSerialized] public CustomInteractsAndPickupsManager manager;
+
         public Transform highlightTextRoot;
         public Transform highlightTextTransform;
         public TextMeshPro highlightText;
 
-        private int interactLayerNumber = 8;
-        private LayerMask interactLayer = (LayerMask)(1 << 8);
-        private LayerMask pickupLayer = (LayerMask)(1 << 13);
-        private Vector3 desktopOffsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f);
-        private const float HighlightTextScale = 0.5f;
-        // TODO: adjust based on feedback, also update CustomInteractBase proximity tooltip.
-        private const float RaycastProximityMultiplierVR = 5f;
-        private const float RaycastProximityMultiplierDesktop = 5f;
-
-        private VRCPlayerApi localPlayer;
-        private bool isInVR = true;
-        private float raycastProximityMultiplier = RaycastProximityMultiplierVR;
-        private float eyeHeight = 2f;
-        private float eyeHeightScale = 1f;
-        private VRCPlayerApi.TrackingData head;
-        private Vector3 headPosition;
-        private Quaternion headRotation;
-        private Vector3 headForward;
+        private Vector3 handPosition;
+        private Quaternion handRotation;
+        private Vector3 handForward;
 
         private bool hasActiveInteract;
         private bool hasActivePickup;
@@ -47,46 +35,34 @@ namespace JanSharp
         private Vector3 heldOffsetVector;
         private Quaternion heldOffsetRotation;
 
-        private void Start()
+        private int interactLayerNumber = 8;
+        private LayerMask interactLayer = (LayerMask)(1 << 8);
+        private LayerMask pickupLayer = (LayerMask)(1 << 13);
+        private const float HighlightTextScale = 0.5f;
+        // TODO: adjust based on feedback, also update CustomInteractBase proximity tooltip.
+        private const float RaycastProximityMultiplierVR = 5f;
+        private const float RaycastProximityMultiplierDesktop = 5f;
+
+        private VRCPlayerApi localPlayer;
+        private bool isInVR = true;
+        private float raycastProximityMultiplier = RaycastProximityMultiplierVR;
+        [System.NonSerialized] public float eyeHeightScale = 1f;
+
+        public void Initialize()
         {
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
             raycastProximityMultiplier = isInVR ? RaycastProximityMultiplierVR : RaycastProximityMultiplierDesktop;
-            UpdateEyeHeightLoop();
         }
 
-        public override void OnAvatarEyeHeightChanged(VRCPlayerApi player, float prevEyeHeightAsMeters)
+        public void SetEyeHeightScale(float eyeHeightScale)
         {
-            if (!player.isLocal)
+            if (this.eyeHeightScale == eyeHeightScale)
                 return;
-            UpdatePlayerEyeHeight();
+            this.eyeHeightScale = eyeHeightScale;
         }
 
-        public override void OnAvatarChanged(VRCPlayerApi player)
-        {
-            if (!player.isLocal)
-                return;
-            UpdatePlayerEyeHeight();
-        }
-
-        /// <summary>
-        /// <para>Major trust issues. The 2 events above should handle everything already.</para>
-        /// </summary>
-        public void UpdateEyeHeightLoop()
-        {
-            UpdatePlayerEyeHeight();
-            SendCustomEventDelayedSeconds(nameof(UpdateEyeHeightLoop), 10f);
-        }
-
-        private void UpdatePlayerEyeHeight()
-        {
-            eyeHeight = localPlayer.GetAvatarEyeHeightAsMeters();
-            // Being twice has big only increases scale by 0.5f instead of 1f.
-            // Being twice as small only reduces scale by 0.25f instead of 0.5f.
-            eyeHeightScale = (eyeHeight / 2f - 1f) / 2f + 1f;
-        }
-
-        private void Update()
+        public void UpdateHand()
         {
             if (isHolding)
             {
@@ -107,21 +83,32 @@ namespace JanSharp
                 SetActiveInteract((CustomInteract)newActiveScript);
             else
                 SetActivePickup((CustomPickup)newActiveScript);
+
+            // FetchHandValues(handType, rotationNormalization);
+            // CustomInteractiveBase newActiveScript = TryGetInteractive(handPosition, handForward, out bool isInteract);
         }
 
         private void UpdateHeldPickup()
         {
             FetchHeadValues();
-            activeTransform.position = headPosition + headRotation * heldOffsetVector;
-            activeTransform.rotation = headRotation * heldOffsetRotation;
+            activeTransform.position = handPosition + handRotation * heldOffsetVector;
+            activeTransform.rotation = handRotation * heldOffsetRotation;
         }
 
         private void FetchHeadValues()
         {
-            head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-            headPosition = head.position;
-            headRotation = head.rotation;
-            headForward = headRotation * Vector3.forward;
+            VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+            handPosition = head.position;
+            handRotation = head.rotation;
+            handForward = handRotation * Vector3.forward;
+        }
+
+        private void FetchHandValues(CustomInteractHandData data)
+        {
+            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(data.handType);
+            handPosition = hand.position;
+            handRotation = hand.rotation * data.rotationNormalization;
+            handForward = handRotation * Vector3.forward;
         }
 
         private CustomInteractiveBase TryGetInteractive(out bool isInteract)
@@ -131,7 +118,7 @@ namespace JanSharp
                 * raycastProximityMultiplier;
 
             isInteract = false;
-            if (!Physics.Raycast(headPosition, headForward, out RaycastHit hit, maxDistance, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
+            if (!Physics.Raycast(handPosition, handForward, out RaycastHit hit, maxDistance, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
                 return null;
             Transform hitTransform = hit.transform;
             if (hitTransform == null) // Some VRC internal that we're not allowed to access so we get null instead,
@@ -143,7 +130,7 @@ namespace JanSharp
             if (interactive == null)
                 return null;
             hitPoint = hit.point;
-            if (Vector3.Distance(headPosition, hitPoint) > interactive.proximity * eyeHeightScale * raycastProximityMultiplier)
+            if (Vector3.Distance(handPosition, hitPoint) > interactive.proximity * eyeHeightScale * raycastProximityMultiplier)
                 return null;
             return interactive;
         }
@@ -186,7 +173,7 @@ namespace JanSharp
         {
             activeScript = newActiveScript;
             activeTransform = activeScript.transform;
-            activeScript.manager = this;
+            activeScript.manager = manager;
             activeScript.ShowHighlight();
             UpdateHighlightText();
             ShowHighlightText();
@@ -210,8 +197,8 @@ namespace JanSharp
             // TODO: Maybe calculate the total bounds of all renderers and use the center of the bounds instead.
             Vector3 interactPosition = activeTransform.position;
             highlightTextRoot.position = interactPosition;
-            highlightTextRoot.rotation = headRotation;
-            float scale = Vector3.Distance(headPosition, interactPosition) * HighlightTextScale;
+            highlightTextRoot.rotation = handRotation;
+            float scale = Vector3.Distance(handPosition, interactPosition) * HighlightTextScale;
             highlightTextTransform.localScale = Vector3.one * scale;
         }
 
@@ -244,11 +231,11 @@ namespace JanSharp
             if (exactGrip == null)
             {
                 // Desktop, move to hand.
-                Quaternion inverseHeadRotation = Quaternion.Inverse(headRotation);
-                Vector3 distanceFromHead = inverseHeadRotation * (hitPoint - headPosition);
-                heldOffsetVector = inverseHeadRotation * (activeTransform.position - headPosition);
-                heldOffsetVector = heldOffsetVector - distanceFromHead + desktopOffsetVectorShift;
-                heldOffsetRotation = inverseHeadRotation * activeTransform.rotation;
+                Quaternion inverseHandRotation = Quaternion.Inverse(handRotation);
+                Vector3 distanceFromHead = inverseHandRotation * (hitPoint - handPosition);
+                heldOffsetVector = inverseHandRotation * (activeTransform.position - handPosition);
+                heldOffsetVector = heldOffsetVector - distanceFromHead + offsetVectorShift;
+                heldOffsetRotation = inverseHandRotation * activeTransform.rotation;
             }
             else
             {
@@ -256,7 +243,7 @@ namespace JanSharp
                 Quaternion activeRotation = activeTransform.rotation;
                 Vector3 offsetVector = Quaternion.Inverse(activeRotation) * (activeTransform.position - exactGrip.position);
                 heldOffsetRotation = Quaternion.Inverse(exactGrip.rotation) * activeRotation;
-                heldOffsetVector = heldOffsetRotation * offsetVector + desktopOffsetVectorShift;
+                heldOffsetVector = heldOffsetRotation * offsetVector + offsetVectorShift;
             }
 
             activePickup.HideHighlight();
