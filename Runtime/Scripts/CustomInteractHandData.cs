@@ -74,7 +74,7 @@ namespace JanSharp
                 return;
             }
 
-            FetchHeadValues(); // TODO: fix
+            FetchHandValues();
 
             CustomInteractiveBase newActiveScript;
             bool isInteract;
@@ -111,24 +111,16 @@ namespace JanSharp
 
         private void UpdateHeldPickup()
         {
-            FetchHeadValues();
+            FetchHandValues();
             activeTransform.position = handPosition + handRotation * heldOffsetVector;
             activeTransform.rotation = handRotation * heldOffsetRotation;
         }
 
-        private void FetchHeadValues()
+        private void FetchHandValues()
         {
-            VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-            handPosition = head.position;
-            handRotation = head.rotation;
-            handForward = handRotation * Vector3.forward;
-        }
-
-        private void FetchHandValues(CustomInteractHandData data)
-        {
-            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(data.trackingHandType);
+            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
             handPosition = hand.position;
-            handRotation = hand.rotation * data.rotationNormalization;
+            handRotation = hand.rotation * rotationNormalization;
             handForward = handRotation * Vector3.forward;
         }
 
