@@ -1,4 +1,4 @@
-﻿using UdonSharp;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -248,8 +248,9 @@ namespace JanSharp
             // TODO: Maybe calculate the total bounds of all renderers and use the center of the bounds instead.
             Vector3 interactPosition = activeTransform.position;
             highlightTextRoot.position = interactPosition;
-            highlightTextRoot.rotation = handRotation;
-            float scale = Vector3.Distance(handPosition, interactPosition) * HighlightTextScale;
+            VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+            highlightTextRoot.rotation = head.rotation;
+            float scale = Vector3.Distance(head.position, interactPosition) * HighlightTextScale;
             highlightTextTransform.localScale = Vector3.one * scale;
         }
 
