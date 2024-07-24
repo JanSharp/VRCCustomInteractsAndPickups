@@ -53,5 +53,12 @@ namespace JanSharp
             foreach (UdonSharpBehaviour listener in listeners)
                 listener.SendCustomEvent("_onPickupUseUp");
         }
+
+        public void Drop()
+        {
+            if (!isHeld)
+                return;
+            manager.DropPickup(this);
+        }
     }
 }

@@ -89,5 +89,13 @@ namespace JanSharp
             if (isInVR)
                 rightHand.UpdateHand();
         }
+
+        public void DropPickup(CustomPickup pickup)
+        {
+            if (pickup.heldTrackingData == VRCPlayerApi.TrackingDataType.RightHand)
+                rightHand.DropActivePickup();
+            else
+                leftHand.DropActivePickup();
+        }
     }
 }

@@ -385,7 +385,7 @@ namespace JanSharp
             activePickup.DispatchOnPickup();
         }
 
-        private void DropActivePickup()
+        public void DropActivePickup()
         {
             isHolding = false;
             CustomPickup prevActivePickup = activePickup;
