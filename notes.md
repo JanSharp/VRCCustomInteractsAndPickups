@@ -46,6 +46,7 @@
 - [ ] teleport dummy vrc pickups to the hand when interacting or picking up something to prevent interaction with vrc interacts, vrc pickups or UIs when interacting or holding one of the custom interacts/pickups
 - [ ] handle null interactText and useText
 - [ ] should disabled items automatically get dropped?
+- [ ] editor utility to replace VRCPickup with CustomPickup and vice versa
 
 # VR Testing
 
