@@ -16,6 +16,6 @@
     "com.vrchat.worlds": "^3.4.x",
     "com.jansharp.common": ">=0.1.0"
   },
-  "url": "https://github.com/JanSharp/VRCCustomInteracts/releases/download/v0.1.0/com.jansharp.custom-interacts-and-pickups.zip",
-  "changelogUrl": "https://github.com/JanSharp/VRCCustomInteracts/blob/v0.1.0/CHANGELOG.md"
+  "url": "https://github.com/JanSharp/VRCCustomInteractsAndPickups/releases/download/v0.1.0/com.jansharp.custom-interacts-and-pickups.zip",
+  "changelogUrl": "https://github.com/JanSharp/VRCCustomInteractsAndPickups/blob/v0.1.0/CHANGELOG.md"
 }
