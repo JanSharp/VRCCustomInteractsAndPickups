@@ -296,7 +296,7 @@ namespace JanSharp
         private float lastInputUse = -1;
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            if ((isInVR && args.handType != handType) || lastInputUse == Time.time)
+            if ((isInVR && args.handType != handType) || lastInputUse == Time.time) // TODO: this does not prevent double clicks in VR?
                 return;
             // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
             // VRChat is raising the InputUse event twice when I click the mouse button once.
