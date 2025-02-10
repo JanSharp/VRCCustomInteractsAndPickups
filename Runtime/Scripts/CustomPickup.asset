@@ -99,7 +99,7 @@ MonoBehaviour:
         tall only multiplies proximity by 1.5x.
 
         Objects can also be reachable
-        when pointing at them. Imagine finger guns, the index finger is the  pointing
+        when pointing at them. Imagine finger guns, the index finger is the pointing
         direction. When pointing at objects, the distance at which they are reachable
         is 5x the Proximity while in VR, 5x on desktop.'
     - Name: 

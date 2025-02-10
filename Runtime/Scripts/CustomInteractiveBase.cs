@@ -12,7 +12,7 @@ namespace JanSharp
             + "a radius of the defined Proximity value. Scaling eye height up or down affects proximity 2 to "
             + "1, which is to say being 2x tall only multiplies proximity by 1.5x.\n"
             + "Objects can also be reachable when pointing at them. Imagine finger guns, the index finger is "
-            + "the  pointing direction. When pointing at objects, the distance at which they are reachable "
+            + "the pointing direction. When pointing at objects, the distance at which they are reachable "
             + "is 5x the Proximity while in VR, 5x on desktop.")]
         [Range(0, 10)]
         public float proximity = 0.5f;

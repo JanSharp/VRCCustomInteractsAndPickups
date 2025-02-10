@@ -47,6 +47,9 @@
 - [ ] handle null interactText and useText
 - [ ] should disabled items automatically get dropped?
 - [ ] editor utility to replace VRCPickup with CustomPickup and vice versa
+- [ ] use PlayHapticEventInHand for when an interactable object comes in range
+  - [ ] also for when it goes out of range?
+  - [ ] also a different one for when there's already one in range but another comes in range and takes priority?
 
 # VR Testing
 
