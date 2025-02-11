@@ -7,6 +7,7 @@ using VRC.Udon.Common;
 namespace JanSharp
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractsAndPickupsManager.prefab
     public class CustomInteractsAndPickupsManager : UdonSharpBehaviour
     {
         public Material highlightMat;
@@ -92,7 +93,7 @@ namespace JanSharp
 
         public void DropPickup(CustomPickup pickup)
         {
-            if (pickup.heldTrackingData == VRCPlayerApi.TrackingDataType.RightHand)
+            if (pickup.heldTrackingType == VRCPlayerApi.TrackingDataType.RightHand)
                 rightHand.DropActivePickup();
             else
                 leftHand.DropActivePickup();
