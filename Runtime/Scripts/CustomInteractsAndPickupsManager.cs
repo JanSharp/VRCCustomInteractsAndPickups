@@ -46,7 +46,7 @@ namespace JanSharp
                 leftHand.rotationNormalization = Quaternion.identity;
                 leftHand.offsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f); // TODO: should this scale with eye height.
                 leftHand.manager = this;
-                rightHand.gameObject.SetActive(false);
+                Destroy(rightHand.gameObject); // Disabled scripts apparently still get VRChat's InoutFoo events, so destroy it instead.
             }
             leftHand.Initialize();
             if (isInVR)
