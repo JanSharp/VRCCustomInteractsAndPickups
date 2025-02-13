@@ -20,6 +20,7 @@ namespace JanSharp
         [System.NonSerialized] public CustomInteractsAndPickupsManager manager;
         protected bool initialized;
         protected CustomInteractHighlightPart[] highlightParts;
+        private int shownCount = 0;
 
         protected void EnsureHasManagerRef()
         {
@@ -45,8 +46,10 @@ namespace JanSharp
         public void ShowHighlight()
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  ShowHighlight");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  ShowHighlight - shownCount: {shownCount}");
             #endif
+            if ((++shownCount) != 1)
+                return;
             Initialize();
             foreach (CustomInteractHighlightPart part in highlightParts)
                 part.gameObject.SetActive(true);
@@ -55,8 +58,10 @@ namespace JanSharp
         public void HideHighlight()
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  HideHighlight");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  HideHighlight - shownCount: {shownCount}");
             #endif
+            if ((--shownCount) != 0)
+                return;
             Initialize();
             foreach (CustomInteractHighlightPart part in highlightParts)
                 part.gameObject.SetActive(false);
