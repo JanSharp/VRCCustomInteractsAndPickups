@@ -318,7 +318,7 @@ namespace JanSharp
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputUse - value: {value}, lastInputUse == Time.time: {lastInputUse == Time.time}");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputUse - value: {value}, args.handType == handType: {args.handType == handType}, lastInputUse == Time.time: {lastInputUse == Time.time}");
             #endif
             if ((isInVR && args.handType != handType) || lastInputUse == Time.time) // TODO: this does not prevent double clicks in VR?
                 return;
@@ -354,7 +354,7 @@ namespace JanSharp
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputGrab - value: {value}");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputGrab - value: {value}, args.handType == handType: {args.handType == handType}");
             #endif
             if ((isInVR && args.handType != handType) || !hasActivePickup)
                 return;
@@ -371,7 +371,7 @@ namespace JanSharp
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputDrop - value: {value}");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputDrop - value: {value}, args.handType == handType: {args.handType == handType}");
             #endif
             if ((isInVR && args.handType != handType) || value || !isHolding)
                 return;
