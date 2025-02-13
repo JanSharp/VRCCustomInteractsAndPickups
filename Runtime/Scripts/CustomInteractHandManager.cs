@@ -102,6 +102,7 @@ namespace JanSharp
                         SetActiveInteract((CustomInteract)newActiveScript);
                     else
                         SetActivePickup((CustomPickup)newActiveScript);
+                    return;
                 }
             }
 
