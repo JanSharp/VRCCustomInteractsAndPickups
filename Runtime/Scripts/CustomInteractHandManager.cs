@@ -16,6 +16,10 @@ namespace JanSharp
         [System.NonSerialized] public Vector3 offsetVectorShift;
         [System.NonSerialized] public CustomInteractsAndPickupsManager manager;
 
+        [SerializeField] private Transform debugHand;
+        [SerializeField] private Transform debugSphere;
+        [SerializeField] private Transform debugLine;
+
         public Transform interactTextRoot;
         public Transform interactTextTransform;
         public TextMeshPro interactTextElem;
@@ -77,6 +81,11 @@ namespace JanSharp
 
         public void UpdateHand()
         {
+            #if CustomInteractsAndPickupsDebug
+            debugSphere.gameObject.SetActive(false);
+            debugLine.gameObject.SetActive(false);
+            #endif
+
             if (isHolding)
             {
                 UpdateHeldPickup();
@@ -90,15 +99,11 @@ namespace JanSharp
             if (isInVR)
             {
                 newActiveScript = TryGetNearInteractive(out isInteract);
-                if (newActiveScript == activeScript)
-                {
-                    UpdateInteractText();
-                    return;
-                }
-
                 if (newActiveScript != null)
                 {
-                    if (isInteract)
+                    if (newActiveScript == activeScript)
+                        UpdateInteractText();
+                    else if (isInteract)
                         SetActiveInteract((CustomInteract)newActiveScript);
                     else
                         SetActivePickup((CustomPickup)newActiveScript);
@@ -133,6 +138,9 @@ namespace JanSharp
             handPosition = hand.position;
             handRotation = hand.rotation * rotationNormalization;
             handForward = handRotation * Vector3.forward;
+            #if CustomInteractsAndPickupsDebug
+            debugHand.SetPositionAndRotation(handPosition, handRotation);
+            #endif
         }
 
         private CustomInteractiveBase TryGetInteractive(out bool isInteract)
@@ -141,12 +149,22 @@ namespace JanSharp
                 * ((5f - 2f) / 2f + 1f) // Max eyeHeightScale.
                 * raycastProximityMultiplier;
 
+            #if CustomInteractsAndPickupsDebug
+            debugLine.gameObject.SetActive(true);
+            debugLine.position = handPosition;
+            debugLine.rotation = Quaternion.LookRotation(handForward, Vector3.up);
+            debugLine.localScale = new Vector3(1f, 1f, maxDistance);
+            #endif
+
             isInteract = false;
             if (!Physics.Raycast(handPosition, handForward, out RaycastHit hit, maxDistance, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
                 return null;
             Transform hitTransform = hit.transform;
             if (hitTransform == null) // Some VRC internal that we're not allowed to access so we get null instead,
                 return null; // even though in normal Unity if we have a hit... this is not possible to be null.
+            #if CustomInteractsAndPickupsDebug
+            debugLine.localScale = new Vector3(1f, 1f, Vector3.Distance(handPosition, hit.point));
+            #endif
             isInteract = hitTransform.gameObject.layer == interactLayerNumber;
             CustomInteractiveBase interactive = isInteract
                 ? (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomInteract>()
@@ -192,6 +210,15 @@ namespace JanSharp
                 closestDistance = distance;
                 closestHitPoint = closestPoint;
             }
+
+            #if CustomInteractsAndPickupsDebug
+            if (closestInteractive != null)
+            {
+                debugSphere.gameObject.SetActive(true);
+                debugSphere.position = closestHitPoint;
+                debugSphere.localScale = Vector3.one * (closestInteractive.proximity * eyeHeightScale * 2f);
+            }
+            #endif
 
             isInteract = closestIsInteract;
             hitPoint = closestHitPoint;

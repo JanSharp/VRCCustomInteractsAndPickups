@@ -23,7 +23,7 @@
   - [x] api
     - [x] isHeld
     - [x] heldHand
-    - [ ] setting held items...
+    - [x] setting held items...
   - [x] most likely expose the position and rotation offset from the hand to the object (on desktop it would be from the head to the object)
   - [ ] improve api. Just like make it better idk
 - [x] add an fresnel effect to interactive objects when they are in reach
@@ -54,6 +54,9 @@
   - [ ] test without any interactive objects nearby
   - [ ] test with a few interactive objects nearby
   - [ ] test with many interactive objects nearby
+- [ ] make auto hold actually not rely on the InputDrop event but instead
+- [ ] option to make interactable objects only interactive when in front of the player. Not necessarily in view, but most likely in view
+- [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
 
 # VR Testing
 
