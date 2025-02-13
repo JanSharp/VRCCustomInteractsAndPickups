@@ -21,6 +21,9 @@ namespace JanSharp
 
         private void Start()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  Start");
+            #endif
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
             if (isInVR)
@@ -53,6 +56,9 @@ namespace JanSharp
 
         public override void OnAvatarEyeHeightChanged(VRCPlayerApi player, float prevEyeHeightAsMeters)
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  OnAvatarEyeHeightChanged - player.isLocal: {player.isLocal}");
+            #endif
             if (!player.isLocal)
                 return;
             UpdatePlayerEyeHeight();
@@ -60,6 +66,9 @@ namespace JanSharp
 
         public override void OnAvatarChanged(VRCPlayerApi player)
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  OnAvatarChanged - player.isLocal: {player.isLocal}");
+            #endif
             if (!player.isLocal)
                 return;
             UpdatePlayerEyeHeight();
@@ -94,6 +103,9 @@ namespace JanSharp
 
         public void DropPickup(CustomPickup pickup)
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  DropPickup");
+            #endif
             if (pickup.heldTrackingType == VRCPlayerApi.TrackingDataType.RightHand)
                 rightHand.DropActivePickup();
             else
@@ -102,6 +114,9 @@ namespace JanSharp
 
         public CustomInteractHandManager GetHandForTrackingType(VRCPlayerApi.TrackingDataType trackingType)
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  GetHandForTrackingType");
+            #endif
             return trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHand : leftHand;
         }
     }

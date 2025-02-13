@@ -32,30 +32,45 @@ namespace JanSharp
 
         public void DispatchOnPickup()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickup");
+            #endif
             foreach (UdonSharpBehaviour listener in listeners)
                 listener.SendCustomEvent("_onPickup");
         }
 
         public void DispatchOnDrop()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnDrop");
+            #endif
             foreach (UdonSharpBehaviour listener in listeners)
                 listener.SendCustomEvent("_onDrop");
         }
 
         public void DispatchOnPickupUseDown()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickupUseDown");
+            #endif
             foreach (UdonSharpBehaviour listener in listeners)
                 listener.SendCustomEvent("_onPickupUseDown");
         }
 
         public void DispatchOnPickupUseUp()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickupUseUp");
+            #endif
             foreach (UdonSharpBehaviour listener in listeners)
                 listener.SendCustomEvent("_onPickupUseUp");
         }
 
         public void Drop()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  Drop");
+            #endif
             if (!isHeld)
                 return;
             manager.DropPickup(this);
@@ -63,6 +78,9 @@ namespace JanSharp
 
         public void ForceBeingPickedUp(VRCPlayerApi.TrackingDataType heldTrackingType)
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUp");
+            #endif
             EnsureHasManagerRef();
             CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
             hand.ForcePickup(this);
@@ -73,6 +91,9 @@ namespace JanSharp
             Vector3 heldOffsetVector,
             Quaternion heldOffsetRotation)
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUp");
+            #endif
             this.heldOffsetVector = heldOffsetVector;
             this.heldOffsetRotation = heldOffsetRotation;
             EnsureHasManagerRef();

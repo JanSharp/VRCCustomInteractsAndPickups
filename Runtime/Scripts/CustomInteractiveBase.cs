@@ -23,6 +23,9 @@ namespace JanSharp
 
         protected void EnsureHasManagerRef()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  EnsureHasManagerRef");
+            #endif
             if (manager != null)
                 return;
             manager = SingletonsUtil.GetSingleton<CustomInteractsAndPickupsManager>(nameof(CustomInteractsAndPickupsManager));
@@ -30,6 +33,9 @@ namespace JanSharp
 
         private void Initialize()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  Initialize");
+            #endif
             if (initialized)
                 return;
             initialized = true;
@@ -38,6 +44,9 @@ namespace JanSharp
 
         public void ShowHighlight()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  ShowHighlight");
+            #endif
             Initialize();
             foreach (CustomInteractHighlightPart part in highlightParts)
                 part.gameObject.SetActive(true);
@@ -45,6 +54,9 @@ namespace JanSharp
 
         public void HideHighlight()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  HideHighlight");
+            #endif
             Initialize();
             foreach (CustomInteractHighlightPart part in highlightParts)
                 part.gameObject.SetActive(false);
@@ -52,6 +64,9 @@ namespace JanSharp
 
         protected void GenerateHighlight()
         {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  GenerateHighlight");
+            #endif
             MeshRenderer[] renderers = this.GetComponentsInChildren<MeshRenderer>(includeInactive: true);
             highlightParts = new CustomInteractHighlightPart[renderers.Length];
             int partsCount = 0;
