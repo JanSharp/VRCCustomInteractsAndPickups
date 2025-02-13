@@ -321,7 +321,7 @@ namespace JanSharp
             #if CustomInteractsAndPickupsDebug
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputUse - value: {value}, args.handType == handType: {args.handType == handType}, lastInputUse == Time.time: {lastInputUse == Time.time}");
             #endif
-            if ((isInVR && args.handType != handType) || lastInputUse == Time.time) // TODO: this does not prevent double clicks in VR?
+            if ((isInVR && args.handType != handType) || lastInputUse == Time.time)
                 return;
             // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
             // VRChat is raising the InputUse event twice when I click the mouse button once.
