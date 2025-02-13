@@ -7,6 +7,7 @@ using VRC.Udon.Common;
 namespace JanSharp
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [SingletonDependency(typeof(SingletonManager))] // Not used in this script, but interacts/pickups do need it.
     [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractsAndPickupsManager.prefab
     public class CustomInteractsAndPickupsManager : UdonSharpBehaviour
     {
@@ -97,6 +98,11 @@ namespace JanSharp
                 rightHand.DropActivePickup();
             else
                 leftHand.DropActivePickup();
+        }
+
+        public CustomInteractHandManager GetHandForTrackingType(VRCPlayerApi.TrackingDataType trackingType)
+        {
+            return trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHand : leftHand;
         }
     }
 }

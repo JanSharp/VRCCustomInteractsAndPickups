@@ -26,7 +26,7 @@ namespace JanSharp
         /// <see cref="VRCPlayerApi.TrackingDataType.RightHand"/> (VR) or
         /// <see cref="VRCPlayerApi.TrackingDataType.Head"/> (desktop).</para>
         /// </summary>
-        [System.NonSerialized] public VRCPlayerApi.TrackingDataType heldTrackingData;
+        [System.NonSerialized] public VRCPlayerApi.TrackingDataType heldTrackingType;
         [System.NonSerialized] public Vector3 heldOffsetVector;
         [System.NonSerialized] public Quaternion heldOffsetRotation;
 
@@ -59,6 +59,25 @@ namespace JanSharp
             if (!isHeld)
                 return;
             manager.DropPickup(this);
+        }
+
+        public void ForceBeingPickedUp(VRCPlayerApi.TrackingDataType heldTrackingType)
+        {
+            EnsureHasManagerRef();
+            CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
+            hand.ForcePickup(this);
+        }
+
+        public void ForceBeingPickedUp(
+            VRCPlayerApi.TrackingDataType heldTrackingType,
+            Vector3 heldOffsetVector,
+            Quaternion heldOffsetRotation)
+        {
+            this.heldOffsetVector = heldOffsetVector;
+            this.heldOffsetRotation = heldOffsetRotation;
+            EnsureHasManagerRef();
+            CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
+            hand.ForcePickupUsingExistingOffset(this);
         }
     }
 }

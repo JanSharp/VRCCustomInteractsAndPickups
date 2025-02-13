@@ -349,20 +349,17 @@ namespace JanSharp
             DropActivePickup();
         }
 
-        private void PickupActivePickup()
+        private void CalculateActivePickupOffsets()
         {
-            isHolding = true;
-            pickedUpAt = Time.time;
-
             Transform exactGrip = activePickup.exactGrip;
             if (exactGrip == null)
             {
                 // Move to hand.
                 // TODO: add interpolation
                 Quaternion inverseHandRotation = Quaternion.Inverse(handRotation);
-                Vector3 distanceFromHead = inverseHandRotation * (hitPoint - handPosition);
+                Vector3 distanceFromHand = inverseHandRotation * (hitPoint - handPosition);
                 heldOffsetVector = inverseHandRotation * (activeTransform.position - handPosition);
-                heldOffsetVector = heldOffsetVector - distanceFromHead + offsetVectorShift;
+                heldOffsetVector = heldOffsetVector - distanceFromHand + offsetVectorShift;
                 heldOffsetRotation = inverseHandRotation * activeTransform.rotation;
             }
             else
@@ -373,16 +370,65 @@ namespace JanSharp
                 heldOffsetRotation = Quaternion.Inverse(exactGrip.rotation) * activeRotation;
                 heldOffsetVector = heldOffsetRotation * offsetVector + offsetVectorShift;
             }
+        }
+
+        private void PickupActivePickup(bool skipOffsetCalculation = false)
+        {
+            isHolding = true;
+            pickedUpAt = Time.time;
+
+            if (!skipOffsetCalculation)
+                CalculateActivePickupOffsets();
 
             activePickup.HideHighlight();
             HideInteractText();
             UpdateUseText();
 
             activePickup.isHeld = true;
-            activePickup.heldTrackingData = trackingHandType;
+            activePickup.heldTrackingType = trackingHandType;
             activePickup.heldOffsetVector = heldOffsetVector;
             activePickup.heldOffsetRotation = heldOffsetRotation;
             activePickup.DispatchOnPickup();
+        }
+
+        private Vector3 GetClosestPoint(CustomPickup pickup)
+        {
+            float closestDistance = float.PositiveInfinity;
+            Vector3 closestHitPoint = pickup.transform.position; // Default for when there are 0 colliders.
+            foreach (Collider collider in pickup.GetComponentsInChildren<Collider>())
+            {
+                if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
+                    continue; // even though in normal Unity... this is not possible to be null.
+                Vector3 closestPoint = collider.ClosestPoint(handPosition);
+                float distance = Vector3.Distance(handPosition, closestPoint);
+                if (distance >= closestDistance)
+                    continue;
+                closestDistance = distance;
+                closestHitPoint = closestPoint;
+            }
+            return closestHitPoint;
+        }
+
+        public void ForcePickup(CustomPickup pickup)
+        {
+            FetchHandValues();
+            if (pickup.exactGrip == null)
+                hitPoint = GetClosestPoint(pickup);
+            // TODO: remove pointless enabling and disabling of the highlight
+            SetActivePickup(pickup);
+            PickupActivePickup();
+        }
+
+        public void ForcePickupUsingExistingOffset(CustomPickup pickup)
+        {
+            FetchHandValues();
+            if (pickup.exactGrip == null)
+                hitPoint = GetClosestPoint(pickup);
+            // TODO: remove pointless enabling and disabling of the highlight
+            SetActivePickup(pickup);
+            heldOffsetVector = pickup.heldOffsetVector;
+            heldOffsetRotation = pickup.heldOffsetRotation;
+            PickupActivePickup(skipOffsetCalculation: true);
         }
 
         public void DropActivePickup()

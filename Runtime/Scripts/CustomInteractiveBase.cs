@@ -21,6 +21,13 @@ namespace JanSharp
         protected bool initialized;
         protected CustomInteractHighlightPart[] highlightParts;
 
+        protected void EnsureHasManagerRef()
+        {
+            if (manager != null)
+                return;
+            manager = SingletonsUtil.GetSingleton<CustomInteractsAndPickupsManager>(nameof(CustomInteractsAndPickupsManager));
+        }
+
         private void Initialize()
         {
             if (initialized)

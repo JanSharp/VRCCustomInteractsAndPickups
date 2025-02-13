@@ -50,6 +50,10 @@
 - [ ] use PlayHapticEventInHand for when an interactable object comes in range
   - [ ] also for when it goes out of range?
   - [ ] also a different one for when there's already one in range but another comes in range and takes priority?
+- [ ] measure update performance, similar to how lockstep update performance is measured
+  - [ ] test without any interactive objects nearby
+  - [ ] test with a few interactive objects nearby
+  - [ ] test with many interactive objects nearby
 
 # VR Testing
 

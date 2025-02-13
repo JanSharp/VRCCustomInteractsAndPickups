@@ -650,13 +650,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: heldTrackingData
+      Data: heldTrackingType
     - Name: $v
       Entry: 7
       Data: 37|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: heldTrackingData
+      Data: heldTrackingType
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 38|System.RuntimeType, mscorlib
