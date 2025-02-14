@@ -4,12 +4,11 @@ using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common;
 
-namespace JanSharp
+namespace JanSharp.Internal
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     [SingletonDependency(typeof(SingletonManager))] // Not used in this script, but interacts/pickups do need it.
-    [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractablesManager.prefab
-    public class CustomInteractablesManager : UdonSharpBehaviour
+    public class CustomInteractablesManager : CustomInteractablesManagerAPI
     {
         public Material highlightMat;
         public GameObject highlightPartPrefab;
@@ -18,6 +17,10 @@ namespace JanSharp
 
         private VRCPlayerApi localPlayer;
         private bool isInVR = true;
+
+        public override CustomPickup HeldInLeftHand => leftHand.activePickup;
+        public override CustomPickup HeldInRightHand => rightHand.activePickup;
+        public override CustomPickup HeldOnDesktop => leftHand.activePickup;
 
         private void Start()
         {

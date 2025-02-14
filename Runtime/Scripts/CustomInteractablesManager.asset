@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 1
   hasInteractEvent: 0
-  scriptID: 3157774570997226636
+  scriptID: -5325238605416304029
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -170,7 +170,7 @@ MonoBehaviour:
       Data: 9|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: JanSharp.CustomInteractHandManager, JanSharp.CustomInteractsAndPickups
+      Data: JanSharp.Internal.CustomInteractHandManager, JanSharp.CustomInteractsAndPickups
     - Name: 
       Entry: 8
       Data: 

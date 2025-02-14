@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿using JanSharp.Internal;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;

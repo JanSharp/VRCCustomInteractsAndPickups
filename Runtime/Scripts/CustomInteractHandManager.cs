@@ -5,7 +5,7 @@ using VRC.Udon;
 using VRC.Udon.Common;
 using TMPro;
 
-namespace JanSharp
+namespace JanSharp.Internal
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomInteractHandManager : UdonSharpBehaviour
@@ -41,7 +41,7 @@ namespace JanSharp
         private bool hasActiveInteract;
         private bool hasActivePickup;
         private CustomInteract activeInteract;
-        private CustomPickup activePickup;
+        public CustomPickup activePickup;
         private CustomInteractableBase activeScript;
         private Transform activeTransform;
         private Vector3 hitPoint;
