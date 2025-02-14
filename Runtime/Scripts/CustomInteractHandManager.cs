@@ -16,6 +16,7 @@ namespace JanSharp.Internal
         [System.NonSerialized] public Vector3 offsetVectorShift;
         [System.NonSerialized] public CustomInteractablesManager manager;
 
+        // DEBUG
         [SerializeField] private Transform debugRaycast;
         [SerializeField] private Transform debugSphere;
         [SerializeField] private Transform debugLine;
