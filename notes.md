@@ -58,6 +58,49 @@
 - [ ] option to make interactable objects only interactive when in front of the player. Not necessarily in view, but most likely in view
 - [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
 
+# Coordinate Systems
+
+- head tracking data
+  - origin: camera position
+  - forward: camera forward
+  - up: camera up
+- left hand tracking data
+  - origin: center of palm (maybe slightly shifted towards fingers?)
+  - forward: slightly angled higher than index finger
+  - up: right, away from the palm
+- right hand tracking data
+  - origin: center of palm (maybe slightly shifted towards fingers?)
+  - forward: slightly angled higher than index finger
+  - up: right, away from the outside of the hand (opposite of the palm)
+- raycast in VR
+  - origin: center of palm
+  - forward: about 45 degrees angled downwards compared to hand tracking data
+  - up: up, towards thumb
+- raycast on desktop
+  - same as head tracking data
+- reasonably comprehensible by humans (like for exact grips)
+  - origin: center of palm
+  - forward: index finger when making finger guns
+  - up: up, towards thumb
+- pickup holder on desktop
+  - origin: camera position, shifted to the right, down and forward
+  - forward: camera forward
+  - up: camera up
+- head bone
+  - unpredictable, may not even exist
+- left hand bone
+  - unpredictable, may not even exist
+- right hand bone
+  - unpredictable, may not even exist
+- world
+  - origin: Vector3.zero
+  - forward: Vector3.forward
+  - up: Vector3.up
+- pickup local
+  - origin: transform.position
+  - forward: transform.rotation * Vector3.forward
+  - up: transform.rotation * Vector3.up
+
 # VR Testing
 
 - [ ] what is the rotation of hand tracking data?
