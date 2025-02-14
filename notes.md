@@ -57,6 +57,7 @@
 - [ ] make auto hold actually not rely on the InputDrop event but instead
 - [ ] option to make interactable objects only interactive when in front of the player. Not necessarily in view, but most likely in view
 - [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
+- [ ] prevent being able to pickup the same pickup with both hands
 
 # Coordinate Systems
 
