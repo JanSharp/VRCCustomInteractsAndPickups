@@ -833,7 +833,7 @@ GameObject:
   - component: {fileID: 181352084}
   - component: {fileID: 181352083}
   m_Layer: 0
-  m_Name: LeftHand
+  m_Name: LeftRaycast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1626,7 +1626,7 @@ GameObject:
   - component: {fileID: 523305801}
   - component: {fileID: 523305800}
   m_Layer: 0
-  m_Name: RightHand
+  m_Name: RightRaycast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9068,11 +9068,6 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 1715548068568552373, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1715548068568552373, guid: bb7ec25f46ae4ab699263323ebfb58ec,
-        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -9128,11 +9123,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1715548069972870745, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
-      propertyPath: debugHand
-      value: 
-      objectReference: {fileID: 181352081}
-    - target: {fileID: 1715548069972870745, guid: bb7ec25f46ae4ab699263323ebfb58ec,
-        type: 3}
       propertyPath: debugLine
       value: 
       objectReference: {fileID: 1983417410}
@@ -9143,15 +9133,15 @@ PrefabInstance:
       objectReference: {fileID: 1168997151}
     - target: {fileID: 1715548069972870745, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
+      propertyPath: debugRaycast
+      value: 
+      objectReference: {fileID: 181352081}
+    - target: {fileID: 1715548069972870745, guid: bb7ec25f46ae4ab699263323ebfb58ec,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 1715548069972870745, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
-    - target: {fileID: 1715548070137871318, guid: bb7ec25f46ae4ab699263323ebfb58ec,
-        type: 3}
-      propertyPath: debugHand
-      value: 
-      objectReference: {fileID: 523305799}
     - target: {fileID: 1715548070137871318, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
       propertyPath: debugLine
@@ -9162,6 +9152,11 @@ PrefabInstance:
       propertyPath: debugSphere
       value: 
       objectReference: {fileID: 2033876612}
+    - target: {fileID: 1715548070137871318, guid: bb7ec25f46ae4ab699263323ebfb58ec,
+        type: 3}
+      propertyPath: debugRaycast
+      value: 
+      objectReference: {fileID: 523305799}
     - target: {fileID: 1715548070137871318, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
       propertyPath: serializationData.Prefab

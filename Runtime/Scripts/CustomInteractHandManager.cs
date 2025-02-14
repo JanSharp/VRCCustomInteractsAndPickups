@@ -16,7 +16,7 @@ namespace JanSharp
         [System.NonSerialized] public Vector3 offsetVectorShift;
         [System.NonSerialized] public CustomInteractsAndPickupsManager manager;
 
-        [SerializeField] private Transform debugHand;
+        [SerializeField] private Transform debugRaycast;
         [SerializeField] private Transform debugSphere;
         [SerializeField] private Transform debugLine;
 
@@ -31,9 +31,9 @@ namespace JanSharp
         public GameObject useTextRootDesktop;
         public TextMeshProUGUI useTextElemDesktop;
 
-        private Vector3 handPosition;
-        private Quaternion handRotation;
-        private Vector3 handForward;
+        private Vector3 raycastOrigin;
+        private Quaternion raycastRotation;
+        private Vector3 raycastForward;
 
         private bool hasActiveInteract;
         private bool hasActivePickup;
@@ -92,7 +92,7 @@ namespace JanSharp
                 return;
             }
 
-            FetchHandValues();
+            FetchRaycastCoordinateSystem();
 
             CustomInteractiveBase newActiveScript;
             bool isInteract;
@@ -126,20 +126,20 @@ namespace JanSharp
 
         private void UpdateHeldPickup()
         {
-            FetchHandValues();
-            activeTransform.position = handPosition + handRotation * heldOffsetVector;
-            activeTransform.rotation = handRotation * heldOffsetRotation;
+            FetchRaycastCoordinateSystem();
+            activeTransform.position = raycastOrigin + raycastRotation * heldOffsetVector;
+            activeTransform.rotation = raycastRotation * heldOffsetRotation;
             UpdateUseText();
         }
 
-        private void FetchHandValues()
+        private void FetchRaycastCoordinateSystem()
         {
             VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
-            handPosition = hand.position;
-            handRotation = hand.rotation * rotationNormalization;
-            handForward = handRotation * Vector3.forward;
+            raycastOrigin = hand.position;
+            raycastRotation = hand.rotation * rotationNormalization;
+            raycastForward = raycastRotation * Vector3.forward;
             #if CustomInteractsAndPickupsDebug
-            debugHand.SetPositionAndRotation(handPosition, handRotation);
+            debugRaycast.SetPositionAndRotation(raycastOrigin, raycastRotation);
             #endif
         }
 
@@ -151,19 +151,19 @@ namespace JanSharp
 
             #if CustomInteractsAndPickupsDebug
             debugLine.gameObject.SetActive(true);
-            debugLine.position = handPosition;
-            debugLine.rotation = Quaternion.LookRotation(handForward, Vector3.up);
+            debugLine.position = raycastOrigin;
+            debugLine.rotation = raycastRotation;
             debugLine.localScale = new Vector3(1f, 1f, maxDistance);
             #endif
 
             isInteract = false;
-            if (!Physics.Raycast(handPosition, handForward, out RaycastHit hit, maxDistance, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
+            if (!Physics.Raycast(raycastOrigin, raycastForward, out RaycastHit hit, maxDistance, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
                 return null;
             Transform hitTransform = hit.transform;
             if (hitTransform == null) // Some VRC internal that we're not allowed to access so we get null instead,
                 return null; // even though in normal Unity if we have a hit... this is not possible to be null.
             #if CustomInteractsAndPickupsDebug
-            debugLine.localScale = new Vector3(1f, 1f, Vector3.Distance(handPosition, hit.point));
+            debugLine.localScale = new Vector3(1f, 1f, Vector3.Distance(raycastOrigin, hit.point));
             #endif
             isInteract = hitTransform.gameObject.layer == interactLayerNumber;
             CustomInteractiveBase interactive = isInteract
@@ -172,7 +172,7 @@ namespace JanSharp
             if (interactive == null)
                 return null;
             hitPoint = hit.point;
-            if (Vector3.Distance(handPosition, hitPoint) > interactive.proximity * eyeHeightScale * raycastProximityMultiplier)
+            if (Vector3.Distance(raycastOrigin, hitPoint) > interactive.proximity * eyeHeightScale * raycastProximityMultiplier)
                 return null;
             return interactive;
         }
@@ -187,7 +187,7 @@ namespace JanSharp
             float closestDistance = float.PositiveInfinity;
             Vector3 closestHitPoint = Vector3.zero;
 
-            Collider[] colliders = Physics.OverlapSphere(handPosition, maxRadius, interactLayer | pickupLayer, QueryTriggerInteraction.Collide);
+            Collider[] colliders = Physics.OverlapSphere(raycastOrigin, maxRadius, interactLayer | pickupLayer, QueryTriggerInteraction.Collide);
             foreach (Collider collider in colliders)
             {
                 if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
@@ -199,8 +199,8 @@ namespace JanSharp
                     : (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomPickup>();
                 if (interactive == null)
                     continue;
-                Vector3 closestPoint = collider.ClosestPoint(handPosition);
-                float distance = Vector3.Distance(handPosition, closestPoint);
+                Vector3 closestPoint = collider.ClosestPoint(raycastOrigin);
+                float distance = Vector3.Distance(raycastOrigin, closestPoint);
                 if (distance > interactive.proximity * eyeHeightScale)
                     continue;
                 if (distance >= closestDistance)
@@ -417,9 +417,9 @@ namespace JanSharp
             {
                 // Move to hand.
                 // TODO: add interpolation
-                Quaternion inverseHandRotation = Quaternion.Inverse(handRotation);
-                Vector3 distanceFromHand = inverseHandRotation * (hitPoint - handPosition);
-                heldOffsetVector = inverseHandRotation * (activeTransform.position - handPosition);
+                Quaternion inverseHandRotation = Quaternion.Inverse(raycastRotation);
+                Vector3 distanceFromHand = inverseHandRotation * (hitPoint - raycastOrigin);
+                heldOffsetVector = inverseHandRotation * (activeTransform.position - raycastOrigin);
                 heldOffsetVector = heldOffsetVector - distanceFromHand + offsetVectorShift;
                 heldOffsetRotation = inverseHandRotation * activeTransform.rotation;
             }
@@ -466,8 +466,8 @@ namespace JanSharp
             {
                 if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
                     continue; // even though in normal Unity... this is not possible to be null.
-                Vector3 closestPoint = collider.ClosestPoint(handPosition);
-                float distance = Vector3.Distance(handPosition, closestPoint);
+                Vector3 closestPoint = collider.ClosestPoint(raycastOrigin);
+                float distance = Vector3.Distance(raycastOrigin, closestPoint);
                 if (distance >= closestDistance)
                     continue;
                 closestDistance = distance;
@@ -481,7 +481,7 @@ namespace JanSharp
             #if CustomInteractsAndPickupsDebug
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickup");
             #endif
-            FetchHandValues();
+            FetchRaycastCoordinateSystem();
             if (pickup.exactGrip == null)
                 hitPoint = GetClosestPoint(pickup);
             // TODO: remove pointless enabling and disabling of the highlight
@@ -494,7 +494,7 @@ namespace JanSharp
             #if CustomInteractsAndPickupsDebug
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickupUsingExistingOffset");
             #endif
-            FetchHandValues();
+            FetchRaycastCoordinateSystem();
             if (pickup.exactGrip == null)
                 hitPoint = GetClosestPoint(pickup);
             // TODO: remove pointless enabling and disabling of the highlight

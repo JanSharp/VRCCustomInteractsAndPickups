@@ -30,12 +30,12 @@ namespace JanSharp
             {
                 leftHand.trackingHandType = VRCPlayerApi.TrackingDataType.LeftHand;
                 leftHand.handType = HandType.LEFT;
-                leftHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward);
+                leftHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
                 leftHand.offsetVectorShift = Vector3.zero;
                 leftHand.manager = this;
                 rightHand.trackingHandType = VRCPlayerApi.TrackingDataType.RightHand;
                 rightHand.handType = HandType.RIGHT;
-                rightHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.back);
+                rightHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
                 rightHand.offsetVectorShift = Vector3.zero;
                 rightHand.manager = this;
             }
