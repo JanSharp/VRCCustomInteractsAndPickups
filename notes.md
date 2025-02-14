@@ -58,6 +58,7 @@
 - [ ] option to make interactable objects only interactable when in front of the player. Not necessarily in view, but most likely in view
 - [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
 - [ ] prevent being able to pickup the same pickup with both hands
+- [ ] shown count for highlights goes into the negative when dropping an item that's part of the item system
 
 # Coordinate Systems
 
