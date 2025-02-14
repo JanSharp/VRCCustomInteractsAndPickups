@@ -31,6 +31,9 @@ namespace JanSharp
         public GameObject useTextRootDesktop;
         public TextMeshProUGUI useTextElemDesktop;
 
+        private Vector3 trackingDataOrigin;
+        private Quaternion trackingDataRotation;
+
         private Vector3 raycastOrigin;
         private Quaternion raycastRotation;
         private Vector3 raycastForward;
@@ -127,16 +130,18 @@ namespace JanSharp
         private void UpdateHeldPickup()
         {
             FetchRaycastCoordinateSystem();
-            activeTransform.position = raycastOrigin + raycastRotation * heldOffsetVector;
-            activeTransform.rotation = raycastRotation * heldOffsetRotation;
+            activeTransform.position = trackingDataOrigin + trackingDataRotation * heldOffsetVector;
+            activeTransform.rotation = trackingDataRotation * heldOffsetRotation;
             UpdateUseText();
         }
 
         private void FetchRaycastCoordinateSystem()
         {
             VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
-            raycastOrigin = hand.position;
-            raycastRotation = hand.rotation * rotationNormalization;
+            trackingDataOrigin = hand.position;
+            trackingDataRotation = hand.rotation;
+            raycastOrigin = trackingDataOrigin;
+            raycastRotation = trackingDataRotation * rotationNormalization;
             raycastForward = raycastRotation * Vector3.forward;
             #if CustomInteractsAndPickupsDebug
             debugRaycast.SetPositionAndRotation(raycastOrigin, raycastRotation);
@@ -417,18 +422,18 @@ namespace JanSharp
             {
                 // Move to hand.
                 // TODO: add interpolation
-                Quaternion inverseHandRotation = Quaternion.Inverse(raycastRotation);
-                Vector3 distanceFromHand = inverseHandRotation * (hitPoint - raycastOrigin);
-                heldOffsetVector = inverseHandRotation * (activeTransform.position - raycastOrigin);
-                heldOffsetVector = heldOffsetVector - distanceFromHand + offsetVectorShift;
-                heldOffsetRotation = inverseHandRotation * activeTransform.rotation;
+                Quaternion inverseTrackingDataRotation = Quaternion.Inverse(trackingDataRotation);
+                Vector3 distanceFromTrackingData = inverseTrackingDataRotation * (hitPoint - trackingDataOrigin);
+                heldOffsetVector = inverseTrackingDataRotation * (activeTransform.position - trackingDataOrigin);
+                heldOffsetVector = heldOffsetVector - distanceFromTrackingData + offsetVectorShift;
+                heldOffsetRotation = inverseTrackingDataRotation * activeTransform.rotation;
             }
             else
             {
                 // Exact grip.
                 Quaternion activeRotation = activeTransform.rotation;
                 Vector3 offsetVector = Quaternion.Inverse(activeRotation) * (activeTransform.position - exactGrip.position);
-                heldOffsetRotation = Quaternion.Inverse(exactGrip.rotation) * activeRotation;
+                heldOffsetRotation = rotationNormalization * Quaternion.Inverse(exactGrip.rotation) * activeRotation;
                 heldOffsetVector = heldOffsetRotation * offsetVector + offsetVectorShift;
             }
         }
