@@ -8,7 +8,7 @@ namespace JanSharp
     [RequireComponent(typeof(Rigidbody))]
     [DisallowMultipleComponent]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class CustomPickup : CustomInteractiveBase
+    public class CustomPickup : CustomInteractableBase
     {
         public string useText;
         public bool autoHold;

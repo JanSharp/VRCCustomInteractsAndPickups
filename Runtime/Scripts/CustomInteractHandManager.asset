@@ -302,7 +302,7 @@ MonoBehaviour:
       Data: 19|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: JanSharp.CustomInteractsAndPickupsManager, JanSharp.CustomInteractsAndPickups
+      Data: JanSharp.CustomInteractablesManager, JanSharp.CustomInteractsAndPickups
     - Name: 
       Entry: 8
       Data: 
@@ -1406,7 +1406,7 @@ MonoBehaviour:
       Data: 76|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: JanSharp.CustomInteractiveBase, JanSharp.CustomInteractsAndPickups
+      Data: JanSharp.CustomInteractableBase, JanSharp.CustomInteractsAndPickups
     - Name: 
       Entry: 8
       Data: 

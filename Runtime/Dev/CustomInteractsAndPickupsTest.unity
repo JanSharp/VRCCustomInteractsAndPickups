@@ -830,7 +830,7 @@ PrefabInstance:
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.data[0]
-      value: CustomInteractsAndPickupsManager
+      value: CustomInteractablesManager
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
@@ -1933,6 +1933,7 @@ MonoBehaviour:
   lockstep: {fileID: 0}
   entitySystem: {fileID: 0}
   boneAttachment: {fileID: 0}
+  itemSystem: {fileID: 0}
 --- !u!4 &763488454
 Transform:
   m_ObjectHideFlags: 0
@@ -8184,7 +8185,7 @@ PrefabInstance:
     - target: {fileID: 1715548068568552374, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
       propertyPath: m_Name
-      value: CustomInteractsAndPickupsManager
+      value: CustomInteractablesManager
       objectReference: {fileID: 0}
     - target: {fileID: 1715548069972870745, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}

@@ -7,7 +7,7 @@ using VRC.SDK3.Data;
 namespace JanSharp
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class CustomInteract : CustomInteractiveBase
+    public class CustomInteract : CustomInteractableBase
     {
         [Space]
         public UdonSharpBehaviour[] listeners;

@@ -39,7 +39,7 @@
 - [ ] force pickup objects to be on the pickup layer
 - [x] only allow one pickup script per object
 - [ ] disallow interact and pickup scripts to be on the same object
-- [ ] maybe a desktop key bind to highlight all interactive objects, mainly for debugging
+- [ ] maybe a desktop key bind to highlight all interactable objects, mainly for debugging
 - [ ] make sure to null check everything that's held while foreign code could run since objects could get destroyed
 - [ ] maybe support modifying the exact grip transform at runtime
 - [x] calculate max raycast length, instead of just blindly using 100
@@ -51,11 +51,11 @@
   - [ ] also for when it goes out of range?
   - [ ] also a different one for when there's already one in range but another comes in range and takes priority?
 - [ ] measure update performance, similar to how lockstep update performance is measured
-  - [ ] test without any interactive objects nearby
-  - [ ] test with a few interactive objects nearby
-  - [ ] test with many interactive objects nearby
+  - [ ] test without any interactable objects nearby
+  - [ ] test with a few interactable objects nearby
+  - [ ] test with many interactable objects nearby
 - [ ] make auto hold actually not rely on the InputDrop event but instead
-- [ ] option to make interactable objects only interactive when in front of the player. Not necessarily in view, but most likely in view
+- [ ] option to make interactable objects only interactable when in front of the player. Not necessarily in view, but most likely in view
 - [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
 - [ ] prevent being able to pickup the same pickup with both hands
 

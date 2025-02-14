@@ -14,7 +14,7 @@ namespace JanSharp
         [System.NonSerialized] public HandType handType;
         [System.NonSerialized] public Quaternion rotationNormalization;
         [System.NonSerialized] public Vector3 offsetVectorShift;
-        [System.NonSerialized] public CustomInteractsAndPickupsManager manager;
+        [System.NonSerialized] public CustomInteractablesManager manager;
 
         [SerializeField] private Transform debugRaycast;
         [SerializeField] private Transform debugSphere;
@@ -42,7 +42,7 @@ namespace JanSharp
         private bool hasActivePickup;
         private CustomInteract activeInteract;
         private CustomPickup activePickup;
-        private CustomInteractiveBase activeScript;
+        private CustomInteractableBase activeScript;
         private Transform activeTransform;
         private Vector3 hitPoint;
 
@@ -97,11 +97,11 @@ namespace JanSharp
 
             FetchRaycastCoordinateSystem();
 
-            CustomInteractiveBase newActiveScript;
+            CustomInteractableBase newActiveScript;
             bool isInteract;
             if (isInVR)
             {
-                newActiveScript = TryGetNearInteractive(out isInteract);
+                newActiveScript = TryGetNearInteractable(out isInteract);
                 if (newActiveScript != null)
                 {
                     if (newActiveScript == activeScript)
@@ -114,7 +114,7 @@ namespace JanSharp
                 }
             }
 
-            newActiveScript = TryGetInteractive(out isInteract);
+            newActiveScript = TryGetInteractable(out isInteract);
             if (newActiveScript == activeScript)
             {
                 UpdateInteractText();
@@ -148,7 +148,7 @@ namespace JanSharp
             #endif
         }
 
-        private CustomInteractiveBase TryGetInteractive(out bool isInteract)
+        private CustomInteractableBase TryGetInteractable(out bool isInteract)
         {
             float maxDistance = 10f // Max proximity.
                 * ((5f - 2f) / 2f + 1f) // Max eyeHeightScale.
@@ -171,24 +171,24 @@ namespace JanSharp
             debugLine.localScale = new Vector3(1f, 1f, Vector3.Distance(raycastOrigin, hit.point));
             #endif
             isInteract = hitTransform.gameObject.layer == interactLayerNumber;
-            CustomInteractiveBase interactive = isInteract
-                ? (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomInteract>()
-                : (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomPickup>();
-            if (interactive == null)
+            CustomInteractableBase interactable = isInteract
+                ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>()
+                : (CustomInteractableBase)hitTransform.GetComponentInParent<CustomPickup>();
+            if (interactable == null)
                 return null;
             hitPoint = hit.point;
-            if (Vector3.Distance(raycastOrigin, hitPoint) > interactive.proximity * eyeHeightScale * raycastProximityMultiplier)
+            if (Vector3.Distance(raycastOrigin, hitPoint) > interactable.proximity * eyeHeightScale * raycastProximityMultiplier)
                 return null;
-            return interactive;
+            return interactable;
         }
 
-        private CustomInteractiveBase TryGetNearInteractive(out bool isInteract)
+        private CustomInteractableBase TryGetNearInteractable(out bool isInteract)
         {
             float maxRadius = 10f // Max proximity.
                 * ((5f - 2f) / 2f + 1f); // Max eyeHeightScale.
 
             bool closestIsInteract = false;
-            CustomInteractiveBase closestInteractive = null;
+            CustomInteractableBase closestInteractable = null;
             float closestDistance = float.PositiveInfinity;
             Vector3 closestHitPoint = Vector3.zero;
 
@@ -199,35 +199,35 @@ namespace JanSharp
                     continue; // even though in normal Unity if we have a hit... this is not possible to be null.
                 Transform hitTransform = collider.transform;
                 bool currentIsInteract = hitTransform.gameObject.layer == interactLayerNumber;
-                CustomInteractiveBase interactive = currentIsInteract
-                    ? (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomInteract>()
-                    : (CustomInteractiveBase)hitTransform.GetComponentInParent<CustomPickup>();
-                if (interactive == null)
+                CustomInteractableBase interactable = currentIsInteract
+                    ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>()
+                    : (CustomInteractableBase)hitTransform.GetComponentInParent<CustomPickup>();
+                if (interactable == null)
                     continue;
                 Vector3 closestPoint = collider.ClosestPoint(raycastOrigin);
                 float distance = Vector3.Distance(raycastOrigin, closestPoint);
-                if (distance > interactive.proximity * eyeHeightScale)
+                if (distance > interactable.proximity * eyeHeightScale)
                     continue;
                 if (distance >= closestDistance)
                     continue;
                 closestIsInteract = currentIsInteract;
-                closestInteractive = interactive;
+                closestInteractable = interactable;
                 closestDistance = distance;
                 closestHitPoint = closestPoint;
             }
 
             #if CustomInteractsAndPickupsDebug
-            if (closestInteractive != null)
+            if (closestInteractable != null)
             {
                 debugSphere.gameObject.SetActive(true);
                 debugSphere.position = closestHitPoint;
-                debugSphere.localScale = Vector3.one * (closestInteractive.proximity * eyeHeightScale * 2f);
+                debugSphere.localScale = Vector3.one * (closestInteractable.proximity * eyeHeightScale * 2f);
             }
             #endif
 
             isInteract = closestIsInteract;
             hitPoint = closestHitPoint;
-            return closestInteractive;
+            return closestInteractable;
         }
 
         private void ClearActiveScript()
@@ -274,7 +274,7 @@ namespace JanSharp
             SetActiveScriptGeneric(newPickup);
         }
 
-        private void SetActiveScriptGeneric(CustomInteractiveBase newActiveScript)
+        private void SetActiveScriptGeneric(CustomInteractableBase newActiveScript)
         {
             #if CustomInteractsAndPickupsDebug
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  SetActiveScriptGeneric");

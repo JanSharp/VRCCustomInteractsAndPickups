@@ -5,7 +5,7 @@ using VRC.Udon;
 
 namespace JanSharp
 {
-    public abstract class CustomInteractiveBase : UdonSharpBehaviour
+    public abstract class CustomInteractableBase : UdonSharpBehaviour
     {
         [Tooltip("At an eye height of 2 meters, this proximity defines the exact distance from hands to "
             + "objects at which point they are within reach. Imagine a sphere around the player hands with "
@@ -17,7 +17,7 @@ namespace JanSharp
         [Range(0, 10)]
         public float proximity = 0.5f;
         public string interactText;
-        [System.NonSerialized] public CustomInteractsAndPickupsManager manager;
+        [System.NonSerialized] public CustomInteractablesManager manager;
         protected bool initialized;
         protected CustomInteractHighlightPart[] highlightParts;
         private int shownCount = 0;
@@ -25,17 +25,17 @@ namespace JanSharp
         protected void EnsureHasManagerRef()
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  EnsureHasManagerRef");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  EnsureHasManagerRef");
             #endif
             if (manager != null)
                 return;
-            manager = SingletonsUtil.GetSingleton<CustomInteractsAndPickupsManager>(nameof(CustomInteractsAndPickupsManager));
+            manager = SingletonsUtil.GetSingleton<CustomInteractablesManager>(nameof(CustomInteractablesManager));
         }
 
         private void Initialize()
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  Initialize");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  Initialize");
             #endif
             if (initialized)
                 return;
@@ -46,7 +46,7 @@ namespace JanSharp
         public void ShowHighlight()
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  ShowHighlight - shownCount: {shownCount}");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  ShowHighlight - shownCount: {shownCount}");
             #endif
             if ((++shownCount) != 1)
                 return;
@@ -58,7 +58,7 @@ namespace JanSharp
         public void HideHighlight()
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  HideHighlight - shownCount: {shownCount}");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  HideHighlight - shownCount: {shownCount}");
             #endif
             if ((--shownCount) != 0)
                 return;
@@ -70,7 +70,7 @@ namespace JanSharp
         protected void GenerateHighlight()
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractiveBase {this.name}  GenerateHighlight");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  GenerateHighlight");
             #endif
             MeshRenderer[] renderers = this.GetComponentsInChildren<MeshRenderer>(includeInactive: true);
             highlightParts = new CustomInteractHighlightPart[renderers.Length];

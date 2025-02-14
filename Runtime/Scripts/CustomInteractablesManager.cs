@@ -8,8 +8,8 @@ namespace JanSharp
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     [SingletonDependency(typeof(SingletonManager))] // Not used in this script, but interacts/pickups do need it.
-    [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractsAndPickupsManager.prefab
-    public class CustomInteractsAndPickupsManager : UdonSharpBehaviour
+    [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractablesManager.prefab
+    public class CustomInteractablesManager : UdonSharpBehaviour
     {
         public Material highlightMat;
         public GameObject highlightPartPrefab;

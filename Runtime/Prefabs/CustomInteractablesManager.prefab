@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 1715548068568552372}
   - component: {fileID: 1715548068568552375}
   m_Layer: 0
-  m_Name: CustomInteractsAndPickupsManager
+  m_Name: CustomInteractablesManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
