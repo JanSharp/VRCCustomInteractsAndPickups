@@ -92,9 +92,16 @@ namespace JanSharp.Internal
 
             if (isHolding)
             {
-                UpdateHeldPickup();
-                return;
+                if (activeScript == null)
+                    DropActivePickup();
+                else
+                {
+                    UpdateHeldPickup();
+                    return;
+                }
             }
+            else if ((hasActiveInteract || hasActivePickup) && activeScript == null)
+                ClearActiveScriptVariables();
 
             FetchRaycastCoordinateSystem();
 
@@ -231,15 +238,22 @@ namespace JanSharp.Internal
             return closestInteractable;
         }
 
-        private void ClearActiveScript(bool highlightIsAlreadyHidden = false)
+        private void ClearActiveScript()
         {
             #if CustomInteractsAndPickupsDebug
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ClearActiveScript");
             #endif
             if (activeScript == null)
                 return;
-            if (!highlightIsAlreadyHidden)
-                activeScript.HideHighlight();
+            activeScript.HideHighlight();
+            ClearActiveScriptVariables();
+        }
+
+        private void ClearActiveScriptVariables()
+        {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ClearActiveScriptVariables");
+            #endif
             HideInteractText();
             hasActiveInteract = false;
             hasActivePickup = false;
@@ -360,6 +374,8 @@ namespace JanSharp.Internal
             // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
             // VRChat is raising the InputUse event twice when I click the mouse button once.
             lastInputUse = Time.time;
+            if (activeScript == null) // UpdateHand will handle cleanup if the active script got destroyed.
+                return;
             if (hasActiveInteract)
             {
                 if (value)
@@ -392,6 +408,8 @@ namespace JanSharp.Internal
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputGrab - value: {value}, args.handType == handType: {args.handType == handType}");
             #endif
             if ((isInVR && args.handType != handType) || !hasActivePickup)
+                return;
+            if (activeScript == null) // UpdateHand will handle cleanup if the active script got destroyed.
                 return;
             if (!value && isHolding && !activePickup.autoHold)
             {
@@ -518,7 +536,13 @@ namespace JanSharp.Internal
             #endif
             isHolding = false;
             CustomPickup prevActivePickup = activePickup;
-            ClearActiveScript(highlightIsAlreadyHidden: true);
+            ClearActiveScriptVariables();
+            if (prevActivePickup == null) // Got destroyed.
+            {
+                isHoldingUseButton = false;
+                return;
+            }
+
             if (isHoldingUseButton)
             {
                 isHoldingUseButton = false;

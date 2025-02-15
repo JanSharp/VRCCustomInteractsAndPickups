@@ -59,7 +59,7 @@
 - [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
 - [x] prevent being able to pickup the same pickup with both hands
 - [x] shown count for highlights goes into the negative when dropping ~~an item that's part of the item system~~ just when dropping in general, unrelated to the item system
-- [ ] handle objects getting deleted
+- [x] handle objects getting deleted
 
 # VR Testing
 
