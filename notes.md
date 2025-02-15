@@ -61,6 +61,12 @@
 - [x] prevent being able to pickup the same pickup with both hands
 - [x] shown count for highlights goes into the negative when dropping ~~an item that's part of the item system~~ just when dropping in general, unrelated to the item system
 - [x] handle objects getting deleted
+- [ ] reduce max proximity
+- [ ] separate raycast and proximity values into 2 values the user can set in the inspector
+  - [ ] make default proximity incredibly small
+  - [ ] make default raycast distance short, just long enough to be able to reach something on the ground without having to touch it, like when using half body, sitting IRL but standing in VRChat, you can't actually reach the ground in that case
+- [ ] make interaction/use text rotate centered on themselves, not their parent which is notably offset
+- [ ] most likely move interaction text just next to the hand rather than the in world object
 
 # VR Testing
 
