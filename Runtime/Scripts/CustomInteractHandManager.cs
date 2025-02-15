@@ -501,16 +501,32 @@ namespace JanSharp.Internal
             return closestHitPoint;
         }
 
-        public void ForcePickup(CustomPickup pickup)
+        private bool PrepareForcePickup(CustomPickup pickup)
         {
             #if CustomInteractsAndPickupsDebug
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickup");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PrepareForcePickup");
             #endif
+            if (isHolding)
+            {
+                if (activePickup == pickup)
+                    return false;
+                DropActivePickup();
+            }
             FetchRaycastCoordinateSystem();
             if (pickup.exactGrip == null)
                 hitPoint = GetClosestPoint(pickup);
             // TODO: remove pointless enabling and disabling of the highlight
             SetActivePickup(pickup);
+            return true;
+        }
+
+        public void ForcePickup(CustomPickup pickup)
+        {
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickup");
+            #endif
+            if (!PrepareForcePickup(pickup))
+                return;
             PickupActivePickup();
         }
 
@@ -519,13 +535,11 @@ namespace JanSharp.Internal
             #if CustomInteractsAndPickupsDebug
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickupUsingExistingOffset");
             #endif
-            FetchRaycastCoordinateSystem();
-            if (pickup.exactGrip == null)
-                hitPoint = GetClosestPoint(pickup);
-            // TODO: remove pointless enabling and disabling of the highlight
-            SetActivePickup(pickup);
+            bool alreadyHoldingThisPickup = !PrepareForcePickup(pickup);
             heldOffsetVector = pickup.heldOffsetVector;
             heldOffsetRotation = pickup.heldOffsetRotation;
+            if (alreadyHoldingThisPickup)
+                return;
             PickupActivePickup(skipOffsetCalculation: true);
         }
 
