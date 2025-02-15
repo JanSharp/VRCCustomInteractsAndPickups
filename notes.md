@@ -59,12 +59,13 @@
 - [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
 - [x] prevent being able to pickup the same pickup with both hands
 - [ ] shown count for highlights goes into the negative when dropping an item that's part of the item system
+- [ ] handle objects getting deleted
 
 # VR Testing
 
-- [ ] what is the rotation of hand tracking data?
-- [ ] pointing at interactive objects
-- [ ] interacting with near objects
+- [x] what is the rotation of hand tracking data?
+- [x] pointing at interactive objects
+- [x] interacting with near objects
 
 # Coordinate Systems
 
