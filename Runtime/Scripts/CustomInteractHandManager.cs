@@ -231,14 +231,15 @@ namespace JanSharp.Internal
             return closestInteractable;
         }
 
-        private void ClearActiveScript()
+        private void ClearActiveScript(bool highlightIsAlreadyHidden = false)
         {
             #if CustomInteractsAndPickupsDebug
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ClearActiveScript");
             #endif
             if (activeScript == null)
                 return;
-            activeScript.HideHighlight();
+            if (!highlightIsAlreadyHidden)
+                activeScript.HideHighlight();
             HideInteractText();
             hasActiveInteract = false;
             hasActivePickup = false;
@@ -517,7 +518,7 @@ namespace JanSharp.Internal
             #endif
             isHolding = false;
             CustomPickup prevActivePickup = activePickup;
-            ClearActiveScript();
+            ClearActiveScript(highlightIsAlreadyHidden: true);
             if (isHoldingUseButton)
             {
                 isHoldingUseButton = false;
