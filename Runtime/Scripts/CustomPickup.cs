@@ -31,6 +31,8 @@ namespace JanSharp
         [System.NonSerialized] public Vector3 heldOffsetVector;
         [System.NonSerialized] public Quaternion heldOffsetRotation;
 
+        public override bool CanInteract() => !PreventInteraction && !isHeld;
+
         public void DispatchOnPickup()
         {
             #if CustomInteractsAndPickupsDebug

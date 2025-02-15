@@ -175,7 +175,7 @@ namespace JanSharp.Internal
             CustomInteractableBase interactable = isInteract
                 ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>()
                 : (CustomInteractableBase)hitTransform.GetComponentInParent<CustomPickup>();
-            if (interactable == null)
+            if (interactable == null || !interactable.CanInteract())
                 return null;
             hitPoint = hit.point;
             if (Vector3.Distance(raycastOrigin, hitPoint) > interactable.proximity * eyeHeightScale * raycastProximityMultiplier)
@@ -203,7 +203,7 @@ namespace JanSharp.Internal
                 CustomInteractableBase interactable = currentIsInteract
                     ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>()
                     : (CustomInteractableBase)hitTransform.GetComponentInParent<CustomPickup>();
-                if (interactable == null)
+                if (interactable == null || !interactable.CanInteract())
                     continue;
                 Vector3 closestPoint = collider.ClosestPoint(raycastOrigin);
                 float distance = Vector3.Distance(raycastOrigin, closestPoint);

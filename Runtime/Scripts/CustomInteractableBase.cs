@@ -22,6 +22,13 @@ namespace JanSharp
         protected bool initialized;
         protected CustomInteractHighlightPart[] highlightParts;
         private int shownCount = 0;
+        private uint preventInteraction = 0u;
+
+        public bool PreventInteraction => preventInteraction != 0u;
+        public void IncrementPreventInteraction() => preventInteraction++;
+        public void DecrementPreventInteraction() => preventInteraction--;
+
+        public abstract bool CanInteract();
 
         protected void EnsureHasManagerRef()
         {

@@ -12,6 +12,8 @@ namespace JanSharp
         [Space]
         public UdonSharpBehaviour[] listeners;
 
+        public override bool CanInteract() => !PreventInteraction;
+
         public void DispatchOnInteract()
         {
             foreach (UdonSharpBehaviour listener in listeners)
