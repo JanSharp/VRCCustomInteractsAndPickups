@@ -54,6 +54,7 @@
   - [ ] test without any interactable objects nearby
   - [ ] test with a few interactable objects nearby
   - [ ] test with many interactable objects nearby
+- [ ] reduce frequency of physics checks. Even if performance measuring ends up being fine, physics checks should only happen in FixedUpdate and I'd say it should only happen like 5 to 20 times per second, depending on what feels good enough
 - [ ] make auto hold actually not rely on the InputDrop event but instead
 - [ ] option to make interactable objects only interactable when in front of the player. Not necessarily in view, but most likely in view
 - [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
