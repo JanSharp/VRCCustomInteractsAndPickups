@@ -60,6 +60,12 @@
 - [ ] prevent being able to pickup the same pickup with both hands
 - [ ] shown count for highlights goes into the negative when dropping an item that's part of the item system
 
+# VR Testing
+
+- [ ] what is the rotation of hand tracking data?
+- [ ] pointing at interactive objects
+- [ ] interacting with near objects
+
 # Coordinate Systems
 
 - head tracking data
@@ -102,9 +108,3 @@
   - origin: transform.position
   - forward: transform.rotation * Vector3.forward
   - up: transform.rotation * Vector3.up
-
-# VR Testing
-
-- [ ] what is the rotation of hand tracking data?
-- [ ] pointing at interactive objects
-- [ ] interacting with near objects
