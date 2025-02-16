@@ -9,14 +9,15 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class InputLogging : UdonSharpBehaviour
     {
+        [HideInInspector] [SerializeField] [SingletonReference] private WidgetManager widgetManager;
         public GenericValueEditor valueEditor;
         private ButtonWidgetData clearButtonData;
         private GroupingWidgetData root;
 
         private void Start()
         {
-            root = valueEditor.NewGrouping();
-            clearButtonData = (ButtonWidgetData)valueEditor.NewButton("Clear")
+            root = widgetManager.NewGrouping();
+            clearButtonData = (ButtonWidgetData)widgetManager.NewButton("Clear")
                 .SetListener(this, nameof(Clear));
             Clear();
             Redraw();
@@ -35,19 +36,19 @@ namespace JanSharp
 
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            root.AddChild((LabelWidgetData)valueEditor.NewLabel($"InputUse, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMove());
+            root.AddChild((LabelWidgetData)widgetManager.NewLabel($"InputUse, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMove());
             Redraw();
         }
 
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
-            root.AddChild((LabelWidgetData)valueEditor.NewLabel($"InputGrab, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMove());
+            root.AddChild((LabelWidgetData)widgetManager.NewLabel($"InputGrab, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMove());
             Redraw();
         }
 
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
-            root.AddChild((LabelWidgetData)valueEditor.NewLabel($"InputDrop, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMove());
+            root.AddChild((LabelWidgetData)widgetManager.NewLabel($"InputDrop, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMove());
             Redraw();
         }
     }
