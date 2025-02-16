@@ -89,9 +89,11 @@ namespace JanSharp.Internal
         private void UpdatePlayerEyeHeight()
         {
             float eyeHeight = localPlayer.GetAvatarEyeHeightAsMeters();
-            // Being twice has big only increases scale by 0.5f instead of 1f.
-            // Being twice as small only reduces scale by 0.25f instead of 0.5f.
-            float eyeHeightScale = (eyeHeight / 2f - 1f) / 2f + 1f;
+            // The smallest eye height is 0.2, largest 5, with the avatars I've tested anyway.
+            // But I believe you can make avatars greater than 5 meters tall, so clamp the top end as well.
+            // The low end clamp exists to make truly tiny avatars still be able to reach stuff, while small
+            // avatars can reach things relative to their size, not from too far away.
+            float eyeHeightScale = Mathf.Clamp(eyeHeight / 2f, 0.25f, 4f);
             leftHand.SetEyeHeightScale(eyeHeightScale);
             if (isInVR)
                 rightHand.SetEyeHeightScale(eyeHeightScale);

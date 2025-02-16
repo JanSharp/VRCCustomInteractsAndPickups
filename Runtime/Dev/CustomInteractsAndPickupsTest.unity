@@ -830,7 +830,7 @@ PrefabInstance:
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.data[0]
-      value: CustomInteractablesManager
+      value: CustomInteractablesManagerAPI
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
@@ -1932,7 +1932,6 @@ MonoBehaviour:
   wannaBeClasses: {fileID: 788940349}
   lockstep: {fileID: 0}
   entitySystem: {fileID: 0}
-  boneAttachment: {fileID: 0}
   itemSystem: {fileID: 0}
 --- !u!4 &763488454
 Transform:
@@ -5038,7 +5037,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1174049821}
-  proximity: 10
+  proximityReach: 1
+  pointerReach: 25
+  desktopReach: 25
   interactText: Take
   useText: 
   autoHold: 1
@@ -6216,7 +6217,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1544414557}
-  proximity: 0.5
+  proximityReach: 0.05
+  pointerReach: 0.3
+  desktopReach: 2.5
   interactText: Take
   useText: Do Thing
   autoHold: 1
@@ -7945,7 +7948,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 2127346678}
-  proximity: 0.5
+  proximityReach: 0.05
+  pointerReach: 0.3
+  desktopReach: 2.5
   interactText: Hi! Hello there!
   listeners:
   - {fileID: 648672849}

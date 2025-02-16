@@ -57,14 +57,10 @@ namespace JanSharp.Internal
         private LayerMask interactLayer = (LayerMask)(1 << 8);
         private LayerMask pickupLayer = (LayerMask)(1 << 13);
         private const float InteractAndUseTextScale = 0.5f;
-        // TODO: adjust based on feedback, also update CustomInteractBase proximity tooltip.
-        private const float RaycastProximityMultiplierVR = 5f;
-        private const float RaycastProximityMultiplierDesktop = 5f;
 
         private VRCPlayerApi localPlayer;
         private bool isInVR = true;
-        private float raycastProximityMultiplier = RaycastProximityMultiplierVR;
-        [System.NonSerialized] public float eyeHeightScale = 1f;
+        private float eyeHeightScale = 1f;
 
         public void Initialize()
         {
@@ -73,13 +69,10 @@ namespace JanSharp.Internal
             #endif
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
-            raycastProximityMultiplier = isInVR ? RaycastProximityMultiplierVR : RaycastProximityMultiplierDesktop;
         }
 
         public void SetEyeHeightScale(float eyeHeightScale)
         {
-            if (this.eyeHeightScale == eyeHeightScale)
-                return;
             this.eyeHeightScale = eyeHeightScale;
         }
 
@@ -158,9 +151,7 @@ namespace JanSharp.Internal
 
         private CustomInteractableBase TryGetInteractable(out bool isInteract)
         {
-            float maxDistance = 10f // Max proximity.
-                * ((5f - 2f) / 2f + 1f) // Max eyeHeightScale.
-                * raycastProximityMultiplier;
+            float maxDistance = 25f * eyeHeightScale;
 
             #if CustomInteractsAndPickupsDebug
             debugLine.gameObject.SetActive(true);
@@ -185,15 +176,14 @@ namespace JanSharp.Internal
             if (interactable == null || !interactable.CanInteract())
                 return null;
             hitPoint = hit.point;
-            if (Vector3.Distance(raycastOrigin, hitPoint) > interactable.proximity * eyeHeightScale * raycastProximityMultiplier)
+            if (Vector3.Distance(raycastOrigin, hitPoint) > (isInVR ? interactable.pointerReach : interactable.desktopReach) * eyeHeightScale)
                 return null;
             return interactable;
         }
 
         private CustomInteractableBase TryGetNearInteractable(out bool isInteract)
         {
-            float maxRadius = 10f // Max proximity.
-                * ((5f - 2f) / 2f + 1f); // Max eyeHeightScale.
+            float maxRadius = /* 1f * */ eyeHeightScale; // Max proximityReach is 1.
 
             bool closestIsInteract = false;
             CustomInteractableBase closestInteractable = null;
@@ -214,7 +204,7 @@ namespace JanSharp.Internal
                     continue;
                 Vector3 closestPoint = collider.ClosestPoint(raycastOrigin);
                 float distance = Vector3.Distance(raycastOrigin, closestPoint);
-                if (distance > interactable.proximity * eyeHeightScale)
+                if (distance > interactable.proximityReach * eyeHeightScale)
                     continue;
                 if (distance >= closestDistance)
                     continue;
@@ -228,8 +218,8 @@ namespace JanSharp.Internal
             if (closestInteractable != null)
             {
                 debugSphere.gameObject.SetActive(true);
-                debugSphere.position = closestHitPoint;
-                debugSphere.localScale = Vector3.one * (closestInteractable.proximity * eyeHeightScale * 2f);
+                debugSphere.position = raycastOrigin;
+                debugSphere.localScale = Vector3.one * (closestInteractable.proximityReach * eyeHeightScale * 2f);
             }
             #endif
 

@@ -8,15 +8,21 @@ namespace JanSharp
 {
     public abstract class CustomInteractableBase : UdonSharpBehaviour
     {
-        [Tooltip("At an eye height of 2 meters, this proximity defines the exact distance from hands to "
-            + "objects at which point they are within reach. Imagine a sphere around the player hands with "
-            + "a radius of the defined Proximity value. Scaling eye height up or down affects proximity 2 to "
-            + "1, which is to say being 2x tall only multiplies proximity by 1.5x.\n"
-            + "Objects can also be reachable when pointing at them. Imagine finger guns, the index finger is "
-            + "the pointing direction. When pointing at objects, the distance at which they are reachable "
-            + "is 5x the Proximity while in VR, 5x on desktop.")]
-        [Range(0, 10)]
-        public float proximity = 0.5f;
+        [Tooltip("Imagine a sphere centered on the palm with this radius.\n"
+            + "To support tiny and huge avatars, the actual range is "
+            + "'ProximityReach * Clamp(EyeHeight / 2, 0.25, 4)'.")]
+        [Range(0f, 1f)]
+        public float proximityReach = 0.05f;
+        [Tooltip("Imagine a laser from the center of the palm following the direction of finger guns.\n"
+            + "To support tiny and huge avatars, the actual range is "
+            + "'PointerReach * Clamp(EyeHeight / 2, 0.25, 4)'.")]
+        [Range(0f, 25f)]
+        public float pointerReach = 0.3f;
+        [Tooltip("Imagine a laser from the center of the screen.\n"
+            + "To support tiny and huge avatars, the actual range is "
+            + "'DesktopReach * Clamp(EyeHeight / 2, 0.25, 4)'.")]
+        [Range(0f, 25f)]
+        public float desktopReach = 2.5f;
         public string interactText;
         [System.NonSerialized] public CustomInteractablesManager manager;
         protected bool initialized;
