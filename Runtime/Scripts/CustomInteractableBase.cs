@@ -85,6 +85,8 @@ namespace JanSharp
         {
             #if CustomInteractsAndPickupsDebug
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  GenerateHighlight");
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
             #endif
             MeshRenderer[] renderers = this.GetComponentsInChildren<MeshRenderer>(includeInactive: true);
             highlightParts = new CustomInteractHighlightPart[renderers.Length];
@@ -107,6 +109,9 @@ namespace JanSharp
                 part.meshRenderer.sharedMaterials = materials;
                 highlightParts[partsCount++] = part;
             }
+            #if CustomInteractsAndPickupsDebug
+            Debug.Log($"[CustomInteractsAndPickupsDebug] [sw] InteractableBase {this.name}  GenerateHighlight (inner) - ms: {sw.Elapsed.TotalMilliseconds}, partsCount: {partsCount}");
+            #endif
         }
     }
 }
