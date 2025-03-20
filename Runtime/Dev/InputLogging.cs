@@ -36,19 +36,19 @@ namespace JanSharp
 
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            root.AddChild((LabelWidgetData)widgetManager.NewLabel($"InputUse, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMove());
+            root.AddChild(widgetManager.NewLabel($"InputUse, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMoveWidget());
             Redraw();
         }
 
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
-            root.AddChild((LabelWidgetData)widgetManager.NewLabel($"InputGrab, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMove());
+            root.AddChild(widgetManager.NewLabel($"InputGrab, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMoveWidget());
             Redraw();
         }
 
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
-            root.AddChild((LabelWidgetData)widgetManager.NewLabel($"InputDrop, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMove());
+            root.AddChild(widgetManager.NewLabel($"InputDrop, value: {value}, handType {(args.handType == HandType.RIGHT ? "right" : "left")}").StdMoveWidget());
             Redraw();
         }
     }
