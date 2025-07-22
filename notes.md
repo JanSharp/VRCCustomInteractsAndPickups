@@ -30,6 +30,7 @@
 - [x] when multiple objects are in reach, pick the closest one
   - [x] preferably determined using ray cast distance or some other api to find the closest point on the object
 - [ ] possibly customizable highlight color per object
+- [ ] try out making the highlight only flash once when an interactable object becomes selected, thus not having any lingering highlights while having more clear visual feedback when trying to select a specific object
 - [ ] force interact objects to be on the interactive layer
 - [ ] support multiple interact scripts on one object, there's a few options:
   - simply allow multiple on an object and arbitrarily choose one which controls proximity and text
@@ -55,7 +56,8 @@
   - [ ] test with a few interactable objects nearby
   - [ ] test with many interactable objects nearby
 - [ ] reduce frequency of physics checks. Even if performance measuring ends up being fine, physics checks should only happen in FixedUpdate and I'd say it should only happen like 5 to 20 times per second, depending on what feels good enough
-- [ ] make auto hold actually not rely on the InputDrop event but instead
+- [ ] make auto hold actually not rely on the InputDrop event but instead drop the item when the InputPickup event is raised again
+  - [ ] if InputPickup is held for longer than x amount of time when picking up a pickup, treat InputPickup up as dropping the pickup
 - [ ] option to make interactable objects only interactable when in front of the player. Not necessarily in view, but most likely in view
 - [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
 - [x] prevent being able to pickup the same pickup with both hands
