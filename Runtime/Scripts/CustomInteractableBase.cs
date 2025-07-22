@@ -1,8 +1,6 @@
 ﻿using JanSharp.Internal;
 using UdonSharp;
 using UnityEngine;
-using VRC.SDKBase;
-using VRC.Udon;
 
 namespace JanSharp
 {
@@ -39,9 +37,9 @@ namespace JanSharp
 
         protected void EnsureHasManagerRef()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  EnsureHasManagerRef");
-            #endif
+#endif
             if (manager != null)
                 return;
             manager = SingletonsUtil.GetSingleton<CustomInteractablesManager>(nameof(CustomInteractablesManager));
@@ -49,9 +47,9 @@ namespace JanSharp
 
         private void Initialize()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  Initialize");
-            #endif
+#endif
             if (initialized)
                 return;
             initialized = true;
@@ -60,9 +58,9 @@ namespace JanSharp
 
         public void ShowHighlight()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  ShowHighlight - shownCount: {shownCount}");
-            #endif
+#endif
             if ((++shownCount) != 1)
                 return;
             Initialize();
@@ -72,9 +70,9 @@ namespace JanSharp
 
         public void HideHighlight()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  HideHighlight - shownCount: {shownCount}");
-            #endif
+#endif
             if ((--shownCount) != 0)
                 return;
             Initialize();
@@ -84,11 +82,11 @@ namespace JanSharp
 
         protected void GenerateHighlight()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  GenerateHighlight");
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
-            #endif
+#endif
             MeshRenderer[] renderers = this.GetComponentsInChildren<MeshRenderer>(includeInactive: true);
             highlightParts = new CustomInteractHighlightPart[renderers.Length];
             int partsCount = 0;
@@ -110,9 +108,9 @@ namespace JanSharp
                 part.meshRenderer.sharedMaterials = materials;
                 highlightParts[partsCount++] = part;
             }
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] [sw] InteractableBase {this.name}  GenerateHighlight (inner) - ms: {sw.Elapsed.TotalMilliseconds}, partsCount: {partsCount}");
-            #endif
+#endif
         }
     }
 }

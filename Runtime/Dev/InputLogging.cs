@@ -1,7 +1,5 @@
 ﻿using UdonSharp;
 using UnityEngine;
-using VRC.SDKBase;
-using VRC.Udon;
 using VRC.Udon.Common;
 
 namespace JanSharp
@@ -9,7 +7,7 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class InputLogging : UdonSharpBehaviour
     {
-        [HideInInspector] [SerializeField] [SingletonReference] private WidgetManager widgetManager;
+        [HideInInspector][SerializeField][SingletonReference] private WidgetManager widgetManager;
         public GenericValueEditor valueEditor;
         private ButtonWidgetData clearButtonData;
         private GroupingWidgetData root;

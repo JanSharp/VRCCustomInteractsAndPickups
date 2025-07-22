@@ -1,7 +1,6 @@
 ﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using VRC.Udon.Common;
 
 namespace JanSharp.Internal
@@ -24,9 +23,9 @@ namespace JanSharp.Internal
 
         private void Start()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  Start");
-            #endif
+#endif
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
             if (isInVR)
@@ -59,9 +58,9 @@ namespace JanSharp.Internal
 
         public override void OnAvatarEyeHeightChanged(VRCPlayerApi player, float prevEyeHeightAsMeters)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  OnAvatarEyeHeightChanged - player.isLocal: {player.isLocal}");
-            #endif
+#endif
             if (!player.isLocal)
                 return;
             UpdatePlayerEyeHeight();
@@ -69,9 +68,9 @@ namespace JanSharp.Internal
 
         public override void OnAvatarChanged(VRCPlayerApi player)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  OnAvatarChanged - player.isLocal: {player.isLocal}");
-            #endif
+#endif
             if (!player.isLocal)
                 return;
             UpdatePlayerEyeHeight();
@@ -108,9 +107,9 @@ namespace JanSharp.Internal
 
         public void DropPickup(CustomPickup pickup)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  DropPickup");
-            #endif
+#endif
             if (pickup.heldTrackingType == VRCPlayerApi.TrackingDataType.RightHand)
                 rightHand.DropActivePickup();
             else
@@ -119,9 +118,9 @@ namespace JanSharp.Internal
 
         public CustomInteractHandManager GetHandForTrackingType(VRCPlayerApi.TrackingDataType trackingType)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  GetHandForTrackingType");
-            #endif
+#endif
             return trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHand : leftHand;
         }
     }

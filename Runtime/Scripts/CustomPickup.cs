@@ -2,7 +2,6 @@
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 
 namespace JanSharp
 {
@@ -35,45 +34,45 @@ namespace JanSharp
 
         public void DispatchOnPickup()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickup");
-            #endif
+#endif
             foreach (UdonSharpBehaviour listener in listeners)
                 listener.SendCustomEvent("_onPickup");
         }
 
         public void DispatchOnDrop()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnDrop");
-            #endif
+#endif
             foreach (UdonSharpBehaviour listener in listeners)
                 listener.SendCustomEvent("_onDrop");
         }
 
         public void DispatchOnPickupUseDown()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickupUseDown");
-            #endif
+#endif
             foreach (UdonSharpBehaviour listener in listeners)
                 listener.SendCustomEvent("_onPickupUseDown");
         }
 
         public void DispatchOnPickupUseUp()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickupUseUp");
-            #endif
+#endif
             foreach (UdonSharpBehaviour listener in listeners)
                 listener.SendCustomEvent("_onPickupUseUp");
         }
 
         public void Drop()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  Drop");
-            #endif
+#endif
             if (!isHeld)
                 return;
             manager.DropPickup(this);
@@ -81,9 +80,9 @@ namespace JanSharp
 
         public void ForceBeingPickedUp(VRCPlayerApi.TrackingDataType heldTrackingType)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUp");
-            #endif
+#endif
             EnsureHasManagerRef();
             CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
             hand.ForcePickup(this);
@@ -94,9 +93,9 @@ namespace JanSharp
             Vector3 heldOffsetVector,
             Quaternion heldOffsetRotation)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUp");
-            #endif
+#endif
             this.heldOffsetVector = heldOffsetVector;
             this.heldOffsetRotation = heldOffsetRotation;
             EnsureHasManagerRef();

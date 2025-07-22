@@ -1,9 +1,8 @@
-﻿using UdonSharp;
+﻿using TMPro;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using VRC.Udon.Common;
-using TMPro;
 
 namespace JanSharp.Internal
 {
@@ -64,9 +63,9 @@ namespace JanSharp.Internal
 
         public void Initialize()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  Initialize");
-            #endif
+#endif
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
         }
@@ -78,10 +77,10 @@ namespace JanSharp.Internal
 
         public void UpdateHand()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugSphere.gameObject.SetActive(false);
             debugLine.gameObject.SetActive(false);
-            #endif
+#endif
 
             if (isHolding)
             {
@@ -144,21 +143,21 @@ namespace JanSharp.Internal
             raycastOrigin = trackingDataOrigin;
             raycastRotation = trackingDataRotation * rotationNormalization;
             raycastForward = raycastRotation * Vector3.forward;
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugRaycast.SetPositionAndRotation(raycastOrigin, raycastRotation);
-            #endif
+#endif
         }
 
         private CustomInteractableBase TryGetInteractable(out bool isInteract)
         {
             float maxDistance = 25f * eyeHeightScale;
 
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.gameObject.SetActive(true);
             debugLine.position = raycastOrigin;
             debugLine.rotation = raycastRotation;
             debugLine.localScale = new Vector3(1f, 1f, maxDistance);
-            #endif
+#endif
 
             isInteract = false;
             if (!Physics.Raycast(raycastOrigin, raycastForward, out RaycastHit hit, maxDistance, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
@@ -166,9 +165,9 @@ namespace JanSharp.Internal
             Transform hitTransform = hit.transform;
             if (hitTransform == null) // Some VRC internal that we're not allowed to access so we get null instead,
                 return null; // even though in normal Unity if we have a hit... this is not possible to be null.
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.localScale = new Vector3(1f, 1f, Vector3.Distance(raycastOrigin, hit.point));
-            #endif
+#endif
             isInteract = hitTransform.gameObject.layer == interactLayerNumber;
             CustomInteractableBase interactable = isInteract
                 ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>()
@@ -214,14 +213,14 @@ namespace JanSharp.Internal
                 closestHitPoint = closestPoint;
             }
 
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             if (closestInteractable != null)
             {
                 debugSphere.gameObject.SetActive(true);
                 debugSphere.position = raycastOrigin;
                 debugSphere.localScale = Vector3.one * (closestInteractable.proximityReach * eyeHeightScale * 2f);
             }
-            #endif
+#endif
 
             isInteract = closestIsInteract;
             hitPoint = closestHitPoint;
@@ -230,9 +229,9 @@ namespace JanSharp.Internal
 
         private void ClearActiveScript()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ClearActiveScript");
-            #endif
+#endif
             if (activeScript == null)
                 return;
             activeScript.HideHighlight();
@@ -241,9 +240,9 @@ namespace JanSharp.Internal
 
         private void ClearActiveScriptVariables()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ClearActiveScriptVariables");
-            #endif
+#endif
             HideInteractText();
             hasActiveInteract = false;
             hasActivePickup = false;
@@ -256,9 +255,9 @@ namespace JanSharp.Internal
 
         private void SetActiveInteract(CustomInteract newInteract)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  SetActiveInteract");
-            #endif
+#endif
             ClearActiveScript();
             if (newInteract == null)
                 return;
@@ -269,9 +268,9 @@ namespace JanSharp.Internal
 
         private void SetActivePickup(CustomPickup newPickup)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  SetActivePickup");
-            #endif
+#endif
             ClearActiveScript();
             if (newPickup == null)
                 return;
@@ -282,9 +281,9 @@ namespace JanSharp.Internal
 
         private void SetActiveScriptGeneric(CustomInteractableBase newActiveScript)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  SetActiveScriptGeneric");
-            #endif
+#endif
             activeScript = newActiveScript;
             activeTransform = activeScript.transform;
             activeScript.manager = manager;
@@ -295,17 +294,17 @@ namespace JanSharp.Internal
 
         private void ShowInteractText()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ShowInteractText");
-            #endif
+#endif
             interactTextRoot.gameObject.SetActive(true);
         }
 
         private void HideInteractText()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  HideInteractText");
-            #endif
+#endif
             interactTextRoot.gameObject.SetActive(false);
         }
 
@@ -356,9 +355,9 @@ namespace JanSharp.Internal
         private float lastInputUse = -1;
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputUse - value: {value}, args.handType == handType: {args.handType == handType}, lastInputUse == Time.time: {lastInputUse == Time.time}");
-            #endif
+#endif
             if ((isInVR && args.handType != handType) || lastInputUse == Time.time)
                 return;
             // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
@@ -394,9 +393,9 @@ namespace JanSharp.Internal
 
         public override void InputGrab(bool value, UdonInputEventArgs args)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputGrab - value: {value}, args.handType == handType: {args.handType == handType}");
-            #endif
+#endif
             if ((isInVR && args.handType != handType) || !hasActivePickup)
                 return;
             if (activeScript == null) // UpdateHand will handle cleanup if the active script got destroyed.
@@ -413,9 +412,9 @@ namespace JanSharp.Internal
 
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputDrop - value: {value}, args.handType == handType: {args.handType == handType}");
-            #endif
+#endif
             if ((isInVR && args.handType != handType) || value || !isHolding)
                 return;
             // Dropped on InputDropUp, matching VRCHat's behaviour.
@@ -424,9 +423,9 @@ namespace JanSharp.Internal
 
         private void CalculateActivePickupOffsets()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  CalculateActivePickupOffsets");
-            #endif
+#endif
             Transform exactGrip = activePickup.exactGrip;
             if (exactGrip == null)
             {
@@ -450,9 +449,9 @@ namespace JanSharp.Internal
 
         private void PickupActivePickup(bool skipOffsetCalculation = false)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupActivePickup");
-            #endif
+#endif
             isHolding = true;
             pickedUpAt = Time.time;
 
@@ -472,9 +471,9 @@ namespace JanSharp.Internal
 
         private Vector3 GetClosestPoint(CustomPickup pickup)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  GetClosestPoint");
-            #endif
+#endif
             float closestDistance = float.PositiveInfinity;
             Vector3 closestHitPoint = pickup.transform.position; // Default for when there are 0 colliders.
             foreach (Collider collider in pickup.GetComponentsInChildren<Collider>())
@@ -493,9 +492,9 @@ namespace JanSharp.Internal
 
         private bool PrepareForcePickup(CustomPickup pickup)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PrepareForcePickup");
-            #endif
+#endif
             if (isHolding)
             {
                 if (activePickup == pickup)
@@ -512,9 +511,9 @@ namespace JanSharp.Internal
 
         public void ForcePickup(CustomPickup pickup)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickup");
-            #endif
+#endif
             if (!PrepareForcePickup(pickup))
                 return;
             PickupActivePickup();
@@ -522,9 +521,9 @@ namespace JanSharp.Internal
 
         public void ForcePickupUsingExistingOffset(CustomPickup pickup)
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickupUsingExistingOffset");
-            #endif
+#endif
             bool alreadyHoldingThisPickup = !PrepareForcePickup(pickup);
             heldOffsetVector = pickup.heldOffsetVector;
             heldOffsetRotation = pickup.heldOffsetRotation;
@@ -535,9 +534,9 @@ namespace JanSharp.Internal
 
         public void DropActivePickup()
         {
-            #if CustomInteractsAndPickupsDebug
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  DropActivePickup");
-            #endif
+#endif
             isHolding = false;
             CustomPickup prevActivePickup = activePickup;
             ClearActiveScriptVariables();
