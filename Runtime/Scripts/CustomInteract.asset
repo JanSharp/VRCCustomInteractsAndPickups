@@ -166,10 +166,11 @@ MonoBehaviour:
     - Name: tooltip
       Entry: 1
       Data: 'Imagine a laser from the center of the palm following the direction
-        of finger guns.
+        of finger guns tilted 45 degrees up. This direction matches VRChat''s pointer
+        for UI for example.
 
-        To support tiny and huge avatars, the actual range
-        is ''PointerReach * Clamp(EyeHeight / 2, 0.25, 4)''.'
+        To support tiny and huge avatars, the actual
+        range is ''PointerReach * Clamp(EyeHeight / 2, 0.25, 4)''.'
     - Name: 
       Entry: 8
       Data: 

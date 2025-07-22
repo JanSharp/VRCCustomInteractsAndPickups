@@ -13,7 +13,8 @@ namespace JanSharp
             + "'ProximityReach * Clamp(EyeHeight / 2, 0.25, 4)'.")]
         [Range(0f, 1f)]
         public float proximityReach = 0.05f;
-        [Tooltip("Imagine a laser from the center of the palm following the direction of finger guns.\n"
+        [Tooltip("Imagine a laser from the center of the palm following the direction of finger guns tilted "
+            + "45 degrees up. This direction matches VRChat's pointer for UI for example.\n"
             + "To support tiny and huge avatars, the actual range is "
             + "'PointerReach * Clamp(EyeHeight / 2, 0.25, 4)'.")]
         [Range(0f, 25f)]

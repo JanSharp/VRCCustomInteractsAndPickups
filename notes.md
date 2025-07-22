@@ -59,7 +59,7 @@
 - [ ] make auto hold actually not rely on the InputDrop event but instead drop the item when the InputPickup event is raised again
   - [ ] if InputPickup is held for longer than x amount of time when picking up a pickup, treat InputPickup up as dropping the pickup
 - [ ] option to make interactable objects only interactable when in front of the player. Not necessarily in view, but most likely in view
-- [ ] the forward vector is not actually the index finger, it's like idk 30 degrees angled upwards. Yea, deal with that, idk
+- [x] the forward vector is not actually the index finger, it's like ~~idk 30~~ 45 degrees angled upwards. Yea, deal with that, idk
 - [x] prevent being able to pickup the same pickup with both hands
 - [x] shown count for highlights goes into the negative when dropping ~~an item that's part of the item system~~ just when dropping in general, unrelated to the item system
 - [x] handle objects getting deleted
