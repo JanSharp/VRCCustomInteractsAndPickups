@@ -21,5 +21,7 @@ This project uses [custom git filters](.gitattributes) to reduce the amount of n
 # But Why
 
 - A predictable and documented implementation for exact grip
+- The offset rotation and offset vector from the hand tracking data to held pickups can be read directly, even before interpolation finishes
+- Pickups are perfectly attached to hand tracking data. They do not float/lag behind. Especially noticeable compared to VRC Pickups when swinging up and down
 
 <!-- TODO: Keep adding to this list explaining why I even chose to make this package, because there is a lot of reasons. Too many for myself to remember them all -->
