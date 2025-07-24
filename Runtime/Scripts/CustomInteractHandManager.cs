@@ -615,7 +615,7 @@ namespace JanSharp.Internal
                 prevActivePickup.DispatchOnPickupUseUp();
                 // Once the api has been implemented the state of this script could have changed completely...
                 // and this function should therefore probably be marked as recursive, because it could be called
-                // recursively... but so could every calling function so uhhhhh idk typical Udon moment I guess.
+                // recursively... but so could every calling function so uhh idk typical Udon moment I guess.
             }
             prevActivePickup.isHeld = false;
             prevActivePickup.DispatchOnDrop();
