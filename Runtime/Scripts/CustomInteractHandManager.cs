@@ -52,6 +52,16 @@ namespace JanSharp.Internal
         private Quaternion heldOffsetRotation;
         private bool isHoldingUseButton;
 
+        private float lastInputUseTime = -1f;
+        private float inputGrabDownAt = -1f;
+        /// <summary>
+        /// <para>Always <see langword="true"/> for desktop.</para>
+        /// <para>Set to <see langword="true"/> for VR if and when we get a
+        /// <see cref="InputDrop(bool, UdonInputEventArgs)"/> event.</para>
+        /// </summary>
+        private bool hasDropKeyBind = false;
+        private const float MaxClickDurationSeconds = 0.2f;
+
         private int interactLayerNumber = 8;
         private LayerMask interactLayer = (LayerMask)(1 << 8);
         private LayerMask pickupLayer = (LayerMask)(1 << 13);
@@ -68,6 +78,7 @@ namespace JanSharp.Internal
 #endif
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
+            hasDropKeyBind = !isInVR;
         }
 
         public void SetEyeHeightScale(float eyeHeightScale)
@@ -352,17 +363,16 @@ namespace JanSharp.Internal
             useTextTransform.localScale = Vector3.one * scale;
         }
 
-        private float lastInputUse = -1;
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputUse - value: {value}, args.handType == handType: {args.handType == handType}, lastInputUse == Time.time: {lastInputUse == Time.time}");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputUse - value: {value}, args.handType == handType: {args.handType == handType}, lastInputUse == Time.time: {lastInputUseTime == Time.time}");
 #endif
-            if ((isInVR && args.handType != handType) || lastInputUse == Time.time)
+            if ((isInVR && args.handType != handType) || lastInputUseTime == Time.time)
                 return;
             // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
             // VRChat is raising the InputUse event twice when I click the mouse button once.
-            lastInputUse = Time.time;
+            lastInputUseTime = Time.time;
             if (activeScript == null) // UpdateHand will handle cleanup if the active script got destroyed.
                 return;
             if (hasActiveInteract)
@@ -396,18 +406,33 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputGrab - value: {value}, args.handType == handType: {args.handType == handType}");
 #endif
-            if ((isInVR && args.handType != handType) || !hasActivePickup)
-                return;
-            if (activeScript == null) // UpdateHand will handle cleanup if the active script got destroyed.
-                return;
-            if (!value && isHolding && !activePickup.autoHold)
+            if (!hasActivePickup
+                || (isInVR && args.handType != handType)
+                || activeScript == null)  // UpdateHand will handle cleanup if the active script got destroyed.
             {
-                DropActivePickup();
                 return;
             }
-            if (!value || isHolding)
+
+            if (value)
+            {
+                inputGrabDownAt = Time.time;
+                if (!isHolding)
+                    PickupActivePickup();
                 return;
-            PickupActivePickup();
+            }
+
+            if (!isHolding)
+                return;
+
+            if (inputGrabDownAt == pickedUpAt) // Is the same button press as the one that picked up the pickup.
+            {
+                if (!activePickup.autoHold || Time.time - inputGrabDownAt > MaxClickDurationSeconds)
+                    DropActivePickup();
+                return;
+            }
+
+            if (!hasDropKeyBind)
+                DropActivePickup();
         }
 
         public override void InputDrop(bool value, UdonInputEventArgs args)
@@ -415,6 +440,7 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputDrop - value: {value}, args.handType == handType: {args.handType == handType}");
 #endif
+            hasDropKeyBind = true;
             if ((isInVR && args.handType != handType) || value || !isHolding)
                 return;
             // Dropped on InputDropUp, matching VRCHat's behaviour.
