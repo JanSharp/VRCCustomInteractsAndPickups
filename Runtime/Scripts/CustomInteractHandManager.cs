@@ -9,6 +9,11 @@ namespace JanSharp.Internal
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomInteractHandManager : UdonSharpBehaviour
     {
+        [HideInInspector][SerializeField][SingletonReference] private BoneAttachmentManager boneAttachment;
+        [HideInInspector][SerializeField][SingletonReference] private InterpolationManager interpolation;
+
+        public const float PickupInterpolationDuration = 0.1f;
+
         [System.NonSerialized] public VRCPlayerApi.TrackingDataType trackingHandType;
         [System.NonSerialized] public HandType handType;
         [System.NonSerialized] public Quaternion rotationNormalization;
@@ -99,7 +104,7 @@ namespace JanSharp.Internal
                     DropActivePickup();
                 else
                 {
-                    UpdateHeldPickup();
+                    UpdateUseText();
                     return;
                 }
             }
@@ -136,14 +141,6 @@ namespace JanSharp.Internal
                 SetActiveInteract((CustomInteract)newActiveScript);
             else
                 SetActivePickup((CustomPickup)newActiveScript);
-        }
-
-        private void UpdateHeldPickup()
-        {
-            FetchRaycastCoordinateSystem();
-            activeTransform.position = trackingDataOrigin + trackingDataRotation * heldOffsetVector;
-            activeTransform.rotation = trackingDataRotation * heldOffsetRotation;
-            UpdateUseText();
         }
 
         private void FetchRaycastCoordinateSystem()
@@ -456,7 +453,6 @@ namespace JanSharp.Internal
             if (exactGrip == null)
             {
                 // Move to hand.
-                // TODO: add interpolation
                 Quaternion inverseTrackingDataRotation = Quaternion.Inverse(trackingDataRotation);
                 Vector3 distanceFromTrackingData = inverseTrackingDataRotation * (hitPoint - trackingDataOrigin);
                 heldOffsetRotation = inverseTrackingDataRotation * activeTransform.rotation;
@@ -484,6 +480,14 @@ namespace JanSharp.Internal
             if (!skipOffsetCalculation)
                 CalculateActivePickupOffsets();
 
+            boneAttachment.AttachToLocalTrackingData(trackingHandType, activeTransform);
+            // TODO: Test and see how it feels to have interpolation enabled for pickups with exact grip.
+            interpolation.InterpolateLocalPosition(activeTransform, heldOffsetVector, PickupInterpolationDuration, this, nameof(PickupPositionInterpolationCallback), null);
+            interpolation.InterpolateLocalRotation(activeTransform, heldOffsetRotation, PickupInterpolationDuration, this, nameof(PickupRotationInterpolationCallback), null);
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            debugRaycast.gameObject.SetActive(false);
+#endif
+
             activePickup.HideHighlight();
             HideInteractText();
             UpdateUseText();
@@ -493,6 +497,24 @@ namespace JanSharp.Internal
             activePickup.heldOffsetVector = heldOffsetVector;
             activePickup.heldOffsetRotation = heldOffsetRotation;
             activePickup.DispatchOnPickup();
+        }
+
+        public void PickupPositionInterpolationCallback()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupPositionInterpolationCallback - isHolding: {isHolding}");
+#endif
+            if (isHolding && activeTransform != null)
+                activeTransform.localPosition = heldOffsetVector;
+        }
+
+        public void PickupRotationInterpolationCallback()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupRotationInterpolationCallback - isHolding: {isHolding}");
+#endif
+            if (isHolding && activeTransform != null)
+                activeTransform.localRotation = heldOffsetRotation;
         }
 
         private Vector3 GetClosestPoint(CustomPickup pickup)
@@ -562,8 +584,23 @@ namespace JanSharp.Internal
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  DropActivePickup");
+            if (!isHolding)
+            {
+                Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to DropActivePickup while isHolding is false.");
+                return;
+            }
+#endif
+            boneAttachment.DetachFromLocalTrackingData(trackingHandType, activeTransform);
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            debugRaycast.gameObject.SetActive(true);
 #endif
             isHolding = false;
+            if (activeTransform != null)
+            {
+                interpolation.CancelLocalPositionInterpolation(activeTransform);
+                interpolation.CancelLocalRotationInterpolation(activeTransform);
+            }
+
             CustomPickup prevActivePickup = activePickup;
             ClearActiveScriptVariables();
             if (prevActivePickup == null) // Got destroyed.
