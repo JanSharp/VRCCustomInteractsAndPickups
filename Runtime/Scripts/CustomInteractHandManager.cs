@@ -433,9 +433,9 @@ namespace JanSharp.Internal
                 // TODO: add interpolation
                 Quaternion inverseTrackingDataRotation = Quaternion.Inverse(trackingDataRotation);
                 Vector3 distanceFromTrackingData = inverseTrackingDataRotation * (hitPoint - trackingDataOrigin);
-                heldOffsetVector = inverseTrackingDataRotation * (activeTransform.position - trackingDataOrigin);
-                heldOffsetVector = heldOffsetVector - distanceFromTrackingData + offsetVectorShift;
                 heldOffsetRotation = inverseTrackingDataRotation * activeTransform.rotation;
+                heldOffsetVector = inverseTrackingDataRotation * (activeTransform.position - trackingDataOrigin)
+                    - distanceFromTrackingData + offsetVectorShift;
             }
             else
             {
