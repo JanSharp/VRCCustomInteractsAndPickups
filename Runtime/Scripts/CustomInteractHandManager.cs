@@ -258,7 +258,7 @@ namespace JanSharp.Internal
             activePickup = null;
             activeScript = null;
             activeTransform = null;
-            UpdateUseText();
+            EnableDisableUseText();
         }
 
         private void SetActiveInteract(CustomInteract newInteract)
@@ -330,27 +330,30 @@ namespace JanSharp.Internal
             interactTextTransform.localScale = Vector3.one * scale;
         }
 
+        private void EnableDisableUseText()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  EnableDisableUseText");
+#endif
+            if (isInVR)
+                useTextRoot.gameObject.SetActive(isHolding);
+            else
+                useTextRootDesktop.SetActive(isHolding);
+
+            if (isHolding)
+                UpdateUseText();
+            else
+                useTextElemDesktop.text = "";
+        }
+
         private void UpdateUseText()
         {
-            if (!isHolding)
-            {
-                if (!isInVR)
-                    useTextRootDesktop.SetActive(false);
-                return;
-            }
-
-            string useText = activePickup.useText;
             if (!isInVR)
             {
-                bool hasText = useText != "";
-                useTextRootDesktop.SetActive(hasText);
-                if (!hasText)
-                    return;
-                useTextElemDesktop.text = useText;
+                useTextElemDesktop.text = activePickup.useText;
                 return;
             }
-
-            useTextElem.text = useText;
+            useTextElem.text = activePickup.useText;
             // TODO: Maybe calculate the total bounds of all renderers and use the center of the bounds instead.
             Vector3 pickupPosition = activeTransform.position;
             useTextRoot.position = pickupPosition;
@@ -490,7 +493,7 @@ namespace JanSharp.Internal
 
             activePickup.HideHighlight();
             HideInteractText();
-            UpdateUseText();
+            EnableDisableUseText();
 
             activePickup.isHeld = true;
             activePickup.heldTrackingType = trackingHandType;
