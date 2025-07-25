@@ -90,6 +90,8 @@ namespace JanSharp.Internal
         public void SetEyeHeightScale(float eyeHeightScale)
         {
             this.eyeHeightScale = eyeHeightScale;
+            useTextTransform.localScale = Vector3.one * eyeHeightScale * InteractAndUseTextScale;
+            interactTextTransform.localScale = Vector3.one * eyeHeightScale * InteractAndUseTextScale;
         }
 
         public void UpdateHand()
@@ -338,13 +340,7 @@ namespace JanSharp.Internal
             }
 
             interactTextElem.text = activeScript.interactText;
-            // TODO: Maybe calculate the total bounds of all renderers and use the center of the bounds instead.
-            Vector3 interactPosition = activeTransform.position;
-            interactTextRoot.position = interactPosition;
-            VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-            interactTextRoot.rotation = head.rotation;
-            float scale = Vector3.Distance(head.position, interactPosition) * InteractAndUseTextScale;
-            interactTextTransform.localScale = Vector3.one * scale;
+            MoveTextToHand(interactTextRoot);
         }
 
         private void EnableDisableUseText()
@@ -359,7 +355,7 @@ namespace JanSharp.Internal
 
             if (isHolding)
                 UpdateUseText();
-            else
+            else if (!isInVR)
                 useTextElemDesktop.text = "";
         }
 
@@ -370,14 +366,21 @@ namespace JanSharp.Internal
                 useTextElemDesktop.text = activePickup.useText;
                 return;
             }
+
             useTextElem.text = activePickup.useText;
-            // TODO: Maybe calculate the total bounds of all renderers and use the center of the bounds instead.
-            Vector3 pickupPosition = activeTransform.position;
-            useTextRoot.position = pickupPosition;
-            VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-            useTextRoot.rotation = head.rotation;
-            float scale = Vector3.Distance(head.position, pickupPosition) * InteractAndUseTextScale;
-            useTextTransform.localScale = Vector3.one * scale;
+            MoveTextToHand(useTextTransform);
+        }
+
+        private void MoveTextToHand(Transform textTransform)
+        {
+            Quaternion headRotation = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).rotation;
+            var projected = Vector3.ProjectOnPlane(headRotation * Vector3.forward, Vector3.up);
+            Quaternion yRotation = Quaternion.LookRotation(projected);
+            projected = Vector3.ProjectOnPlane((Quaternion.Inverse(yRotation) * headRotation) * Vector3.forward, Vector3.right);
+            Quaternion tiltRotation = Quaternion.LookRotation(projected);
+
+            textTransform.position = localPlayer.GetTrackingData(trackingHandType).position;
+            textTransform.rotation = yRotation * tiltRotation;
         }
 
         public override void InputUse(bool value, UdonInputEventArgs args)

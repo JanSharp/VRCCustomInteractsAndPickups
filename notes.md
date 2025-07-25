@@ -72,7 +72,8 @@
   - [x] make default proximity incredibly small
   - [x] make default raycast distance short, just long enough to be able to reach something on the ground without having to touch it, like when using half body, sitting IRL but standing in VRChat, you can't actually reach the ground in that case
 - [ ] make interaction/use text rotate centered on themselves, not their parent which is notably offset
-- [ ] most likely move interaction text just next to the hand rather than the in world object
+  - [ ] the issue is knowing the center of the text. Does text mesh pro have a function to check the width and height of rendered text?
+- [x] most likely move interaction text just next to the hand rather than the in world object
 
 # VR Testing
 
