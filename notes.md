@@ -31,12 +31,16 @@
   - [x] preferably determined using ray cast distance or some other api to find the closest point on the object
 - [ ] possibly customizable highlight color per object
 - [ ] try out making the highlight only flash once when an interactable object becomes selected, thus not having any lingering highlights while having more clear visual feedback when trying to select a specific object
+  - [ ] have another visual feedback when an object becomes deselected
+    - [ ] either have a very slight lingering effect after the flash finished
+    - [ ] or have a visually clearly different kind of flash when it gets deselected
 - [ ] force interact objects to be on the interactive layer
 - [ ] support multiple interact scripts on one object, there's a few options:
   - simply allow multiple on an object and arbitrarily choose one which controls proximity and text
   - allow multiple but have a "component priority" where the script with highest priority controls the interact settings, but this has likely confusing UX
   - allow multiple but give the user the option to choose which one is used, which requires some editor scripting gymnastics especially when prefabs are involved
   - only allow one and have it have "child" or "chained" interact scripts which also get triggered when the main one does
+  - only allow one by having an interact script just like the pickup script and have a list of listeners again just like the pickups. This basically means other script are not allowed to derive from the interact class
 - [ ] force pickup objects to be on the pickup layer
 - [x] only allow one pickup script per object
 - [ ] disallow interact and pickup scripts to be on the same object
