@@ -46,7 +46,7 @@ namespace JanSharp.Internal
         private bool hasActiveInteract;
         private bool hasActivePickup;
         private CustomInteract activeInteract;
-        public CustomPickup activePickup;
+        [System.NonSerialized] public CustomPickup activePickup;
         private CustomInteractableBase activeScript;
         private Transform activeTransform;
         private Vector3 hitPoint;
