@@ -33,7 +33,8 @@ namespace JanSharp.Internal
         public Transform useTextTransform;
         public TextMeshPro useTextElem;
         [Space]
-        public GameObject useTextRootDesktop;
+        public GameObject textRootDesktop;
+        public TextMeshProUGUI interactTextElemDesktop;
         public TextMeshProUGUI useTextElemDesktop;
 
         private Vector3 trackingDataOrigin;
@@ -305,7 +306,10 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ShowInteractText");
 #endif
-            interactTextRoot.gameObject.SetActive(true);
+            if (isInVR)
+                interactTextRoot.gameObject.SetActive(true);
+            else
+                textRootDesktop.SetActive(true);
         }
 
         private void HideInteractText()
@@ -313,13 +317,26 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  HideInteractText");
 #endif
-            interactTextRoot.gameObject.SetActive(false);
+            if (isInVR)
+                interactTextRoot.gameObject.SetActive(false);
+            else
+            {
+                textRootDesktop.SetActive(false);
+                interactTextElemDesktop.text = "";
+            }
         }
 
         private void UpdateInteractText()
         {
             if (activeScript == null)
                 return;
+
+            if (!isInVR)
+            {
+                interactTextElemDesktop.text = activeScript.interactText;
+                return;
+            }
+
             interactTextElem.text = activeScript.interactText;
             // TODO: Maybe calculate the total bounds of all renderers and use the center of the bounds instead.
             Vector3 interactPosition = activeTransform.position;
@@ -338,7 +355,7 @@ namespace JanSharp.Internal
             if (isInVR)
                 useTextRoot.gameObject.SetActive(isHolding);
             else
-                useTextRootDesktop.SetActive(isHolding);
+                textRootDesktop.SetActive(isHolding);
 
             if (isHolding)
                 UpdateUseText();
