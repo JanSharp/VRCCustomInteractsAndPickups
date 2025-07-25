@@ -24,7 +24,9 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _FlashDuration: 0.3
+    - _TimeOffset: 0
     m_Colors:
-    - _Color: {r: 1, g: 0.87254906, b: 0.5, a: 0.7529412}
+    - _Color: {r: 1, g: 0.87254906, b: 0.5, a: 0.9019608}
   m_BuildTextureStacks: []

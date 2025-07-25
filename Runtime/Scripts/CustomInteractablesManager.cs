@@ -100,6 +100,7 @@ namespace JanSharp.Internal
 
         private void Update()
         {
+            VRCShader.SetGlobalFloat(VRCShader.PropertyToID("_UdonTimeTime"), Time.time);
             leftHand.UpdateHand();
             if (isInVR)
                 rightHand.UpdateHand();

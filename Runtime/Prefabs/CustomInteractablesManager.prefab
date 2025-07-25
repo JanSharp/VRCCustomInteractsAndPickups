@@ -143,7 +143,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1715548068568552375}
-  highlightMat: {fileID: 2100000, guid: b85159ff156c9d64bbc37de5d27c92a1, type: 2}
+  highlightMat: {fileID: 2100000, guid: 4f6a1196a6660c38680ea1b8836b7040, type: 2}
   highlightPartPrefab: {fileID: 3503689976940156827, guid: 2f4b817e2a19632fd9425bcce67f1369,
     type: 3}
   leftHand: {fileID: 1715548069972870745}
@@ -1102,6 +1102,8 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1715548069972870743}
+  boneAttachment: {fileID: 0}
+  interpolation: {fileID: 0}
   debugRaycast: {fileID: 7699456854576451663}
   debugSphere: {fileID: 8851396050561953452}
   debugLine: {fileID: 1661037246610332212}
@@ -1113,6 +1115,7 @@ MonoBehaviour:
   useTextElem: {fileID: 1715548068775269703}
   useTextRootDesktop: {fileID: 1715548069782836756}
   useTextElemDesktop: {fileID: 1715548068596142686}
+  activePickup: {fileID: 0}
 --- !u!114 &1715548069972870743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1375,6 +1378,8 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1715548070137871316}
+  boneAttachment: {fileID: 0}
+  interpolation: {fileID: 0}
   debugRaycast: {fileID: 6782128633750234600}
   debugSphere: {fileID: 8789106495079318041}
   debugLine: {fileID: 7755678192176045873}
@@ -1386,6 +1391,7 @@ MonoBehaviour:
   useTextElem: {fileID: 1715548069155413641}
   useTextRootDesktop: {fileID: 1715548069782836756}
   useTextElemDesktop: {fileID: 1715548068596142686}
+  activePickup: {fileID: 0}
 --- !u!114 &1715548070137871316
 MonoBehaviour:
   m_ObjectHideFlags: 0

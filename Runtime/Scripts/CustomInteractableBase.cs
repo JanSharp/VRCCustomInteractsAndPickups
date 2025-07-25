@@ -1,6 +1,7 @@
 ﻿using JanSharp.Internal;
 using UdonSharp;
 using UnityEngine;
+using VRC.SDKBase;
 
 namespace JanSharp
 {
@@ -61,11 +62,16 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  ShowHighlight - shownCount: {shownCount}");
 #endif
-            if ((++shownCount) != 1)
-                return;
+            shownCount++;
             Initialize();
+            int timeOffsetId = VRCShader.PropertyToID("_TimeOffset");
             foreach (CustomInteractHighlightPart part in highlightParts)
+            {
                 part.gameObject.SetActive(true);
+                foreach (Material mat in part.meshRenderer.materials)
+                    mat.SetFloat(timeOffsetId, Time.time);
+            }
+            SendCustomEventDelayedSeconds(nameof(HideHighlight), 1.1f);
         }
 
         public void HideHighlight()
@@ -75,7 +81,6 @@ namespace JanSharp
 #endif
             if ((--shownCount) != 0)
                 return;
-            Initialize();
             foreach (CustomInteractHighlightPart part in highlightParts)
                 part.gameObject.SetActive(false);
         }

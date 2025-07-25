@@ -240,9 +240,9 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ClearActiveScript");
 #endif
-            if (activeScript == null)
+            if (activeScript == null) // TODO: Check something that is not a unity object.
                 return;
-            activeScript.HideHighlight();
+            // activePickup.HideHighlight(); // NOTE: Remove this if highlights remain as just a flash.
             ClearActiveScriptVariables();
         }
 
@@ -488,7 +488,7 @@ namespace JanSharp.Internal
             debugRaycast.gameObject.SetActive(false);
 #endif
 
-            activePickup.HideHighlight();
+            // activePickup.HideHighlight(); // NOTE: Remove this if highlights remain as just a flash.
             HideInteractText();
             UpdateUseText();
 
