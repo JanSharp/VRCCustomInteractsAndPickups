@@ -3,6 +3,7 @@
     "rootNamespace": "",
     "references": [
         "JanSharp.Common",
+        "JanSharp.CustomInteractsAndPickups",
         "JanSharp.GenericValueEditor",
         "UdonSharp.Runtime",
         "Unity.TextMeshPro",

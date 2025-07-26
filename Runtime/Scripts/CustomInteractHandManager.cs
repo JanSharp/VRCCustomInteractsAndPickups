@@ -15,6 +15,7 @@ namespace JanSharp.Internal
         public const float PickupInterpolationDuration = 0.1f;
 
         [System.NonSerialized] public VRCPlayerApi.TrackingDataType trackingHandType;
+        [System.NonSerialized] public VRC_Pickup.PickupHand pickupHandType;
         [System.NonSerialized] public HandType handType;
         [System.NonSerialized] public Quaternion rotationNormalization;
         [System.NonSerialized] public Vector3 offsetVectorShift;
@@ -51,6 +52,9 @@ namespace JanSharp.Internal
         private CustomInteractableBase activeScript;
         private Transform activeTransform;
         private Vector3 hitPoint;
+
+        private CustomInteractableBase lastHapticsState = null;
+        private bool lastHapticsHoldingState = false;
 
         private bool isHolding;
         private float pickedUpAt = -1;
@@ -144,6 +148,59 @@ namespace JanSharp.Internal
                 SetActiveInteract((CustomInteract)newActiveScript);
             else
                 SetActivePickup((CustomPickup)newActiveScript);
+        }
+
+        private void PlayHaptics(string variableName)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PlayHaptics - variableName: {variableName}");
+#endif
+            Vector3 config = (Vector3)manager.GetProgramVariable(variableName);
+            localPlayer.PlayHapticEventInHand(pickupHandType, config.x, config.y, config.z);
+        }
+
+        /// <summary>
+        /// <para>Update haptics 1 frame delayed in order to deduplicate haptics calls, as well as to be able
+        /// to detect selection changes rather than having 2 separate calls. One for selection lost and one
+        /// for selection gained.</para>
+        /// </summary>
+        public void UpdateHaptics()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  UpdateHaptics");
+#endif
+            if (lastHapticsHoldingState)
+            {
+                lastHapticsState = activeScript;
+                if (isHolding)
+                    return;
+                PlayHaptics(nameof(manager.onDropHaptics));
+                lastHapticsHoldingState = false;
+                return;
+            }
+            if (isHolding)
+            {
+                lastHapticsState = activeScript;
+                PlayHaptics(nameof(manager.onPickupHaptics));
+                lastHapticsHoldingState = true;
+                return;
+            }
+            if (lastHapticsState == activeScript)
+                return;
+            if (lastHapticsState == null)
+            {
+                PlayHaptics(nameof(manager.onSelectionGainedHaptics));
+                lastHapticsState = activeScript;
+                return;
+            }
+            if (activeScript == null)
+            {
+                PlayHaptics(nameof(manager.onSelectionLostHaptics));
+                lastHapticsState = null;
+                return;
+            }
+            PlayHaptics(nameof(manager.onSelectionChangedHaptics));
+            lastHapticsState = activeScript;
         }
 
         private void FetchRaycastCoordinateSystem()
@@ -309,7 +366,10 @@ namespace JanSharp.Internal
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ShowInteractText");
 #endif
             if (isInVR)
+            {
                 interactTextRoot.gameObject.SetActive(true);
+                SendCustomEventDelayedFrames(nameof(UpdateHaptics), 1);
+            }
             else
                 textRootDesktop.SetActive(true);
         }
@@ -320,7 +380,10 @@ namespace JanSharp.Internal
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  HideInteractText");
 #endif
             if (isInVR)
+            {
                 interactTextRoot.gameObject.SetActive(false);
+                SendCustomEventDelayedFrames(nameof(UpdateHaptics), 1);
+            }
             else
             {
                 textRootDesktop.SetActive(false);
@@ -510,6 +573,8 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugRaycast.gameObject.SetActive(false);
 #endif
+            if (isInVR)
+                SendCustomEventDelayedFrames(nameof(UpdateHaptics), 1);
 
             activePickup.HideHighlight();
             HideInteractText();
@@ -623,6 +688,8 @@ namespace JanSharp.Internal
                 interpolation.CancelLocalPositionInterpolation(activeTransform);
                 interpolation.CancelLocalRotationInterpolation(activeTransform);
             }
+            if (isInVR)
+                SendCustomEventDelayedFrames(nameof(UpdateHaptics), 1);
 
             CustomPickup prevActivePickup = activePickup;
             ClearActiveScriptVariables();

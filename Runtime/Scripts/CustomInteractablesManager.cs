@@ -14,6 +14,14 @@ namespace JanSharp.Internal
         public CustomInteractHandManager leftHand;
         public CustomInteractHandManager rightHand;
 
+        public Vector3 onSelectionGainedHaptics;
+        public Vector3 onSelectionLostHaptics;
+        public Vector3 onSelectionChangedHaptics;
+        public Vector3 onPickupHaptics; // Very unsure about this one.
+        public Vector3 onDropHaptics; // Very unsure about this one.
+        // public Vector3 onInteractHaptics; // I don't believe that makes sense to add.
+        // public Vector3 onUseHaptics; // I don't believe that makes sense to add.
+
         private VRCPlayerApi localPlayer;
         private bool isInVR = true;
 
@@ -31,11 +39,13 @@ namespace JanSharp.Internal
             if (isInVR)
             {
                 leftHand.trackingHandType = VRCPlayerApi.TrackingDataType.LeftHand;
+                leftHand.pickupHandType = VRC_Pickup.PickupHand.Left;
                 leftHand.handType = HandType.LEFT;
                 leftHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
                 leftHand.offsetVectorShift = Vector3.zero;
                 leftHand.manager = this;
                 rightHand.trackingHandType = VRCPlayerApi.TrackingDataType.RightHand;
+                rightHand.pickupHandType = VRC_Pickup.PickupHand.Right;
                 rightHand.handType = HandType.RIGHT;
                 rightHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
                 rightHand.offsetVectorShift = Vector3.zero;
@@ -44,6 +54,7 @@ namespace JanSharp.Internal
             else
             {
                 leftHand.trackingHandType = VRCPlayerApi.TrackingDataType.Head;
+                leftHand.pickupHandType = VRC_Pickup.PickupHand.None;
                 leftHand.handType = HandType.LEFT; // Does not matter, is not used.
                 leftHand.rotationNormalization = Quaternion.identity;
                 leftHand.offsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f); // TODO: should this scale with eye height.

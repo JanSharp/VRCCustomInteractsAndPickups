@@ -74,6 +74,10 @@
 - [ ] make interaction/use text rotate centered on themselves, not their parent which is notably offset
   - [ ] the issue is knowing the center of the text. Does text mesh pro have a function to check the width and height of rendered text?
 - [x] most likely move interaction text just next to the hand rather than the in world object
+- [ ] make the interact and pickup scripts have a singleton dependency on the manager
+- [ ] add OnInteractDown event. This makes it so that interact listeners don't have all of the interact related properties shown in the inspector, and enables having the listener on the same object as the interact script without having VRC interact also show up
+  - [ ] detect which event to raise for each listener using editor scripting
+- [ ] maybe add OnInteractUp event
 
 # VR Testing
 
