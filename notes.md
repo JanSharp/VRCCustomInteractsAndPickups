@@ -42,6 +42,7 @@
   - only allow one by having an interact script just like the pickup script and have a list of listeners again just like the pickups. This basically means other script are not allowed to derive from the interact class
 - [ ] maybe force interact objects to be on the interactive layer. Issue is that it could be intentional to have only part of the interact hierarchy be interactive
 - [ ] maybe force pickup objects to be on the pickup layer. Issue is that it could be intentional to have only part of the pickup hierarchy be interactive
+- [ ] mention somewhere in the component that only colliders on a specific layer are used, and that they can be children of the object the script is on
 - [x] only allow one pickup script per object
 - [ ] disallow interact and pickup scripts to be on the same object
 - [ ] maybe a desktop key bind to highlight all interactable objects, mainly for debugging
