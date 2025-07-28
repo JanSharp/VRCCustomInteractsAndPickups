@@ -38,7 +38,8 @@ namespace JanSharp
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickup");
 #endif
             foreach (UdonSharpBehaviour listener in listeners)
-                listener.SendCustomEvent("_onPickup");
+                if (listener != null)
+                    listener.SendCustomEvent("_onPickup");
         }
 
         public void DispatchOnDrop()
@@ -47,7 +48,8 @@ namespace JanSharp
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnDrop");
 #endif
             foreach (UdonSharpBehaviour listener in listeners)
-                listener.SendCustomEvent("_onDrop");
+                if (listener != null)
+                    listener.SendCustomEvent("_onDrop");
         }
 
         public void DispatchOnPickupUseDown()
@@ -56,7 +58,8 @@ namespace JanSharp
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickupUseDown");
 #endif
             foreach (UdonSharpBehaviour listener in listeners)
-                listener.SendCustomEvent("_onPickupUseDown");
+                if (listener != null)
+                    listener.SendCustomEvent("_onPickupUseDown");
         }
 
         public void DispatchOnPickupUseUp()
@@ -65,7 +68,8 @@ namespace JanSharp
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickupUseUp");
 #endif
             foreach (UdonSharpBehaviour listener in listeners)
-                listener.SendCustomEvent("_onPickupUseUp");
+                if (listener != null)
+                    listener.SendCustomEvent("_onPickupUseUp");
         }
 
         public void Drop()
