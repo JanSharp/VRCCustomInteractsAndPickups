@@ -34,14 +34,14 @@
   - [ ] have another visual feedback when an object becomes deselected
     - [ ] either have a very slight lingering effect after the flash finished
     - [ ] or have a visually clearly different kind of flash when it gets deselected
-- [ ] force interact objects to be on the interactive layer
 - [ ] support multiple interact scripts on one object, there's a few options:
   - simply allow multiple on an object and arbitrarily choose one which controls proximity and text
   - allow multiple but have a "component priority" where the script with highest priority controls the interact settings, but this has likely confusing UX
   - allow multiple but give the user the option to choose which one is used, which requires some editor scripting gymnastics especially when prefabs are involved
   - only allow one and have it have "child" or "chained" interact scripts which also get triggered when the main one does
   - only allow one by having an interact script just like the pickup script and have a list of listeners again just like the pickups. This basically means other script are not allowed to derive from the interact class
-- [ ] force pickup objects to be on the pickup layer
+- [ ] maybe force interact objects to be on the interactive layer. Issue is that it could be intentional to have only part of the interact hierarchy be interactive
+- [ ] maybe force pickup objects to be on the pickup layer. Issue is that it could be intentional to have only part of the pickup hierarchy be interactive
 - [x] only allow one pickup script per object
 - [ ] disallow interact and pickup scripts to be on the same object
 - [ ] maybe a desktop key bind to highlight all interactable objects, mainly for debugging
