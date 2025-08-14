@@ -18,6 +18,9 @@
     - [x] use down event
     - [x] use up event
     - [ ] rotation changed event
+    - [ ] selection gained event
+    - [ ] selection lost event
+    - [ ] global selection changed event, maybe per hand
   - [ ] desktop rotation
   - [x] use text
   - [x] api
