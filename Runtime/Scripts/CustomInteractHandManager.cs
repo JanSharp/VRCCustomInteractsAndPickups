@@ -238,7 +238,7 @@ namespace JanSharp.Internal
 #endif
             isInteract = hitTransform.gameObject.layer == interactLayerNumber;
             CustomInteractableBase interactable = isInteract
-                ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>()
+                ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>() // Does not need to include inactive, as the child is active.
                 : (CustomInteractableBase)hitTransform.GetComponentInParent<CustomPickup>();
             if (interactable == null || !interactable.CanInteract())
                 return null;
@@ -265,7 +265,7 @@ namespace JanSharp.Internal
                 Transform hitTransform = collider.transform;
                 bool currentIsInteract = hitTransform.gameObject.layer == interactLayerNumber;
                 CustomInteractableBase interactable = currentIsInteract
-                    ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>()
+                    ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>() // Does not need to include inactive, as the child is active.
                     : (CustomInteractableBase)hitTransform.GetComponentInParent<CustomPickup>();
                 if (interactable == null || !interactable.CanInteract())
                     continue;
