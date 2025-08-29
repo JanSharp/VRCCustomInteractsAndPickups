@@ -99,15 +99,15 @@
   - up: camera up
 - left hand tracking data
   - origin: center of palm (maybe slightly shifted towards fingers?)
-  - forward: slightly angled higher than index finger
+  - forward: slightly angled higher than index finger, about 45 degrees
   - up: right, away from the palm
 - right hand tracking data
   - origin: center of palm (maybe slightly shifted towards fingers?)
-  - forward: slightly angled higher than index finger
+  - forward: slightly angled higher than index finger, about 45 degrees
   - up: right, away from the outside of the hand (opposite of the palm)
 - raycast in VR
   - origin: center of palm
-  - forward: about 45 degrees angled downwards compared to hand tracking data
+  - forward: about 45 degrees angled downwards compared to hand tracking data, to just about line up with the index finger direction
   - up: up, towards thumb
 - raycast on desktop
   - same as head tracking data
