@@ -19,6 +19,7 @@ namespace JanSharp.Internal
         [System.NonSerialized] public HandType handType;
         [System.NonSerialized] public Quaternion rotationNormalization;
         [System.NonSerialized] public Vector3 offsetVectorShift;
+        [System.NonSerialized] public Vector3 palmDirection;
         [System.NonSerialized] public CustomInteractablesManager manager;
 
         // DEBUG
@@ -119,32 +120,15 @@ namespace JanSharp.Internal
                 ClearActiveScriptVariables();
 
             FetchRaycastCoordinateSystem();
+            CustomInteractableBase newActiveScript = isInVR
+                ? TryGetNearInteractable(out bool isInteract)
+                : TryGetInteractable(out isInteract);
 
-            CustomInteractableBase newActiveScript;
-            bool isInteract;
-            if (isInVR)
-            {
-                newActiveScript = TryGetNearInteractable(out isInteract);
-                if (newActiveScript != null)
-                {
-                    if (newActiveScript == activeScript)
-                        UpdateInteractText();
-                    else if (isInteract)
-                        SetActiveInteract((CustomInteract)newActiveScript);
-                    else
-                        SetActivePickup((CustomPickup)newActiveScript);
-                    return;
-                }
-            }
-
-            newActiveScript = TryGetInteractable(out isInteract);
-            if (newActiveScript == activeScript)
-            {
+            if (newActiveScript == null)
+                ClearActiveScript();
+            else if (newActiveScript == activeScript)
                 UpdateInteractText();
-                return;
-            }
-
-            if (isInteract)
+            else if (isInteract)
                 SetActiveInteract((CustomInteract)newActiveScript);
             else
                 SetActivePickup((CustomPickup)newActiveScript);
@@ -243,21 +227,24 @@ namespace JanSharp.Internal
             if (interactable == null || !interactable.CanInteract())
                 return null;
             hitPoint = hit.point;
-            if (Vector3.Distance(raycastOrigin, hitPoint) > (isInVR ? interactable.pointerReach : interactable.desktopReach) * eyeHeightScale)
+            if (Vector3.Distance(raycastOrigin, hitPoint) > interactable.desktopReach * eyeHeightScale)
                 return null;
             return interactable;
         }
 
         private CustomInteractableBase TryGetNearInteractable(out bool isInteract)
         {
-            float maxRadius = /* 1f * */ eyeHeightScale; // Max proximityReach is 1.
+            // Max proximityReach is 1.
+            // Divide by 2 because the definition is a diameter.
+            float maxRadius = /* 1f * */ eyeHeightScale / 2f;
 
             bool closestIsInteract = false;
             CustomInteractableBase closestInteractable = null;
             float closestDistance = float.PositiveInfinity;
             Vector3 closestHitPoint = Vector3.zero;
 
-            Collider[] colliders = Physics.OverlapSphere(raycastOrigin, maxRadius, interactLayer | pickupLayer, QueryTriggerInteraction.Collide);
+            Vector3 maxSphereOffset = trackingDataRotation * palmDirection * maxRadius;
+            Collider[] colliders = Physics.OverlapSphere(raycastOrigin + maxSphereOffset, maxRadius, interactLayer | pickupLayer, QueryTriggerInteraction.Collide);
             foreach (Collider collider in colliders)
             {
                 if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
@@ -270,14 +257,18 @@ namespace JanSharp.Internal
                 if (interactable == null || !interactable.CanInteract())
                     continue;
                 Vector3 closestPoint = collider.ClosestPoint(raycastOrigin);
-                float distance = Vector3.Distance(raycastOrigin, closestPoint);
-                if (distance > interactable.proximityReach * eyeHeightScale)
+                float distanceFromHand = Vector3.Distance(raycastOrigin, closestPoint);
+                float vrReach = interactable.vRReach;
+                float scaledReach = vrReach * eyeHeightScale;
+                if (distanceFromHand > scaledReach || distanceFromHand >= closestDistance)
                     continue;
-                if (distance >= closestDistance)
+                Vector3 scaledSphereOrigin = raycastOrigin + maxSphereOffset * vrReach;
+                float distanceFromScaledSphereOrigin = Vector3.Distance(scaledSphereOrigin, collider.ClosestPoint(scaledSphereOrigin));
+                if (distanceFromScaledSphereOrigin > scaledReach / 2f)
                     continue;
                 closestIsInteract = currentIsInteract;
                 closestInteractable = interactable;
-                closestDistance = distance;
+                closestDistance = distanceFromHand;
                 closestHitPoint = closestPoint;
             }
 
@@ -285,8 +276,12 @@ namespace JanSharp.Internal
             if (closestInteractable != null)
             {
                 debugSphere.gameObject.SetActive(true);
-                debugSphere.position = raycastOrigin;
-                debugSphere.localScale = Vector3.one * (closestInteractable.proximityReach * eyeHeightScale * 2f);
+                debugSphere.position = raycastOrigin + trackingDataRotation * palmDirection * closestInteractable.vRReach * maxRadius;
+                debugSphere.localScale = Vector3.one * (closestInteractable.vRReach * maxRadius * 2f);
+                debugLine.gameObject.SetActive(true);
+                debugLine.position = raycastOrigin;
+                debugLine.rotation = Quaternion.LookRotation(closestHitPoint - raycastOrigin);
+                debugLine.localScale = new Vector3(1f, 1f, closestDistance);
             }
 #endif
 

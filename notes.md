@@ -82,8 +82,8 @@
 - [x] add OnInteractDown event. This makes it so that interact listeners don't have all of the interact related properties shown in the inspector, and enables having the listener on the same object as the interact script without having VRC interact also show up
   - [x] detect which event to raise for each listener using editor scripting
 - [ ] maybe add OnInteractUp event
-- [ ] remove this arbitrary raycast from the index finger. Or well in the case of this package it's the from the palm, even. It's arbitrary, makes no sense and doesn't feel good to use either
-- [ ] move the sphere cast to be tangential to the palm rather than centered on the palm. It does not make sense to be able to pick something up that is on the outside/back of the hand
+- [x] remove this arbitrary raycast from the index finger. Or well in the case of this package it's the from the palm, even. It's arbitrary, makes no sense and doesn't feel good to use either
+- [x] move the sphere cast to be tangential to the palm rather than centered on the palm. It does not make sense to be able to pick something up that is on the outside/back of the hand
 
 # VR Testing
 
