@@ -11,6 +11,9 @@ namespace JanSharp.Internal
     {
         [HideInInspector][SerializeField][SingletonReference] private BoneAttachmentManager boneAttachment;
         [HideInInspector][SerializeField][SingletonReference] private InterpolationManager interpolation;
+#if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
+        [HideInInspector][SerializeField][SingletonReference] private QuickDebugUI qd;
+#endif
 
         public const float PickupInterpolationDuration = 0.1f;
 
@@ -82,6 +85,11 @@ namespace JanSharp.Internal
         private bool isInVR = true;
         private float eyeHeightScale = 1f;
 
+#if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
+        private System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        private object[] totalUpdateContainer;
+#endif
+
         public void Initialize()
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
@@ -90,6 +98,12 @@ namespace JanSharp.Internal
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
             hasDropKeyBind = !isInVR;
+#if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
+            totalUpdateContainer = StopwatchUtil.CreateDataContainer();
+#endif
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            debugRaycast.gameObject.SetActive(true);
+#endif
         }
 
         public void SetEyeHeightScale(float eyeHeightScale)
@@ -105,6 +119,10 @@ namespace JanSharp.Internal
             debugSphere.gameObject.SetActive(false);
             debugLine.gameObject.SetActive(false);
 #endif
+#if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
+            sw.Reset();
+            sw.Start();
+#endif
 
             if (isHolding)
             {
@@ -113,6 +131,10 @@ namespace JanSharp.Internal
                 else
                 {
                     UpdateUseText();
+#if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
+                    sw.Stop();
+                    qd.ShowForOneFrame(this, "total update", StopwatchUtil.FormatAvgMinMax(sw, totalUpdateContainer));
+#endif
                     return;
                 }
             }
@@ -132,6 +154,11 @@ namespace JanSharp.Internal
                 SetActiveInteract((CustomInteract)newActiveScript);
             else
                 SetActivePickup((CustomPickup)newActiveScript);
+
+#if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
+            sw.Stop();
+            qd.ShowForOneFrame(this, "total update", StopwatchUtil.FormatAvgMinMax(sw, totalUpdateContainer));
+#endif
         }
 
         private void PlayHaptics(string variableName)

@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8851396050561953452
 Transform:
   m_ObjectHideFlags: 0
@@ -148,6 +148,11 @@ MonoBehaviour:
     type: 3}
   leftHand: {fileID: 1715548069972870745}
   rightHand: {fileID: 1715548070137871318}
+  onSelectionGainedHaptics: {x: 0, y: 0, z: 0}
+  onSelectionLostHaptics: {x: 0, y: 0, z: 0}
+  onSelectionChangedHaptics: {x: 0, y: 0, z: 0}
+  onPickupHaptics: {x: 0, y: 0, z: 0}
+  onDropHaptics: {x: 0, y: 0, z: 0}
 --- !u!114 &1715548068568552375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1105,7 +1110,6 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 1715548069972870743}
   boneAttachment: {fileID: 0}
   interpolation: {fileID: 0}
-  qd: {fileID: 0}
   debugRaycast: {fileID: 7699456854576451663}
   debugSphere: {fileID: 8851396050561953452}
   debugLine: {fileID: 1661037246610332212}
@@ -1382,7 +1386,6 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 1715548070137871316}
   boneAttachment: {fileID: 0}
   interpolation: {fileID: 0}
-  qd: {fileID: 0}
   debugRaycast: {fileID: 6782128633750234600}
   debugSphere: {fileID: 8789106495079318041}
   debugLine: {fileID: 7755678192176045873}
@@ -1469,7 +1472,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8789106495079318041
 Transform:
   m_ObjectHideFlags: 0
@@ -1551,7 +1554,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1661037246610332212
 Transform:
   m_ObjectHideFlags: 0
@@ -1585,7 +1588,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6782128633750234600
 Transform:
   m_ObjectHideFlags: 0
@@ -1884,7 +1887,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7755678192176045873
 Transform:
   m_ObjectHideFlags: 0
@@ -2287,7 +2290,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7699456854576451663
 Transform:
   m_ObjectHideFlags: 0
