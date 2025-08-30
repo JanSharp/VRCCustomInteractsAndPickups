@@ -26,7 +26,6 @@ namespace JanSharp.Internal
         [System.NonSerialized] public CustomInteractablesManager manager;
 
         // DEBUG
-        [SerializeField] private Transform debugRaycast;
         [SerializeField] private Transform debugSphere;
         [SerializeField] private Transform debugLine;
 
@@ -42,12 +41,12 @@ namespace JanSharp.Internal
         public TextMeshProUGUI interactTextElemDesktop;
         public TextMeshProUGUI useTextElemDesktop;
 
-        private Vector3 trackingDataOrigin;
-        private Quaternion trackingDataRotation;
+        // private Vector3 trackingDataOrigin;
+        // private Quaternion trackingDataRotation;
 
-        private Vector3 raycastOrigin;
-        private Quaternion raycastRotation;
-        private Vector3 raycastForward;
+        // private Vector3 raycastOrigin;
+        // private Quaternion raycastRotation;
+        // private Vector3 raycastForward;
 
         private bool hasActiveInteract;
         private bool hasActivePickup;
@@ -55,7 +54,11 @@ namespace JanSharp.Internal
         [System.NonSerialized] public CustomPickup activePickup;
         private CustomInteractableBase activeScript;
         private Transform activeTransform;
-        private Vector3 hitPoint;
+        private Vector3 hitPoint; // TODO: convert into local space of the active script.
+
+        private bool nextIsInteract;
+        private CustomInteractableBase nextScript;
+        private Vector3 nextHitPoint; // TODO: convert into local space of the active script.
 
         private CustomInteractableBase lastHapticsState = null;
         private bool lastHapticsHoldingState = false;
@@ -86,8 +89,11 @@ namespace JanSharp.Internal
         private float eyeHeightScale = 1f;
 
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
-        private System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        private object[] totalUpdateContainer;
+        private System.Diagnostics.Stopwatch updateSw = new System.Diagnostics.Stopwatch();
+        private System.Diagnostics.Stopwatch fixedUpdateSw = new System.Diagnostics.Stopwatch();
+        private object[] updateContainer;
+        private object[] fixedUpdateContainer;
+        private string fixedUpdateFormatted = "";
 #endif
 
         public void Initialize()
@@ -99,7 +105,8 @@ namespace JanSharp.Internal
             isInVR = localPlayer.IsUserInVR();
             hasDropKeyBind = !isInVR;
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
-            totalUpdateContainer = StopwatchUtil.CreateDataContainer();
+            updateContainer = StopwatchUtil.CreateDataContainer();
+            fixedUpdateContainer = StopwatchUtil.CreateDataContainer();
 #endif
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugRaycast.gameObject.SetActive(true);
@@ -120,20 +127,24 @@ namespace JanSharp.Internal
             debugLine.gameObject.SetActive(false);
 #endif
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
-            sw.Reset();
-            sw.Start();
+            qd.ShowForOneFrame(this, "Fixed Update MS", fixedUpdateFormatted);
+            updateSw.Reset();
+            updateSw.Start();
 #endif
 
             if (isHolding)
             {
                 if (activeScript == null)
+                {
                     DropActivePickup();
+                    FixedUpdateHand(); // Immediately search for the next interactable.
+                }
                 else
                 {
                     UpdateUseText();
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
-                    sw.Stop();
-                    qd.ShowForOneFrame(this, "total update", StopwatchUtil.FormatAvgMinMax(sw, totalUpdateContainer));
+                    updateSw.Stop();
+                    qd.ShowForOneFrame(this, "Update MS", StopwatchUtil.FormatAvgMinMax(updateSw, updateContainer));
 #endif
                     return;
                 }
@@ -141,23 +152,36 @@ namespace JanSharp.Internal
             else if ((hasActiveInteract || hasActivePickup) && activeScript == null)
                 ClearActiveScriptVariables();
 
-            FetchRaycastCoordinateSystem();
-            CustomInteractableBase newActiveScript = isInVR
-                ? TryGetNearInteractable(out bool isInteract)
-                : TryGetInteractable(out isInteract);
-
-            if (newActiveScript == null)
+            hitPoint = nextHitPoint;
+            if (nextScript == null)
                 ClearActiveScript();
-            else if (newActiveScript == activeScript)
+            else if (nextScript == activeScript)
                 UpdateInteractText();
-            else if (isInteract)
-                SetActiveInteract((CustomInteract)newActiveScript);
+            else if (nextIsInteract)
+                SetActiveInteract((CustomInteract)nextScript);
             else
-                SetActivePickup((CustomPickup)newActiveScript);
+                SetActivePickup((CustomPickup)nextScript);
 
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
-            sw.Stop();
-            qd.ShowForOneFrame(this, "total update", StopwatchUtil.FormatAvgMinMax(sw, totalUpdateContainer));
+            updateSw.Stop();
+            qd.ShowForOneFrame(this, "Update MS", StopwatchUtil.FormatAvgMinMax(updateSw, updateContainer));
+#endif
+        }
+
+        public void FixedUpdateHand()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
+            fixedUpdateSw.Reset();
+            fixedUpdateSw.Start();
+#endif
+            if (!isHolding)
+                if (isInVR)
+                    TryGetNearInteractable();
+                else
+                    TryGetInteractable();
+#if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
+            fixedUpdateSw.Stop();
+            fixedUpdateFormatted = StopwatchUtil.FormatAvgMinMax(fixedUpdateSw, fixedUpdateContainer);
 #endif
         }
 
@@ -214,22 +238,13 @@ namespace JanSharp.Internal
             lastHapticsState = activeScript;
         }
 
-        private void FetchRaycastCoordinateSystem()
-        {
-            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
-            trackingDataOrigin = hand.position;
-            trackingDataRotation = hand.rotation;
-            raycastOrigin = trackingDataOrigin;
-            raycastRotation = trackingDataRotation * rotationNormalization;
-            raycastForward = raycastRotation * Vector3.forward;
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            debugRaycast.SetPositionAndRotation(raycastOrigin, raycastRotation);
-#endif
-        }
-
-        private CustomInteractableBase TryGetInteractable(out bool isInteract)
+        private void TryGetInteractable()
         {
             float maxDistance = 25f * eyeHeightScale;
+
+            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
+            Vector3 raycastOrigin = hand.position;
+            Vector3 raycastForward = hand.rotation * rotationNormalization * Vector3.forward;
 
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.gameObject.SetActive(true);
@@ -238,40 +253,43 @@ namespace JanSharp.Internal
             debugLine.localScale = new Vector3(1f, 1f, maxDistance);
 #endif
 
-            isInteract = false;
+            nextScript = null;
             if (!Physics.Raycast(raycastOrigin, raycastForward, out RaycastHit hit, maxDistance, interactLayer | pickupLayer, QueryTriggerInteraction.Collide))
-                return null;
+                return;
             Transform hitTransform = hit.transform;
             if (hitTransform == null) // Some VRC internal that we're not allowed to access so we get null instead,
-                return null; // even though in normal Unity if we have a hit... this is not possible to be null.
+                return; // even though in normal Unity if we have a hit... this is not possible to be null.
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.localScale = new Vector3(1f, 1f, Vector3.Distance(raycastOrigin, hit.point));
 #endif
-            isInteract = hitTransform.gameObject.layer == interactLayerNumber;
-            CustomInteractableBase interactable = isInteract
+            nextIsInteract = hitTransform.gameObject.layer == interactLayerNumber;
+            CustomInteractableBase interactable = nextIsInteract
                 ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>() // Does not need to include inactive, as the child is active.
                 : (CustomInteractableBase)hitTransform.GetComponentInParent<CustomPickup>();
             if (interactable == null || !interactable.CanInteract())
-                return null;
-            hitPoint = hit.point;
-            if (Vector3.Distance(raycastOrigin, hitPoint) > interactable.desktopReach * eyeHeightScale)
-                return null;
-            return interactable;
+                return;
+            nextHitPoint = hit.point;
+            if (Vector3.Distance(raycastOrigin, nextHitPoint) > interactable.desktopReach * eyeHeightScale)
+                return;
+            nextScript = interactable;
         }
 
-        private CustomInteractableBase TryGetNearInteractable(out bool isInteract)
+        private void TryGetNearInteractable()
         {
             // Max proximityReach is 1.
             // Divide by 2 because the definition is a diameter.
             float maxRadius = /* 1f * */ eyeHeightScale / 2f;
+
+            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
+            Vector3 handPosition = hand.position;
 
             bool closestIsInteract = false;
             CustomInteractableBase closestInteractable = null;
             float closestDistance = float.PositiveInfinity;
             Vector3 closestHitPoint = Vector3.zero;
 
-            Vector3 maxSphereOffset = trackingDataRotation * palmDirection * maxRadius;
-            Collider[] colliders = Physics.OverlapSphere(raycastOrigin + maxSphereOffset, maxRadius, interactLayer | pickupLayer, QueryTriggerInteraction.Collide);
+            Vector3 maxSphereOffset = hand.rotation * palmDirection * maxRadius;
+            Collider[] colliders = Physics.OverlapSphere(handPosition + maxSphereOffset, maxRadius, interactLayer | pickupLayer, QueryTriggerInteraction.Collide);
             foreach (Collider collider in colliders)
             {
                 if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
@@ -283,13 +301,13 @@ namespace JanSharp.Internal
                     : (CustomInteractableBase)hitTransform.GetComponentInParent<CustomPickup>();
                 if (interactable == null || !interactable.CanInteract())
                     continue;
-                Vector3 closestPoint = collider.ClosestPoint(raycastOrigin);
-                float distanceFromHand = Vector3.Distance(raycastOrigin, closestPoint);
+                Vector3 closestPoint = collider.ClosestPoint(handPosition);
+                float distanceFromHand = Vector3.Distance(handPosition, closestPoint);
                 float vrReach = interactable.vRReach;
                 float scaledReach = vrReach * eyeHeightScale;
                 if (distanceFromHand > scaledReach || distanceFromHand >= closestDistance)
                     continue;
-                Vector3 scaledSphereOrigin = raycastOrigin + maxSphereOffset * vrReach;
+                Vector3 scaledSphereOrigin = handPosition + maxSphereOffset * vrReach;
                 float distanceFromScaledSphereOrigin = Vector3.Distance(scaledSphereOrigin, collider.ClosestPoint(scaledSphereOrigin));
                 if (distanceFromScaledSphereOrigin > scaledReach / 2f)
                     continue;
@@ -312,9 +330,9 @@ namespace JanSharp.Internal
             }
 #endif
 
-            isInteract = closestIsInteract;
-            hitPoint = closestHitPoint;
-            return closestInteractable;
+            nextIsInteract = closestIsInteract;
+            nextScript = closestInteractable;
+            nextHitPoint = closestHitPoint;
         }
 
         private void ClearActiveScript()
@@ -561,10 +579,12 @@ namespace JanSharp.Internal
             if (exactGrip == null)
             {
                 // Move to hand.
-                Quaternion inverseTrackingDataRotation = Quaternion.Inverse(trackingDataRotation);
-                Vector3 distanceFromTrackingData = inverseTrackingDataRotation * (hitPoint - trackingDataOrigin);
+                VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
+                Vector3 handPosition = hand.position;
+                Quaternion inverseTrackingDataRotation = Quaternion.Inverse(hand.rotation);
+                Vector3 distanceFromTrackingData = inverseTrackingDataRotation * (hitPoint - handPosition);
                 heldOffsetRotation = inverseTrackingDataRotation * activeTransform.rotation;
-                heldOffsetVector = inverseTrackingDataRotation * (activeTransform.position - trackingDataOrigin)
+                heldOffsetVector = inverseTrackingDataRotation * (activeTransform.position - handPosition)
                     - distanceFromTrackingData + offsetVectorShift;
             }
             else
@@ -638,8 +658,10 @@ namespace JanSharp.Internal
             {
                 if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
                     continue; // even though in normal Unity... this is not possible to be null.
-                Vector3 closestPoint = collider.ClosestPoint(raycastOrigin);
-                float distance = Vector3.Distance(raycastOrigin, closestPoint);
+                VRCPlayerApi.TrackingData trackingData = localPlayer.GetTrackingData(trackingHandType);
+                Vector3 trackingDataPosition = trackingData.position;
+                Vector3 closestPoint = collider.ClosestPoint(trackingDataPosition);
+                float distance = Vector3.Distance(trackingDataPosition, closestPoint);
                 if (distance >= closestDistance)
                     continue;
                 closestDistance = distance;
@@ -659,7 +681,6 @@ namespace JanSharp.Internal
                     return false;
                 DropActivePickup();
             }
-            FetchRaycastCoordinateSystem();
             if (pickup.exactGrip == null)
                 hitPoint = GetClosestPoint(pickup);
             // TODO: remove pointless enabling and disabling of the highlight

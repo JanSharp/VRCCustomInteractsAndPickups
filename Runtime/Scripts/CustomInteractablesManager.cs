@@ -24,6 +24,7 @@ namespace JanSharp.Internal
 
         private VRCPlayerApi localPlayer;
         private bool isInVR = true;
+        private int fixedUpdateCounter;
 
         public override CustomPickup HeldInLeftHand => leftHand.activePickup;
         public override CustomPickup HeldInRightHand => rightHand.activePickup;
@@ -117,6 +118,20 @@ namespace JanSharp.Internal
             leftHand.UpdateHand();
             if (isInVR)
                 rightHand.UpdateHand();
+        }
+
+        private void FixedUpdate()
+        {
+            // 25 updates per second in desktop (Up to 40 ms input delay).
+            // 12.5 updates per second per hand in VR (Up to 80 ms input delay).
+            if (fixedUpdateCounter == 0)
+                leftHand.FixedUpdateHand();
+            else if (fixedUpdateCounter == 2)
+                if (isInVR)
+                    rightHand.FixedUpdateHand();
+                else
+                    leftHand.FixedUpdateHand();
+            fixedUpdateCounter = (fixedUpdateCounter + 1) % 4;
         }
 
         public void DropPickup(CustomPickup pickup)

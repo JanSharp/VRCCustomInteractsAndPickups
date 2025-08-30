@@ -59,14 +59,17 @@
 - [ ] use PlayHapticEventInHand for when an interactable object comes in range
   - [ ] also for when it goes out of range?
   - [ ] also a different one for when there's already one in range but another comes in range and takes priority?
-- [ ] measure update performance, similar to how lockstep update performance is measured
-  - [ ] test without any interactable objects nearby
+- [x] measure update performance, similar to how lockstep update performance is measured
+  - [x] test without any interactable objects nearby
     - with physics checks still every Update: left+right hand 0.05 ms average
-  - [ ] test with a few interactable objects nearby
+    - with physics every other fixed Update and also alternating hands: left+right hand 0.025 ms total average
+  - [x] test with a few interactable objects nearby
     - with physics checks still every Update: left+right hand 0.2 ms average
-  - [ ] test with many interactable objects nearby
+    - with physics every other fixed Update and also alternating hands: left+right hand 0.1 ms total average
+  - [x] test with many interactable objects nearby
     - with physics checks still every Update: left+right hand 0.75 ms average
-- [ ] reduce frequency of physics checks. Even if performance measuring ends up being fine, physics checks should only happen in FixedUpdate and I'd say it should only happen like 5 to 20 times per second, depending on what feels good enough
+    - with physics every other fixed Update and also alternating hands: left+right hand 0.25 ms total average
+- [x] reduce frequency of physics checks. Even if performance measuring ends up being fine, physics checks should only happen in FixedUpdate and I'd say it should only happen like 5 to 20 times per second, depending on what feels good enough
 - [x] make auto hold actually not rely on the InputDrop event but instead drop the item when the InputPickup event is raised again
   - [x] if InputPickup is held for longer than x amount of time when picking up a pickup, treat InputPickup up as dropping the pickup
 - [ ] option to make interactable objects only interactable when in front of the player. Not necessarily in view, but most likely in view
