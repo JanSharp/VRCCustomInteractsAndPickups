@@ -90,6 +90,7 @@
 - [ ] maybe add OnInteractUp event
 - [x] remove this arbitrary raycast from the index finger. Or well in the case of this package it's the from the palm, even. It's arbitrary, makes no sense and doesn't feel good to use either
 - [x] move the sphere cast to be tangential to the palm rather than centered on the palm. It does not make sense to be able to pick something up that is on the outside/back of the hand
+- [ ] drop makes the item flash in desktop. Need to clear variables
 
 # VR Testing
 
