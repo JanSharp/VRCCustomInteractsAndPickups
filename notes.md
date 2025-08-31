@@ -91,7 +91,7 @@
 - [ ] maybe add OnInteractUp event
 - [x] remove this arbitrary raycast from the index finger. Or well in the case of this package it's the from the palm, even. It's arbitrary, makes no sense and doesn't feel good to use either
 - [x] move the sphere cast to be tangential to the palm rather than centered on the palm. It does not make sense to be able to pick something up that is on the outside/back of the hand
-- [ ] drop makes the item flash in desktop. Need to clear variables
+- [x] drop makes the item flash in desktop. Need to clear variables
 - [ ] the ability to pass from one hand to the other is likely useful
 - [ ] ask more people about the raycast in VR, it's an accessibility thing so you don't have to kneel down to the floor to pick something up from the ground...
 - [ ] change MaxClickDurationSeconds to 0.4 or 0.5 for VR

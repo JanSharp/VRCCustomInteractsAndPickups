@@ -623,6 +623,7 @@ namespace JanSharp.Internal
 #endif
             isHolding = true;
             pickedUpAt = Time.time;
+            nextScript = null; // Clear to prevent this script getting highlighted briefly when dropping it.
 
             if (!skipOffsetCalculation)
                 CalculateActivePickupOffsets();
