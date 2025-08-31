@@ -83,6 +83,7 @@
   - [x] make default raycast distance short, just long enough to be able to reach something on the ground without having to touch it, like when using half body, sitting IRL but standing in VRChat, you can't actually reach the ground in that case
 - [ ] make interaction/use text rotate centered on themselves, not their parent which is notably offset
   - [ ] the issue is knowing the center of the text. Does text mesh pro have a function to check the width and height of rendered text?
+  - [ ] maybe position the text centered above the hand and make the text centered. This would make it just work, with the difference being that text would now be above the hand rather than to the side
 - [x] most likely move interaction text just next to the hand rather than the in world object
 - [ ] make the interact and pickup scripts have a singleton dependency on the manager
 - [x] add OnInteractDown event. This makes it so that interact listeners don't have all of the interact related properties shown in the inspector, and enables having the listener on the same object as the interact script without having VRC interact also show up
@@ -91,6 +92,16 @@
 - [x] remove this arbitrary raycast from the index finger. Or well in the case of this package it's the from the palm, even. It's arbitrary, makes no sense and doesn't feel good to use either
 - [x] move the sphere cast to be tangential to the palm rather than centered on the palm. It does not make sense to be able to pick something up that is on the outside/back of the hand
 - [ ] drop makes the item flash in desktop. Need to clear variables
+- [ ] the ability to pass from one hand to the other is likely useful
+- [ ] ask more people about the raycast in VR, it's an accessibility thing so you don't have to kneel down to the floor to pick something up from the ground...
+- [ ] change MaxClickDurationSeconds to 0.4 or 0.5 for VR
+  - [ ] maybe just put it on a slider in a debug UI so people can test
+- [ ] make it an option for the user to pick what kind of auto hold behavior they want
+  - [x] click grab to begin auto hold, another grab to release. Hold grab and it won't autohold
+  - [ ] first grab initiates auto hold no matter how long it was pressed, another grab to release. This matches VRChat's behavior
+  - [ ] grab and trigger at the same time to initiate auto hold, then a grab to release. Otherwise grab simply picks up and drops with the down and up events respectively
+  - [ ] maybe ask more people for their input
+- [ ] change the default VR range to 0.1 instead of 0.05, it's a bit short of a range
 
 # VR Testing
 
