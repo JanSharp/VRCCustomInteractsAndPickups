@@ -54,11 +54,17 @@ namespace JanSharp.Internal
         [System.NonSerialized] public CustomPickup activePickup;
         private CustomInteractableBase activeScript;
         private Transform activeTransform;
-        private Vector3 hitPoint; // TODO: convert into local space of the active script.
+        private Vector3 hitPoint;
+        private VRCPlayerApi.TrackingData trackingDataForHitPoint;
+        private Vector3 interactablePositionForHitPoint;
+        private Quaternion interactableRotationForHitPoint;
 
         private bool nextIsInteract;
         private CustomInteractableBase nextScript;
-        private Vector3 nextHitPoint; // TODO: convert into local space of the active script.
+        private Vector3 nextHitPoint;
+        private VRCPlayerApi.TrackingData nextTrackingDataForHitPoint;
+        private Vector3 nextInteractablePositionForHitPoint;
+        private Quaternion nextInteractableRotationForHitPoint;
 
         private CustomInteractableBase lastHapticsState = null;
         private bool lastHapticsHoldingState = false;
@@ -152,7 +158,12 @@ namespace JanSharp.Internal
             else if ((hasActiveInteract || hasActivePickup) && activeScript == null)
                 ClearActiveScriptVariables();
 
+            // These values need to be updated in case we reach the branches (nextScript == activeScript) or SetActivePickup.
             hitPoint = nextHitPoint;
+            trackingDataForHitPoint = nextTrackingDataForHitPoint;
+            interactablePositionForHitPoint = nextInteractablePositionForHitPoint;
+            interactableRotationForHitPoint = nextInteractableRotationForHitPoint;
+
             if (nextScript == null)
                 ClearActiveScript();
             else if (nextScript == activeScript)
@@ -242,9 +253,9 @@ namespace JanSharp.Internal
         {
             float maxDistance = 25f * eyeHeightScale;
 
-            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
-            Vector3 raycastOrigin = hand.position;
-            Vector3 raycastForward = hand.rotation * rotationNormalization * Vector3.forward;
+            nextTrackingDataForHitPoint = localPlayer.GetTrackingData(trackingHandType);
+            Vector3 raycastOrigin = nextTrackingDataForHitPoint.position;
+            Vector3 raycastForward = nextTrackingDataForHitPoint.rotation * rotationNormalization * Vector3.forward;
 
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.gameObject.SetActive(true);
@@ -269,6 +280,9 @@ namespace JanSharp.Internal
             if (interactable == null || !interactable.CanInteract())
                 return;
             nextHitPoint = hit.point;
+            Transform t = interactable.transform;
+            nextInteractablePositionForHitPoint = t.position;
+            nextInteractableRotationForHitPoint = t.rotation;
             if (Vector3.Distance(raycastOrigin, nextHitPoint) > interactable.desktopReach * eyeHeightScale)
                 return;
             nextScript = interactable;
@@ -280,15 +294,15 @@ namespace JanSharp.Internal
             // Divide by 2 because the definition is a diameter.
             float maxRadius = /* 1f * */ eyeHeightScale / 2f;
 
-            VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
-            Vector3 handPosition = hand.position;
+            nextTrackingDataForHitPoint = localPlayer.GetTrackingData(trackingHandType);
+            Vector3 handPosition = nextTrackingDataForHitPoint.position;
 
             bool closestIsInteract = false;
             CustomInteractableBase closestInteractable = null;
             float closestDistance = float.PositiveInfinity;
             Vector3 closestHitPoint = Vector3.zero;
 
-            Vector3 maxSphereOffset = hand.rotation * palmDirection * maxRadius;
+            Vector3 maxSphereOffset = nextTrackingDataForHitPoint.rotation * palmDirection * maxRadius;
             Collider[] colliders = Physics.OverlapSphere(handPosition + maxSphereOffset, maxRadius, interactLayer | pickupLayer, QueryTriggerInteraction.Collide);
             foreach (Collider collider in colliders)
             {
@@ -333,6 +347,12 @@ namespace JanSharp.Internal
             nextIsInteract = closestIsInteract;
             nextScript = closestInteractable;
             nextHitPoint = closestHitPoint;
+            if (closestInteractable != null)
+            {
+                Transform t = closestInteractable.transform;
+                nextInteractablePositionForHitPoint = t.position;
+                nextInteractableRotationForHitPoint = t.rotation;
+            }
         }
 
         private void ClearActiveScript()
@@ -579,12 +599,11 @@ namespace JanSharp.Internal
             if (exactGrip == null)
             {
                 // Move to hand.
-                VRCPlayerApi.TrackingData hand = localPlayer.GetTrackingData(trackingHandType);
-                Vector3 handPosition = hand.position;
-                Quaternion inverseTrackingDataRotation = Quaternion.Inverse(hand.rotation);
+                Vector3 handPosition = trackingDataForHitPoint.position;
+                Quaternion inverseTrackingDataRotation = Quaternion.Inverse(trackingDataForHitPoint.rotation);
                 Vector3 distanceFromTrackingData = inverseTrackingDataRotation * (hitPoint - handPosition);
-                heldOffsetRotation = inverseTrackingDataRotation * activeTransform.rotation;
-                heldOffsetVector = inverseTrackingDataRotation * (activeTransform.position - handPosition)
+                heldOffsetRotation = inverseTrackingDataRotation * interactableRotationForHitPoint;
+                heldOffsetVector = inverseTrackingDataRotation * (interactablePositionForHitPoint - handPosition)
                     - distanceFromTrackingData + offsetVectorShift;
             }
             else
