@@ -102,6 +102,9 @@
   - [ ] grab and trigger at the same time to initiate auto hold, then a grab to release. Otherwise grab simply picks up and drops with the down and up events respectively
   - [ ] maybe ask more people for their input
 - [ ] change the default VR range to 0.1 instead of 0.05, it's a bit short of a range
+- [ ] might have to double the update frequency of physics checks in VR, trying to catch an item that is flying with 12.5 updates per second is rough
+- [ ] maybe more of the Update logic could be moved into FixedUpdate, removing the layer of `nextFooBar` variables
+- [ ] In CalculateActivePickupOffsets the move to hand logic is ultimately the reason why objects stay noticeably out of range when picked up while they are already were out of range due to physics checks being spread out. It ends up not moving towards the hand, because the hit point is out of date. Figure out what the true goal of this logic should be, and then implement that.
 
 # VR Testing
 
