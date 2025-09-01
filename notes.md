@@ -99,7 +99,7 @@
 - [ ] make it an option for the user to pick what kind of auto hold behavior they want
   - [x] click grab to begin auto hold, another grab to release. Hold grab and it won't autohold
   - [ ] first grab initiates auto hold no matter how long it was pressed, another grab to release. This matches VRChat's behavior
-  - [ ] grab and trigger at the same time to initiate auto hold, then a grab to release. Otherwise grab simply picks up and drops with the down and up events respectively
+  - [x] grab and trigger at the same time to initiate auto hold, then a grab to release. Otherwise grab simply picks up and drops with the down and up events respectively
   - [ ] maybe ask more people for their input
 - [x] change the default VR range to 0.1 instead of 0.05, it's a bit short of a range
 - [ ] might have to double the update frequency of physics checks in VR, trying to catch an item that is flying with 12.5 updates per second is rough

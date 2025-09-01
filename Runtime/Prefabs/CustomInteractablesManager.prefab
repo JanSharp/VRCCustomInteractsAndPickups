@@ -143,6 +143,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1715548068568552375}
+  autoHoldMode: 0
   highlightMat: {fileID: 2100000, guid: b85159ff156c9d64bbc37de5d27c92a1, type: 2}
   highlightPartPrefab: {fileID: 3503689976940156827, guid: 2f4b817e2a19632fd9425bcce67f1369,
     type: 3}

@@ -56,12 +56,14 @@ namespace JanSharp.Internal
         private bool lastHapticsHoldingState = false;
 
         private bool isHolding;
+        private bool isAutoHolding;
         private float pickedUpAt = -1;
         private Vector3 heldOffsetVector;
         private Quaternion heldOffsetRotation;
         private bool isHoldingUseButton;
 
-        private float lastInputUseTime = -1f;
+        private float lastInputUseEventTime = -1f;
+        private float lastInputUseDownTime = -1f;
         private float inputGrabDownAt = -1f;
         /// <summary>
         /// <para>Always <see langword="true"/> for desktop.</para>
@@ -72,6 +74,8 @@ namespace JanSharp.Internal
         private const float MaxClickDurationSecondsDesktop = 0.2f;
         private const float MaxClickDurationSecondsVR = 0.4f; // The grab motion is less common and slower than a button click.
         private float maxClickDurationSeconds;
+        [System.NonSerialized] public CustomPickupsAutoHoldMode autoHoldMode;
+        private const float SimultaneousInputSeconds = 0.2f;
 
         private int interactLayerNumber = 8;
         private LayerMask interactLayer = (LayerMask)(1 << 8);
@@ -490,35 +494,53 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputUse - value: {value}, args.handType == handType: {args.handType == handType}, lastInputUse == Time.time: {lastInputUseTime == Time.time}");
 #endif
-            if ((isInVR && args.handType != handType) || lastInputUseTime == Time.time)
-                return;
             // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
             // VRChat is raising the InputUse event twice when I click the mouse button once.
-            lastInputUseTime = Time.time;
-            if (activeScript == null) // UpdateHand will handle cleanup if the active script got destroyed.
+            float timeTime = Time.time;
+            if ((isInVR && args.handType != handType) || lastInputUseEventTime == timeTime)
                 return;
+            lastInputUseEventTime = timeTime;
+            if (value)
+                lastInputUseDownTime = timeTime;
+            if (activeScript == null) // Update logic will handle cleanup if the active script got destroyed.
+                return;
+
             if (hasActiveInteract)
             {
                 if (value)
                     activeInteract.DispatchOnInteract();
+                return;
             }
-            if (hasActivePickup && isHolding && Time.time != pickedUpAt)
+
+            if (!hasActivePickup || !isHolding)
+                return;
+            // Logic for when grab and use are the same physical input.
+            if (autoHoldMode != CustomPickupsAutoHoldMode.SimultaneousGrabAndUse && timeTime == pickedUpAt)
+                return;
+
+            if (value)
             {
-                if (value)
+                if (!isAutoHolding // A theoretical optimization. Premature, probably.
+                    && timeTime <= pickedUpAt + SimultaneousInputSeconds
+                    && autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse
+                    && activePickup.autoHold)
                 {
-                    if (!isHoldingUseButton)
-                    {
-                        isHoldingUseButton = true;
-                        activePickup.DispatchOnPickupUseDown();
-                    }
+                    isAutoHolding = true;
+                    return;
                 }
-                else
+
+                if (!isHoldingUseButton)
                 {
-                    if (isHoldingUseButton)
-                    {
-                        isHoldingUseButton = false;
-                        activePickup.DispatchOnPickupUseUp();
-                    }
+                    isHoldingUseButton = true;
+                    activePickup.DispatchOnPickupUseDown();
+                }
+            }
+            else
+            {
+                if (isHoldingUseButton)
+                {
+                    isHoldingUseButton = false;
+                    activePickup.DispatchOnPickupUseUp();
                 }
             }
         }
@@ -535,11 +557,19 @@ namespace JanSharp.Internal
                 return;
             }
 
+            float timeTime = Time.time;
             if (value)
             {
-                inputGrabDownAt = Time.time;
-                if (!isHolding)
-                    PickupActivePickup();
+                inputGrabDownAt = timeTime;
+                if (isHolding)
+                    return;
+                PickupActivePickup();
+                if (activePickup.autoHold
+                    && autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse
+                    && timeTime <= lastInputUseDownTime + SimultaneousInputSeconds)
+                {
+                    isAutoHolding = true;
+                }
                 return;
             }
 
@@ -548,7 +578,9 @@ namespace JanSharp.Internal
 
             if (inputGrabDownAt == pickedUpAt) // Is the same button press as the one that picked up the pickup.
             {
-                if (!activePickup.autoHold || Time.time - inputGrabDownAt > maxClickDurationSeconds)
+                if (autoHoldMode == CustomPickupsAutoHoldMode.ShortGrab)
+                    isAutoHolding = activePickup.autoHold && timeTime - inputGrabDownAt <= maxClickDurationSeconds;
+                if (!isAutoHolding)
                     DropActivePickup();
                 return;
             }
@@ -724,6 +756,7 @@ namespace JanSharp.Internal
             debugRaycast.gameObject.SetActive(true);
 #endif
             isHolding = false;
+            isAutoHolding = false;
             if (activeTransform != null)
             {
                 interpolation.CancelLocalPositionInterpolation(activeTransform);

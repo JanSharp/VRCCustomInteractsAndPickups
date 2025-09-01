@@ -5,10 +5,52 @@ using VRC.Udon.Common;
 
 namespace JanSharp.Internal
 {
+    public enum CustomPickupsAutoHoldMode
+    {
+        /// <summary>
+        /// <para>When in desktop this behaves the same way as <see cref="ShortGrab"/>.</para>
+        /// <para>Auto hold is only initiated when receiving grab input down and use input down events within
+        /// a short period of time.</para>
+        /// <para>The input grab up event must not have been received yet before receiving the use input down
+        /// event.</para>
+        /// <para>Once auto hold is initiated, the next grab input up event will be ignored. The next grab
+        /// input up event after that will drop the pickup.</para>
+        /// <para>Any other grab inputs will pick pickups up in the grab input down event and drop them with
+        /// the grab input up event.</para>
+        /// </summary>
+        SimultaneousGrabAndUse,
+        /// <summary>
+        /// <para>When picking up a pickup, if the grab down and up events are within a short period of time,
+        /// almost like a click, auto hold is initiated. Which is to say that the grab up event will not
+        /// result in the pickup getting dropped. The next grab up event after that will drop the
+        /// pickup.</para>
+        /// <para>If it is longer than a click, more like a drag, the grab up event will drop the
+        /// pickup.</para>
+        /// </summary>
+        ShortGrab,
+        // /// <summary>
+        // /// <para>The VRChat way.</para>
+        // // /// <para>Since there is no per pickup auto hold option, this makes every grab result in auto
+        // // /// hold.</para>
+        // /// </summary>
+        // AnyDurationGrab,
+    }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     [SingletonDependency(typeof(SingletonManager))] // Not used in this script, but interacts/pickups do need it.
     public class CustomInteractablesManager : CustomInteractablesManagerAPI
     {
+        [SerializeField] private CustomPickupsAutoHoldMode autoHoldMode;
+        public CustomPickupsAutoHoldMode AutoHoldMode
+        {
+            get => autoHoldMode;
+            set
+            {
+                autoHoldMode = value;
+                UpdateAutoHoldMode();
+            }
+        }
+
         public Material highlightMat;
         public GameObject highlightPartPrefab;
         public CustomInteractHandManager leftHand;
@@ -65,10 +107,24 @@ namespace JanSharp.Internal
                 leftHand.manager = this;
                 Destroy(rightHand.gameObject); // Disabled scripts apparently still get VRChat's InoutFoo events, so destroy it instead.
             }
+            UpdateAutoHoldMode();
             leftHand.Initialize();
             if (isInVR)
                 rightHand.Initialize();
             UpdateEyeHeightLoop();
+        }
+
+        private void UpdateAutoHoldMode()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  UpdateAutoHoldMode");
+#endif
+            CustomPickupsAutoHoldMode actualValue = !isInVR && autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse
+                ? CustomPickupsAutoHoldMode.ShortGrab
+                : autoHoldMode;
+            leftHand.autoHoldMode = actualValue;
+            if (rightHand != null)
+                rightHand.autoHoldMode = actualValue;
         }
 
         public override void OnAvatarEyeHeightChanged(VRCPlayerApi player, float prevEyeHeightAsMeters)
