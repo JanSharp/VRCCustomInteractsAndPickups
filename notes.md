@@ -94,7 +94,7 @@
 - [x] drop makes the item flash in desktop. Need to clear variables
 - [ ] the ability to pass from one hand to the other is likely useful
 - [ ] ask more people about the raycast in VR, it's an accessibility thing so you don't have to kneel down to the floor to pick something up from the ground...
-- [ ] change MaxClickDurationSeconds to 0.4 or 0.5 for VR
+- [x] change MaxClickDurationSeconds to 0.4 or 0.5 for VR
   - [ ] maybe just put it on a slider in a debug UI so people can test
 - [ ] make it an option for the user to pick what kind of auto hold behavior they want
   - [x] click grab to begin auto hold, another grab to release. Hold grab and it won't autohold

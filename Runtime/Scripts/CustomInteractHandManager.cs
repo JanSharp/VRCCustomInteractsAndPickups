@@ -69,7 +69,9 @@ namespace JanSharp.Internal
         /// <see cref="InputDrop(bool, UdonInputEventArgs)"/> event.</para>
         /// </summary>
         private bool hasDropKeyBind = false;
-        private const float MaxClickDurationSeconds = 0.2f;
+        private const float MaxClickDurationSecondsDesktop = 0.2f;
+        private const float MaxClickDurationSecondsVR = 0.4f; // The grab motion is less common and slower than a button click.
+        private float maxClickDurationSeconds;
 
         private int interactLayerNumber = 8;
         private LayerMask interactLayer = (LayerMask)(1 << 8);
@@ -95,6 +97,7 @@ namespace JanSharp.Internal
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
             hasDropKeyBind = !isInVR;
+            maxClickDurationSeconds = isInVR ? MaxClickDurationSecondsVR : MaxClickDurationSecondsDesktop;
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
             updateContainer = StopwatchUtil.CreateDataContainer();
             fixedUpdateContainer = StopwatchUtil.CreateDataContainer();
@@ -545,7 +548,7 @@ namespace JanSharp.Internal
 
             if (inputGrabDownAt == pickedUpAt) // Is the same button press as the one that picked up the pickup.
             {
-                if (!activePickup.autoHold || Time.time - inputGrabDownAt > MaxClickDurationSeconds)
+                if (!activePickup.autoHold || Time.time - inputGrabDownAt > maxClickDurationSeconds)
                     DropActivePickup();
                 return;
             }
