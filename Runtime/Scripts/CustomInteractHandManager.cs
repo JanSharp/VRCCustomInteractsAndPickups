@@ -455,8 +455,10 @@ namespace JanSharp.Internal
                 return;
             }
 
-            interactTextElem.text = activeScript.interactText;
-            MoveTextToHand(interactTextRoot);
+            string interactText = activeScript.interactText;
+            interactTextElem.text = interactText;
+            if (interactText != "") // Optimization.
+                MoveTextToHand(interactTextRoot);
         }
 
         private void EnableDisableUseText()
@@ -483,8 +485,10 @@ namespace JanSharp.Internal
                 return;
             }
 
-            useTextElem.text = activePickup.useText;
-            MoveTextToHand(useTextTransform);
+            string useText = activePickup.useText;
+            useTextElem.text = useText;
+            if (useText != "") // Optimization.
+                MoveTextToHand(useTextTransform);
         }
 
         private void MoveTextToHand(Transform textTransform)
