@@ -69,7 +69,6 @@ namespace JanSharp
 #endif
             if ((--shownCount) != 0)
                 return;
-            Initialize();
             foreach (CustomInteractHighlightPart part in highlightParts)
                 part.gameObject.SetActive(false);
         }
