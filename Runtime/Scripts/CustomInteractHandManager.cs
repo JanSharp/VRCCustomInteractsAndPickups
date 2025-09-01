@@ -41,13 +41,6 @@ namespace JanSharp.Internal
         public TextMeshProUGUI interactTextElemDesktop;
         public TextMeshProUGUI useTextElemDesktop;
 
-        // private Vector3 trackingDataOrigin;
-        // private Quaternion trackingDataRotation;
-
-        // private Vector3 raycastOrigin;
-        // private Quaternion raycastRotation;
-        // private Vector3 raycastForward;
-
         private bool hasActiveInteract;
         private bool hasActivePickup;
         private CustomInteract activeInteract;
