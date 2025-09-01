@@ -10,7 +10,7 @@ namespace JanSharp
             + "To support tiny and huge avatars, the actual range is "
             + "'VR Reach * Clamp(EyeHeight / 2, 0.25, 4)'.")]
         [Range(0f, 1f)]
-        public float vRReach = 0.05f; // Stupid capitalization to make it display as VR Reach in the inspector.
+        public float vRReach = 0.1f; // Stupid capitalization to make it display as VR Reach in the inspector.
         [Tooltip("Imagine a laser from the center of the screen.\n"
             + "To support tiny and huge avatars, the actual range is "
             + "'DesktopReach * Clamp(EyeHeight / 2, 0.25, 4)'.")]
