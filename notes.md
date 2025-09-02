@@ -1,6 +1,6 @@
 
 - [x] interact script
-  - [ ] probably an abstract base class or something
+  - [x] ~~probably an abstract base class or something~~ has a list of listeners
   - [x] interact text
   - [x] proximity, working the same way as pickups described below
 - [ ] pickup script
@@ -37,12 +37,12 @@
   - [ ] have another visual feedback when an object becomes deselected
     - [ ] either have a very slight lingering effect after the flash finished
     - [ ] or have a visually clearly different kind of flash when it gets deselected
-- [ ] support multiple interact scripts on one object, there's a few options:
-  - simply allow multiple on an object and arbitrarily choose one which controls proximity and text
-  - allow multiple but have a "component priority" where the script with highest priority controls the interact settings, but this has likely confusing UX
-  - allow multiple but give the user the option to choose which one is used, which requires some editor scripting gymnastics especially when prefabs are involved
-  - only allow one and have it have "child" or "chained" interact scripts which also get triggered when the main one does
-  - only allow one by having an interact script just like the pickup script and have a list of listeners again just like the pickups. This basically means other script are not allowed to derive from the interact class
+- [x] support multiple interact scripts on one object, there's a few options:
+  - nope: simply allow multiple on an object and arbitrarily choose one which controls proximity and text
+  - nope: allow multiple but have a "component priority" where the script with highest priority controls the interact settings, but this has likely confusing UX
+  - nope: allow multiple but give the user the option to choose which one is used, which requires some editor scripting gymnastics especially when prefabs are involved
+  - nope: only allow one and have it have "child" or "chained" interact scripts which also get triggered when the main one does
+  - yep: only allow one by having an interact script just like the pickup script and have a list of listeners again just like the pickups. This basically means other script are not allowed to derive from the interact class
 - [x] ~~maybe force interact objects to be on the interactive layer. Issue is that it could be intentional to have only part of the interact hierarchy be interactive~~ solved with the convenience and obviousness of the set layer buttons
 - [x] ~~maybe force pickup objects to be on the pickup layer. Issue is that it could be intentional to have only part of the pickup hierarchy be interactive~~ solved with the convenience and obviousness of the set layer buttons
 - [x] mention somewhere in the component that only colliders on a specific layer are used, and that they can be children of the object the script is on
