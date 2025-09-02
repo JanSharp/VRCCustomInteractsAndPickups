@@ -527,8 +527,7 @@ namespace JanSharp.Internal
             {
                 if (!isAutoHolding // A theoretical optimization. Premature, probably.
                     && timeTime <= pickedUpAt + SimultaneousInputSeconds
-                    && autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse
-                    && activePickup.autoHold)
+                    && autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse)
                 {
                     isAutoHolding = true;
                     return;
@@ -569,10 +568,9 @@ namespace JanSharp.Internal
                 if (isHolding)
                     return;
                 PickupActivePickup();
-                if (activePickup.autoHold
-                    && (autoHoldMode == CustomPickupsAutoHoldMode.AnyDurationGrab
-                        || (autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse
-                            && timeTime <= lastInputUseDownTime + SimultaneousInputSeconds)))
+                if (autoHoldMode == CustomPickupsAutoHoldMode.AnyDurationGrab
+                    || (autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse
+                        && timeTime <= lastInputUseDownTime + SimultaneousInputSeconds))
                 {
                     isAutoHolding = true;
                 }
@@ -585,7 +583,7 @@ namespace JanSharp.Internal
             if (inputGrabDownAt == pickedUpAt) // Is the same button press as the one that picked up the pickup.
             {
                 if (autoHoldMode == CustomPickupsAutoHoldMode.ShortGrab)
-                    isAutoHolding = activePickup.autoHold && timeTime - inputGrabDownAt <= maxClickDurationSeconds;
+                    isAutoHolding = timeTime - inputGrabDownAt <= maxClickDurationSeconds;
                 if (!isAutoHolding)
                     DropActivePickup();
                 return;
