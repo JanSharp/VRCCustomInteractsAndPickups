@@ -43,9 +43,12 @@
   - allow multiple but give the user the option to choose which one is used, which requires some editor scripting gymnastics especially when prefabs are involved
   - only allow one and have it have "child" or "chained" interact scripts which also get triggered when the main one does
   - only allow one by having an interact script just like the pickup script and have a list of listeners again just like the pickups. This basically means other script are not allowed to derive from the interact class
-- [ ] maybe force interact objects to be on the interactive layer. Issue is that it could be intentional to have only part of the interact hierarchy be interactive
-- [ ] maybe force pickup objects to be on the pickup layer. Issue is that it could be intentional to have only part of the pickup hierarchy be interactive
-- [ ] mention somewhere in the component that only colliders on a specific layer are used, and that they can be children of the object the script is on
+- [x] ~~maybe force interact objects to be on the interactive layer. Issue is that it could be intentional to have only part of the interact hierarchy be interactive~~ solved with the convenience and obviousness of the set layer buttons
+- [x] ~~maybe force pickup objects to be on the pickup layer. Issue is that it could be intentional to have only part of the pickup hierarchy be interactive~~ solved with the convenience and obviousness of the set layer buttons
+- [x] mention somewhere in the component that only colliders on a specific layer are used, and that they can be children of the object the script is on
+  - [x] add a button to the inspectors to set this object and its children to the layer in question
+- [ ] add tooltip to pickup listeners about what events get raised
+  - [ ] test if it is valid to raise for example the pickup or drop events on scripts that do not define them
 - [x] only allow one pickup script per object
 - [ ] disallow interact and pickup scripts to be on the same object
 - [ ] maybe a desktop key bind to highlight all interactable objects, mainly for debugging
@@ -107,7 +110,7 @@
 - [x] In CalculateActivePickupOffsets the move to hand logic is ultimately the reason why objects stay noticeably out of range when picked up while they are already were out of range due to physics checks being spread out. It ends up not moving towards the hand, because the hit point is out of date. Figure out what the true goal of this logic should be, and then implement that.
 - [ ] So here's my idea, what if while not holding anything and not having any pickup within reach (nor interact, so nothing is highlighted), performing a short grab and release with a hand temporarily (for like 1 or 2 seconds) changes the reach detection mode to a cone from your palm (angled slightly towards the tip of the fingers, like 30 degrees maybe), and bypasses the reach check of anything that is within that cone. And you know where I'm going with this... that's right, when you grab something in that mode, it flicks it towards your hand, half life alyx style. Sorry, not sorry.
 - [x] make the highlights draw under the interact/use text - just edited the render queue in the asset file, could not find it in the inspector anywhere
-- [ ] custom interacts need a custom inspector with an info box
+- [x] ~~custom interacts need a custom inspector with an info box~~ converted that disgusting header for listeners into a tooltip
 
 # VR Testing
 

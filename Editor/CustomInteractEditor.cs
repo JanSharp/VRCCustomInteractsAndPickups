@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JanSharp.Internal;
 using UdonSharp;
+using UdonSharpEditor;
 using UnityEditor;
 using UnityEngine;
 
@@ -70,6 +72,32 @@ namespace JanSharp
             Debug.LogError($"[CustomInteractsAndPickups] Invalid CustomInteract listener: Missing methods "
                 + $"Interact() and or OnInteractDown(). Must be public non static (aka instance) methods. "
                 + $"Listener class name: '{listener.GetType().Name}'.", listener);
+        }
+    }
+
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(CustomInteract))]
+    public class CustomInteractEditor : Editor
+    {
+        private SerializedObject so;
+
+        public void OnEnable()
+        {
+            so = serializedObject;
+        }
+
+        public override void OnInspectorGUI()
+        {
+            if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(targets))
+                return;
+            CustomInteractableEditorUtil.DrawLayerHelpBoxAndButtons(
+                "Interact",
+                CustomInteractHandManager.InteractLayerName,
+                targets.Cast<CustomInteract>().Select(i => i.transform));
+            EditorGUILayout.Space();
+            so.Update();
+            DrawPropertiesExcluding(so, "m_Script");
+            so.ApplyModifiedProperties();
         }
     }
 }

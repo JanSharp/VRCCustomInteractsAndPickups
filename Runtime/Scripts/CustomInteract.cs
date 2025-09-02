@@ -6,9 +6,10 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomInteract : CustomInteractableBase
     {
-        [Header("Each Listener must define at least one of:\n"
+        [Tooltip("Each Listener must define at least one of:\n"
             + "public override void Interact() - Raised on down\n"
             + "public void OnInteractDown()")]
+        [Space]
         [SerializeField] private UdonSharpBehaviour[] listeners; // Used by editor scripting.
         [HideInInspector][SerializeField] private UdonSharpBehaviour[] actualListeners;
         [HideInInspector][SerializeField] private string[] listenerEventNames;
