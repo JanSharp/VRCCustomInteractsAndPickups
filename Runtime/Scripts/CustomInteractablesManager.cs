@@ -28,12 +28,14 @@ namespace JanSharp.Internal
         /// pickup.</para>
         /// </summary>
         ShortGrab,
-        // /// <summary>
-        // /// <para>The VRChat way.</para>
-        // // /// <para>Since there is no per pickup auto hold option, this makes every grab result in auto
-        // // /// hold.</para>
-        // /// </summary>
-        // AnyDurationGrab,
+        // /// <para>Since there is no per pickup auto hold option, this makes every grab result in auto
+        // /// hold.</para>
+        /// <summary>
+        /// <para>The way VRCPickups auto hold works.</para>
+        /// <para>Grab input down initiates auto hold. The next grab input up gets ignored. The grab input up
+        /// event after that drops the pickup.</para>
+        /// </summary>
+        AnyDurationGrab,
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]

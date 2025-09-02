@@ -565,8 +565,9 @@ namespace JanSharp.Internal
                     return;
                 PickupActivePickup();
                 if (activePickup.autoHold
-                    && autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse
-                    && timeTime <= lastInputUseDownTime + SimultaneousInputSeconds)
+                    && (autoHoldMode == CustomPickupsAutoHoldMode.AnyDurationGrab
+                        || (autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse
+                            && timeTime <= lastInputUseDownTime + SimultaneousInputSeconds)))
                 {
                     isAutoHolding = true;
                 }
