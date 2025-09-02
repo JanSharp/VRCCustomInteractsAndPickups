@@ -101,7 +101,7 @@
 - [x] change MaxClickDurationSeconds to 0.4 or 0.5 for VR
   - [ ] maybe just put it on a slider in a debug UI so people can test
 - [ ] make it an option for the user to pick what kind of auto hold behavior they want
-  - [x] click grab to begin auto hold, another grab to release. Hold grab and it won't autohold
+  - [x] click grab to begin auto hold, another grab to release. Hold grab and it won't auto hold
   - [x] first grab initiates auto hold no matter how long it was pressed, another grab to release. This matches VRChat's behavior
   - [x] grab and trigger at the same time to initiate auto hold, then a grab to release. Otherwise grab simply picks up and drops with the down and up events respectively
   - [ ] maybe ask more people for their input
