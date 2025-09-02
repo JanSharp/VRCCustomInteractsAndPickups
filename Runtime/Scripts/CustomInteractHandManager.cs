@@ -448,7 +448,7 @@ namespace JanSharp.Internal
 
             string interactText = activeScript.interactText;
             interactTextElem.text = interactText;
-            if (interactText != "") // Optimization.
+            if (!string.IsNullOrWhiteSpace(interactText)) // Optimization.
                 MoveTextToHand(interactTextRoot);
         }
 
@@ -478,7 +478,7 @@ namespace JanSharp.Internal
 
             string useText = activePickup.useText;
             useTextElem.text = useText;
-            if (useText != "") // Optimization.
+            if (!string.IsNullOrWhiteSpace(useText)) // Optimization.
                 MoveTextToHand(useTextTransform);
         }
 

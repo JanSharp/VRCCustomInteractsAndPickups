@@ -57,7 +57,7 @@
 - [ ] maybe support modifying the exact grip transform at runtime
 - [x] calculate max raycast length, instead of just blindly using 100
 - [ ] teleport dummy vrc pickups to the hand when interacting or picking up something to prevent interaction with vrc interacts, vrc pickups or UIs when interacting or holding one of the custom interacts/pickups
-- [ ] handle null interactText and useText
+- [x] handle null interactText and useText
 - [ ] should disabled items automatically get dropped?
 - [ ] editor utility to replace VRCPickup with CustomPickup and vice versa
 - [ ] use PlayHapticEventInHand for when an interactable object comes in range
