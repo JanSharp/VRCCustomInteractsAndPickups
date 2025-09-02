@@ -47,8 +47,9 @@
 - [x] ~~maybe force pickup objects to be on the pickup layer. Issue is that it could be intentional to have only part of the pickup hierarchy be interactive~~ solved with the convenience and obviousness of the set layer buttons
 - [x] mention somewhere in the component that only colliders on a specific layer are used, and that they can be children of the object the script is on
   - [x] add a button to the inspectors to set this object and its children to the layer in question
-- [ ] add tooltip to pickup listeners about what events get raised
-  - [ ] test if it is valid to raise for example the pickup or drop events on scripts that do not define them
+- [x] add tooltip to pickup listeners about what events get raised
+  - [x] test if it is valid to raise for example the pickup or drop events on scripts that do not define them
+    - apparently you can send events to scripts where said scripts do not even have an event with that name and Udon does not care. Who knows if this is intended behavior and or if that's ever going to change
 - [x] only allow one pickup script per object
 - [ ] disallow interact and pickup scripts to be on the same object
 - [ ] maybe a desktop key bind to highlight all interactable objects, mainly for debugging

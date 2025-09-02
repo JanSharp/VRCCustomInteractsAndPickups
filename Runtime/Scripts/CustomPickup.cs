@@ -17,6 +17,11 @@ namespace JanSharp
             + "position, this transform would be exactly at your hand tracking position, which I believe to "
             + "be around the palm.")]
         public Transform exactGrip;
+        [Tooltip("Each Listener can define any or all of these:\n"
+            + "public override void OnPickup()\n"
+            + "public override void OnDrop()\n"
+            + "public override void OnPickupUseDown()\n"
+            + "public override void OnPickupUseUp()")]
         [Space]
         public UdonSharpBehaviour[] listeners;
 
