@@ -46,6 +46,29 @@ namespace JanSharp.Internal
     [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractablesManager.prefab
     public class CustomInteractablesManager : CustomInteractablesManagerAPI
     {
+        // This is copy paste from the xml annotations above. This is absolutely horrible, but whatever it's better than nothing.
+        [Tooltip("SimultaneousGrabAndUse:\n"
+            + "When in desktop this behaves the same way as ShortGrab.\n"
+            + "Auto hold is only initiated when receiving grab input down and use input down events within a "
+                + "short period of time.\n"
+            + "The input grab up event must not have been received yet before receiving the use input down event.\n"
+            + "Once auto hold is initiated, the next grab input up event will be ignored. The next grab "
+                + "input up event after that will drop the pickup.\n"
+            + "Any other grab inputs will pick pickups up in the grab input down event and drop them with "
+                + "the grab input up event.\n"
+            + "\n"
+            + "ShortGrab:\n"
+            + "When picking up a pickup, if the grab down and up events are within a short period of time, "
+                + "almost like a click, auto hold is initiated. Which is to say that the grab up event will not "
+                + "result in the pickup getting dropped. The next grab up event after that will drop the pickup.\n"
+            + "If it is longer than a click, more like a drag, the grab up event will drop the pickup.\n"
+            + "\n"
+            + "AnyDurationGrab:\n"
+            + "The way VRCPickups auto hold works.\n"
+            + "Grab input down initiates auto hold. The next grab input up gets ignored. The grab input up "
+                + "event after that drops the pickup.\n"
+            + "Since there is no per pickup auto hold option - everything is auto hold - this makes every "
+                + "grab result in auto hold.")]
         [SerializeField] private CustomPickupsAutoHoldMode autoHoldMode;
         public CustomPickupsAutoHoldMode AutoHoldMode
         {
