@@ -1037,7 +1037,7 @@ PrefabInstance:
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonInsts.Array.size
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
@@ -1053,41 +1053,46 @@ PrefabInstance:
         type: 3}
       propertyPath: singletonInsts.Array.data[2]
       value: 
-      objectReference: {fileID: 59263899}
+      objectReference: {fileID: 1715548069762197087}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonInsts.Array.data[3]
       value: 
-      objectReference: {fileID: 1816795492}
+      objectReference: {fileID: 59263899}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonInsts.Array.data[4]
       value: 
-      objectReference: {fileID: 876899352}
+      objectReference: {fileID: 1816795492}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonInsts.Array.data[5]
       value: 
-      objectReference: {fileID: 270945798}
+      objectReference: {fileID: 876899352}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonInsts.Array.data[6]
       value: 
-      objectReference: {fileID: 1768785325}
+      objectReference: {fileID: 270945798}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonInsts.Array.data[7]
       value: 
-      objectReference: {fileID: 788940349}
+      objectReference: {fileID: 1768785325}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonInsts.Array.data[8]
+      value: 
+      objectReference: {fileID: 788940349}
+    - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
+        type: 3}
+      propertyPath: singletonInsts.Array.data[9]
       value: 
       objectReference: {fileID: 114163363}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.size
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
@@ -1102,36 +1107,41 @@ PrefabInstance:
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.data[2]
-      value: BoneAttachmentManager
+      value: CustomInteractablesManager
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.data[3]
-      value: InterpolationManager
+      value: BoneAttachmentManager
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.data[4]
-      value: QuickDebugUI
+      value: InterpolationManager
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.data[5]
-      value: SingletonManager
+      value: QuickDebugUI
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.data[6]
-      value: UpdateManager
+      value: SingletonManager
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.data[7]
-      value: WannaBeClassesManager
+      value: UpdateManager
       objectReference: {fileID: 0}
     - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
         type: 3}
       propertyPath: singletonClassNames.Array.data[8]
+      value: WannaBeClassesManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 7739410691962261305, guid: ca749500abc5a4d4681a60a4ecadde80,
+        type: 3}
+      propertyPath: singletonClassNames.Array.data[9]
       value: TrulyPostLateUpdateManager
       objectReference: {fileID: 0}
     - target: {fileID: 7826145488939114049, guid: ca749500abc5a4d4681a60a4ecadde80,
@@ -3393,8 +3403,8 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 835838374}
   widgets: {fileID: 870955743}
-  editor: {fileID: 1332205060}
   manager: {fileID: 1715548069762197087}
+  editor: {fileID: 1332205060}
 --- !u!4 &835838376
 Transform:
   m_ObjectHideFlags: 0
@@ -6570,8 +6580,8 @@ MonoBehaviour:
   vRReach: 0.1
   desktopReach: 25
   interactText: Take
+  manager: {fileID: 1715548069762197087}
   useText: 
-  autoHold: 1
   exactGrip: {fileID: 0}
   listeners: []
 --- !u!54 &1174049823
@@ -8028,8 +8038,8 @@ MonoBehaviour:
   vRReach: 0.1
   desktopReach: 2.5
   interactText: Take
+  manager: {fileID: 1715548069762197087}
   useText: Do Thing
-  autoHold: 1
   exactGrip: {fileID: 785965930}
   listeners:
   - {fileID: 1095115170}
@@ -10415,6 +10425,7 @@ MonoBehaviour:
   vRReach: 0.1
   desktopReach: 2.5
   interactText: Hi! Hello there!
+  manager: {fileID: 1715548069762197087}
   listeners:
   - {fileID: 648672849}
   - {fileID: 648672853}
