@@ -77,9 +77,11 @@ namespace JanSharp.Internal
         [System.NonSerialized] public CustomPickupsAutoHoldMode autoHoldMode;
         private const float SimultaneousInputSeconds = 0.2f;
 
-        private int interactLayerNumber = 8;
-        private LayerMask interactLayer = (LayerMask)(1 << 8);
-        private LayerMask pickupLayer = (LayerMask)(1 << 13);
+        public const string InteractLayerName = "Interactive";
+        public const string PickupLayerName = "Pickup";
+        private int interactLayerNumber;
+        private LayerMask interactLayer;
+        private LayerMask pickupLayer;
         private const float InteractAndUseTextScale = 0.5f;
 
         private VRCPlayerApi localPlayer;
@@ -102,6 +104,9 @@ namespace JanSharp.Internal
             isInVR = localPlayer.IsUserInVR();
             hasDropKeyBind = !isInVR;
             maxClickDurationSeconds = isInVR ? MaxClickDurationSecondsVR : MaxClickDurationSecondsDesktop;
+            interactLayerNumber = LayerMask.NameToLayer(InteractLayerName);
+            interactLayer = (LayerMask)(1 << interactLayerNumber);
+            pickupLayer = (LayerMask)(1 << LayerMask.NameToLayer(PickupLayerName));
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
             updateContainer = StopwatchUtil.CreateDataContainer();
             fixedUpdateContainer = StopwatchUtil.CreateDataContainer();
