@@ -112,7 +112,7 @@ namespace JanSharp.Internal
             fixedUpdateContainer = StopwatchUtil.CreateDataContainer();
 #endif
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            debugRaycast.gameObject.SetActive(true);
+            debugLine.gameObject.SetActive(true);
 #endif
         }
 
@@ -244,7 +244,7 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.gameObject.SetActive(true);
             debugLine.position = raycastOrigin;
-            debugLine.rotation = raycastRotation;
+            debugLine.rotation = Quaternion.LookRotation(raycastForward);
             debugLine.localScale = new Vector3(1f, 1f, maxDistance);
 #endif
 
@@ -319,11 +319,11 @@ namespace JanSharp.Internal
             if (closestInteractable != null)
             {
                 debugSphere.gameObject.SetActive(true);
-                debugSphere.position = raycastOrigin + trackingDataRotation * palmDirection * closestInteractable.vRReach * maxRadius;
+                debugSphere.position = handPosition + maxSphereOffset;
                 debugSphere.localScale = Vector3.one * (closestInteractable.vRReach * maxRadius * 2f);
                 debugLine.gameObject.SetActive(true);
-                debugLine.position = raycastOrigin;
-                debugLine.rotation = Quaternion.LookRotation(closestHitPoint - raycastOrigin);
+                debugLine.position = handPosition;
+                debugLine.rotation = Quaternion.LookRotation(closestHitPoint - handPosition);
                 debugLine.localScale = new Vector3(1f, 1f, closestDistance);
             }
 #endif
@@ -497,7 +497,7 @@ namespace JanSharp.Internal
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputUse - value: {value}, args.handType == handType: {args.handType == handType}, lastInputUse == Time.time: {lastInputUseTime == Time.time}");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputUse - value: {value}, args.handType == handType: {args.handType == handType}, lastInputUseEventTime == Time.time: {lastInputUseEventTime == Time.time}");
 #endif
             // Ignore multiple InputUse events in the same frame... because for some unexplainable reason
             // VRChat is raising the InputUse event twice when I click the mouse button once.
@@ -647,7 +647,7 @@ namespace JanSharp.Internal
             interpolation.InterpolateLocalPosition(activeTransform, heldOffsetVector, PickupInterpolationDuration, this, nameof(PickupPositionInterpolationCallback), null);
             interpolation.InterpolateLocalRotation(activeTransform, heldOffsetRotation, PickupInterpolationDuration, this, nameof(PickupRotationInterpolationCallback), null);
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            debugRaycast.gameObject.SetActive(false);
+            debugLine.gameObject.SetActive(false);
 #endif
             if (isInVR)
                 SendCustomEventDelayedFrames(nameof(UpdateHaptics), 1);
@@ -757,7 +757,7 @@ namespace JanSharp.Internal
 #endif
             boneAttachment.DetachFromLocalTrackingData(trackingHandType, activeTransform);
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            debugRaycast.gameObject.SetActive(true);
+            debugLine.gameObject.SetActive(true);
 #endif
             isHolding = false;
             isAutoHolding = false;
