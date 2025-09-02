@@ -17,7 +17,7 @@ namespace JanSharp
         [Range(0f, 25f)]
         public float desktopReach = 2.5f;
         public string interactText;
-        [System.NonSerialized] public CustomInteractablesManager manager;
+        [HideInInspector][SingletonReference] public CustomInteractablesManager manager;
         protected bool initialized;
         protected CustomInteractHighlightPart[] highlightParts;
         private int shownCount = 0;
@@ -34,7 +34,7 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  EnsureHasManagerRef");
 #endif
-            if (manager != null)
+            if (manager != null) // Null if this object got instantiated where a prefab was passed to the instantiate call.
                 return;
             manager = SingletonsUtil.GetSingleton<CustomInteractablesManager>(nameof(CustomInteractablesManager));
         }

@@ -85,7 +85,7 @@
   - [x] the issue is knowing the center of the text. Does text mesh pro have a function to check the width and height of rendered text?
   - [x] maybe position the text centered above the hand and make the text centered. This would make it just work, with the difference being that text would now be above the hand rather than to the side
 - [x] most likely move interaction text just next to the hand rather than the in world object
-- [ ] make the interact and pickup scripts have a singleton dependency on the manager
+- [x] make the interact and pickup scripts have a singleton dependency on the manager
 - [x] add OnInteractDown event. This makes it so that interact listeners don't have all of the interact related properties shown in the inspector, and enables having the listener on the same object as the interact script without having VRC interact also show up
   - [x] detect which event to raise for each listener using editor scripting
 - [ ] maybe add OnInteractUp event
@@ -107,6 +107,7 @@
 - [x] In CalculateActivePickupOffsets the move to hand logic is ultimately the reason why objects stay noticeably out of range when picked up while they are already were out of range due to physics checks being spread out. It ends up not moving towards the hand, because the hit point is out of date. Figure out what the true goal of this logic should be, and then implement that.
 - [ ] So here's my idea, what if while not holding anything and not having any pickup within reach (nor interact, so nothing is highlighted), performing a short grab and release with a hand temporarily (for like 1 or 2 seconds) changes the reach detection mode to a cone from your palm (angled slightly towards the tip of the fingers, like 30 degrees maybe), and bypasses the reach check of anything that is within that cone. And you know where I'm going with this... that's right, when you grab something in that mode, it flicks it towards your hand, half life alyx style. Sorry, not sorry.
 - [x] make the highlights draw under the interact/use text - just edited the render queue in the asset file, could not find it in the inspector anywhere
+- [ ] custom interacts need a custom inspector with an info box
 
 # VR Testing
 

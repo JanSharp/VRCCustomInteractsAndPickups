@@ -8,8 +8,8 @@ namespace JanSharp
     public class HapticsConfigUI : UdonSharpBehaviour
     {
         [HideInInspector][SerializeField][SingletonReference] private WidgetManager widgets;
+        [HideInInspector][SingletonReference] public CustomInteractablesManager manager;
         public GenericValueEditor editor;
-        public CustomInteractablesManager manager;
 
         private void Start()
         {

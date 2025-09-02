@@ -39,7 +39,11 @@ namespace JanSharp.Internal
     }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    [SingletonDependency(typeof(SingletonManager))] // Not used in this script, but interacts/pickups do need it.
+    // Not used in this script, but interacts/pickups do need it.
+    [SingletonDependency(typeof(SingletonManager))]
+    // The API already has the SingletonScript attribute, however in order for interacts/pickups to be able to
+    // resolve the singleton reference to this internal script it must also be marked as a singleton script.
+    [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractablesManager.prefab
     public class CustomInteractablesManager : CustomInteractablesManagerAPI
     {
         [SerializeField] private CustomPickupsAutoHoldMode autoHoldMode;
