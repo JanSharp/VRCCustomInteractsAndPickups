@@ -21,6 +21,13 @@ namespace JanSharp
 
         private static bool OnBuild(CustomInteract interact)
         {
+            if (interact.TryGetComponent<CustomPickup>(out _))
+            {
+                Debug.LogError($"[CustomInteractsAndPickups] CustomInteract and CustomPickup scripts must "
+                    + $"not both be on the same object.", interact.gameObject);
+                return false;
+            }
+
             hasInvalidListeners = false;
             SerializedObject so = new SerializedObject(interact);
             var listenerTuples = EditorUtil.EnumerateArrayProperty(so.FindProperty("listeners"))

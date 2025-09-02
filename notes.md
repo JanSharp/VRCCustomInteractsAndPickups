@@ -51,7 +51,7 @@
   - [x] test if it is valid to raise for example the pickup or drop events on scripts that do not define them
     - apparently you can send events to scripts where said scripts do not even have an event with that name and Udon does not care. Who knows if this is intended behavior and or if that's ever going to change
 - [x] only allow one pickup script per object
-- [ ] disallow interact and pickup scripts to be on the same object
+- [x] disallow interact and pickup scripts to be on the same object
 - [ ] maybe a desktop key bind to highlight all interactable objects, mainly for debugging
 - [ ] make sure to null check everything that's held while foreign code could run since objects could get destroyed
 - [ ] maybe support modifying the exact grip transform at runtime
