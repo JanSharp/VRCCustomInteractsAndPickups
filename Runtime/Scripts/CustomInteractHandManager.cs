@@ -646,13 +646,13 @@ namespace JanSharp.Internal
                 inputGrabDownAt = timeTime;
                 if (isHolding)
                     return;
-                PickupActivePickup();
                 if (autoHoldMode == CustomPickupsAutoHoldMode.AnyDurationGrab
                     || (autoHoldMode == CustomPickupsAutoHoldMode.SimultaneousGrabAndUse
                         && timeTime <= lastInputUseDownTime + SimultaneousInputSeconds))
                 {
                     isAutoHolding = true;
                 }
+                PickupActivePickup();
                 return;
             }
 
