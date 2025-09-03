@@ -739,8 +739,8 @@ namespace JanSharp.Internal
 
             boneAttachment.AttachToLocalTrackingData(trackingHandType, activeTransform);
             // TODO: Test and see how it feels to have interpolation enabled for pickups with exact grip.
-            interpolation.InterpolateLocalPosition(activeTransform, heldOffsetVector, PickupInterpolationDuration, this, nameof(PickupPositionInterpolationCallback), null);
-            interpolation.InterpolateLocalRotation(activeTransform, heldOffsetRotation, PickupInterpolationDuration, this, nameof(PickupRotationInterpolationCallback), null);
+            interpolation.LerpLocalPosition(activeTransform, heldOffsetVector, PickupInterpolationDuration, this, nameof(PickupPositionInterpolationCallback), null);
+            interpolation.LerpLocalRotation(activeTransform, heldOffsetRotation, PickupInterpolationDuration, this, nameof(PickupRotationInterpolationCallback), null);
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.gameObject.SetActive(false);
 #endif
@@ -855,8 +855,8 @@ namespace JanSharp.Internal
             isAutoHolding = false;
             if (activeTransform != null)
             {
-                interpolation.CancelLocalPositionInterpolation(activeTransform);
-                interpolation.CancelLocalRotationInterpolation(activeTransform);
+                interpolation.CancelPositionInterpolation(activeTransform);
+                interpolation.CancelRotationInterpolation(activeTransform);
             }
             if (isInVR)
                 SendCustomEventDelayedFrames(nameof(UpdateHaptics), 1);
