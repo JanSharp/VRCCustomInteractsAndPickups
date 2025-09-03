@@ -23,6 +23,7 @@ namespace JanSharp.Internal
         [System.NonSerialized] public Quaternion rotationNormalization;
         [System.NonSerialized] public Vector3 offsetVectorShift;
         [System.NonSerialized] public Vector3 palmDirection;
+        [System.NonSerialized] public Vector3 coneDirection;
         [System.NonSerialized] public CustomInteractablesManager manager;
 
         // DEBUG
@@ -65,6 +66,7 @@ namespace JanSharp.Internal
         private float lastInputUseEventTime = -1f;
         private float lastInputUseDownTime = -1f;
         private float inputGrabDownAt = -1f;
+        private float useConeModeUntilTime = -1f;
         /// <summary>
         /// <para>Always <see langword="true"/> for desktop.</para>
         /// <para>Set to <see langword="true"/> for VR if and when we get a
@@ -76,6 +78,7 @@ namespace JanSharp.Internal
         private float maxClickDurationSeconds;
         [System.NonSerialized] public CustomPickupsAutoHoldMode autoHoldMode;
         private const float SimultaneousInputSeconds = 0.2f;
+        private const float ConeModeDurationSeconds = 2f;
 
         public const string InteractLayerName = "Interactive";
         public const string PickupLayerName = "Pickup";
@@ -111,9 +114,6 @@ namespace JanSharp.Internal
             updateContainer = StopwatchUtil.CreateDataContainer();
             fixedUpdateContainer = StopwatchUtil.CreateDataContainer();
 #endif
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            debugLine.gameObject.SetActive(true);
-#endif
         }
 
         public void SetEyeHeightScale(float eyeHeightScale)
@@ -125,10 +125,6 @@ namespace JanSharp.Internal
 
         public void UpdateHand()
         {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            debugSphere.gameObject.SetActive(false);
-            debugLine.gameObject.SetActive(false);
-#endif
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
             qd.ShowForOneFrame(this, "Fixed Update MS", StopwatchUtil.FormatAvgMinMax(fixedUpdateSw, fixedUpdateContainer));
             fixedUpdateSw.Reset();
@@ -145,6 +141,10 @@ namespace JanSharp.Internal
 
         public void FixedUpdateHand()
         {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            debugSphere.gameObject.SetActive(false);
+            debugLine.gameObject.SetActive(false);
+#endif
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
             fixedUpdateSw.Start();
 #endif
@@ -162,9 +162,14 @@ namespace JanSharp.Internal
             else if ((hasActiveInteract || hasActivePickup) && activeScript == null)
                 ClearActiveScriptVariables();
 
-            CustomInteractableBase script = isInVR
-                ? TryGetNearInteractable(out bool isInteract)
-                : TryGetInteractable(out isInteract);
+            bool isInteract;
+            CustomInteractableBase script;
+            if (!isInVR)
+                script = TryGetInteractable(out isInteract);
+            else if (Time.time <= useConeModeUntilTime)
+                script = TryGetInteractableInCone(includeInteracts: false, out isInteract);
+            else
+                script = TryGetNearInteractable(out isInteract);
 
             if (script == null)
                 ClearActiveScript();
@@ -319,7 +324,7 @@ namespace JanSharp.Internal
             if (closestInteractable != null)
             {
                 debugSphere.gameObject.SetActive(true);
-                debugSphere.position = handPosition + maxSphereOffset;
+                debugSphere.position = handPosition + maxSphereOffset * closestInteractable.vRReach;
                 debugSphere.localScale = Vector3.one * (closestInteractable.vRReach * maxRadius * 2f);
                 debugLine.gameObject.SetActive(true);
                 debugLine.position = handPosition;
@@ -339,13 +344,84 @@ namespace JanSharp.Internal
             return closestInteractable;
         }
 
+        private const int ConeIterations = 4;
+        private const float ConeStartDistance = 0.5f;
+        private const float ConeRadiusPerDistance = 0.4f;
+        private const float ConeOverlap = 0.6f;
+
+        private CustomInteractableBase TryGetInteractableInCone(bool includeInteracts, out bool isInteract)
+        {
+            int layerMask = includeInteracts ? interactLayer | pickupLayer : (int)pickupLayer;
+
+            trackingDataForHitPoint = localPlayer.GetTrackingData(trackingHandType);
+            Vector3 handPosition = trackingDataForHitPoint.position;
+
+            bool closestIsInteract = false;
+            CustomInteractableBase closestInteractable = null;
+            float closestDistance = float.PositiveInfinity;
+            Vector3 closestHitPoint = Vector3.zero;
+
+            Vector3 direction = trackingDataForHitPoint.rotation * rotationNormalization * coneDirection;
+            float distance = ConeStartDistance * eyeHeightScale;
+            float distanceOffset = ConeRadiusPerDistance * distance - distance; // Make the first sphere tangential to the palm.
+            for (int i = 0; i < ConeIterations; i++)
+            {
+                float radius = ConeRadiusPerDistance * distance;
+                Collider[] colliders = Physics.OverlapSphere(
+                    handPosition + direction * (distance + distanceOffset),
+                    radius,
+                    layerMask,
+                    QueryTriggerInteraction.Collide);
+                distance += radius / ConeOverlap;
+                foreach (Collider collider in colliders)
+                {
+                    if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
+                        continue; // even though in normal Unity if we have a hit... this is not possible to be null.
+                    Transform hitTransform = collider.transform;
+                    bool currentIsInteract = hitTransform.gameObject.layer == interactLayerNumber;
+                    CustomInteractableBase interactable = currentIsInteract
+                        ? (CustomInteractableBase)hitTransform.GetComponentInParent<CustomInteract>() // Does not need to include inactive, as the child is active.
+                        : (CustomInteractableBase)hitTransform.GetComponentInParent<CustomPickup>();
+                    if (interactable == null || !interactable.CanInteract())
+                        continue;
+                    Vector3 closestPoint = collider.ClosestPoint(handPosition);
+                    float distanceFromHand = Vector3.Distance(handPosition, closestPoint);
+                    if (distanceFromHand >= closestDistance)
+                        continue;
+                    closestIsInteract = currentIsInteract;
+                    closestInteractable = interactable;
+                    closestDistance = distanceFromHand;
+                    closestHitPoint = closestPoint;
+                }
+                if (closestInteractable != null)
+                    break; // Anything colliding with a smaller sphere wins. They do not overlap all that much.
+            }
+
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            debugLine.gameObject.SetActive(true);
+            debugLine.position = handPosition;
+            debugLine.rotation = Quaternion.LookRotation(direction);
+            debugLine.localScale = new Vector3(1f, 1f, 3f * eyeHeightScale);
+#endif
+
+            isInteract = closestIsInteract;
+            hitPoint = closestHitPoint;
+            if (closestInteractable != null)
+            {
+                Transform t = closestInteractable.transform;
+                interactablePositionForHitPoint = t.position;
+                interactableRotationForHitPoint = t.rotation;
+            }
+            return closestInteractable;
+        }
+
         private void ClearActiveScript()
         {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ClearActiveScript");
-#endif
             if (activeScript == null)
                 return;
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name} (inner)  ClearActiveScript");
+#endif
             activeScript.HideHighlight();
             ClearActiveScriptVariables();
         }
@@ -554,12 +630,15 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputGrab - value: {value}, args.handType == handType: {args.handType == handType}");
 #endif
-            if (!hasActivePickup
-                || (isInVR && args.handType != handType)
-                || activeScript == null)  // UpdateHand will handle cleanup if the active script got destroyed.
+            if (isInVR && args.handType != handType)
+                return;
+            if (!hasActivePickup)
             {
+                InputGrabWithoutActiveScript(value);
                 return;
             }
+            if (activeScript == null) // Update logic will handle cleanup if the active script got destroyed.
+                return;
 
             float timeTime = Time.time;
             if (value)
@@ -593,6 +672,21 @@ namespace JanSharp.Internal
                 DropActivePickup();
         }
 
+        private void InputGrabWithoutActiveScript(bool value)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  InputGrabWithoutActiveScript - value: {value}");
+#endif
+            float timeTime = Time.time;
+            if (value)
+            {
+                inputGrabDownAt = timeTime;
+                return;
+            }
+            if (timeTime - inputGrabDownAt <= maxClickDurationSeconds)
+                useConeModeUntilTime = timeTime + ConeModeDurationSeconds;
+        }
+
         public override void InputDrop(bool value, UdonInputEventArgs args)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
@@ -601,7 +695,7 @@ namespace JanSharp.Internal
             hasDropKeyBind = true;
             if ((isInVR && args.handType != handType) || value || !isHolding)
                 return;
-            // Dropped on InputDropUp, matching VRCHat's behaviour.
+            // Dropped on InputDropUp, matching VRChat's behaviour.
             DropActivePickup();
         }
 
@@ -638,6 +732,7 @@ namespace JanSharp.Internal
 #endif
             isHolding = true;
             pickedUpAt = Time.time;
+            useConeModeUntilTime = -1f;
 
             if (!skipOffsetCalculation)
                 CalculateActivePickupOffsets();
@@ -756,9 +851,6 @@ namespace JanSharp.Internal
             }
 #endif
             boneAttachment.DetachFromLocalTrackingData(trackingHandType, activeTransform);
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            debugLine.gameObject.SetActive(true);
-#endif
             isHolding = false;
             isAutoHolding = false;
             if (activeTransform != null)

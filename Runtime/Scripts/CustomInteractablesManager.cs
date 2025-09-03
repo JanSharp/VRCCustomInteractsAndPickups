@@ -115,6 +115,7 @@ namespace JanSharp.Internal
                 leftHand.handType = HandType.LEFT;
                 leftHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
                 leftHand.palmDirection = Vector3.up;
+                leftHand.coneDirection = Quaternion.AngleAxis(60f, Vector3.up) * Vector3.forward;
                 leftHand.offsetVectorShift = Vector3.zero;
                 leftHand.manager = this;
                 rightHand.trackingHandType = VRCPlayerApi.TrackingDataType.RightHand;
@@ -122,6 +123,7 @@ namespace JanSharp.Internal
                 rightHand.handType = HandType.RIGHT;
                 rightHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
                 rightHand.palmDirection = Vector3.down;
+                rightHand.coneDirection = Quaternion.AngleAxis(-60f, Vector3.up) * Vector3.forward;
                 rightHand.offsetVectorShift = Vector3.zero;
                 rightHand.manager = this;
             }
@@ -131,7 +133,8 @@ namespace JanSharp.Internal
                 leftHand.pickupHandType = VRC_Pickup.PickupHand.None;
                 leftHand.handType = HandType.LEFT; // Does not matter, is not used.
                 leftHand.rotationNormalization = Quaternion.identity;
-                leftHand.palmDirection = Vector3.zero;
+                leftHand.palmDirection = Vector3.forward;
+                leftHand.coneDirection = Vector3.forward;
                 leftHand.offsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f); // TODO: should this scale with eye height.
                 leftHand.manager = this;
                 Destroy(rightHand.gameObject); // Disabled scripts apparently still get VRChat's InoutFoo events, so destroy it instead.

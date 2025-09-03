@@ -3354,7 +3354,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &835838374
 MonoBehaviour:
   m_ObjectHideFlags: 2
@@ -4581,7 +4581,7 @@ PrefabInstance:
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.size
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
@@ -4912,12 +4912,12 @@ PrefabInstance:
         type: 3}
       propertyPath: DynamicMaterials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: b85159ff156c9d64bbc37de5d27c92a1, type: 2}
+      objectReference: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.data[1]
       value: 
-      objectReference: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+      objectReference: {fileID: 2100000, guid: b85159ff156c9d64bbc37de5d27c92a1, type: 2}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.data[2]
@@ -10674,16 +10674,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CustomInteractablesManager
       objectReference: {fileID: 0}
-    - target: {fileID: 1715548068568552375, guid: bb7ec25f46ae4ab699263323ebfb58ec,
-        type: 3}
-      propertyPath: serializedProgramAsset
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1715548069972870743, guid: bb7ec25f46ae4ab699263323ebfb58ec,
-        type: 3}
-      propertyPath: serializedProgramAsset
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 1715548069972870745, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
       propertyPath: qd
@@ -10705,11 +10695,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1715548069972870745, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
-    - target: {fileID: 1715548070137871316, guid: bb7ec25f46ae4ab699263323ebfb58ec,
-        type: 3}
-      propertyPath: serializedProgramAsset
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 1715548070137871318, guid: bb7ec25f46ae4ab699263323ebfb58ec,
         type: 3}
       propertyPath: qd

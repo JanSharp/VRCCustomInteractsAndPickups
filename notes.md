@@ -109,9 +109,12 @@
 - [ ] might have to double the update frequency of physics checks in VR, trying to catch an item that is flying with 12.5 updates per second is rough
 - [x] maybe more of the Update logic could be moved into FixedUpdate, removing the layer of `nextFooBar` variables
 - [x] In CalculateActivePickupOffsets the move to hand logic is ultimately the reason why objects stay noticeably out of range when picked up while they are already were out of range due to physics checks being spread out. It ends up not moving towards the hand, because the hit point is out of date. Figure out what the true goal of this logic should be, and then implement that.
-- [ ] So here's my idea, what if while not holding anything and not having any pickup within reach (nor interact, so nothing is highlighted), performing a short grab and release with a hand temporarily (for like 1 or 2 seconds) changes the reach detection mode to a cone from your palm (angled slightly towards the tip of the fingers, like 30 degrees maybe), and bypasses the reach check of anything that is within that cone. And you know where I'm going with this... that's right, when you grab something in that mode, it flicks it towards your hand, half life alyx style. Sorry, not sorry.
+- [x] So here's my idea, what if while not holding anything and not having any pickup within reach (nor interact, so nothing is highlighted), performing a short grab and release with a hand temporarily (for like 1 or 2 seconds) changes the reach detection mode to a cone from your palm (angled slightly towards the tip of the fingers, like 30 degrees maybe), and bypasses the reach check of anything that is within that cone. And you know where I'm going with this... that's right, when you grab something in that mode, it flicks it towards your hand, half life alyx style. Sorry, not sorry.
+  - [ ] flicks it towards your hand rather than lerp
+  - [ ] maybe also put this feature on a user configurable toggle, along side the selection of what auto hold mode the user wants to use. But only if necessary, the fewer options the better. Sane defaults are the way.
 - [x] make the highlights draw under the interact/use text - just edited the render queue in the asset file, could not find it in the inspector anywhere
 - [x] ~~custom interacts need a custom inspector with an info box~~ converted that disgusting header for listeners into a tooltip
+- [ ] experiment with the non alloc version of overlap sphere, specifically measuring performance difference
 
 # VR Testing
 
