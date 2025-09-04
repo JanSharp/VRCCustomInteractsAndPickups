@@ -34,6 +34,8 @@ namespace JanSharp
         [System.NonSerialized] public Vector3 heldOffsetVector;
         [System.NonSerialized] public Quaternion heldOffsetRotation;
 
+        [System.NonSerialized] public bool usedHermiteCurveWhenLastPickedUp;
+
         public override bool CanInteract() => !PreventInteraction && !isHeld;
 
         public void DispatchOnPickup()
@@ -86,20 +88,21 @@ namespace JanSharp
             manager.DropPickup(this);
         }
 
-        public void ForceBeingPickedUp(VRCPlayerApi.TrackingDataType heldTrackingType)
+        public void ForceBeingPickedUp(VRCPlayerApi.TrackingDataType heldTrackingType, bool useHermiteCurve = false)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUp");
 #endif
             EnsureHasManagerRef();
             CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
-            hand.ForcePickup(this);
+            hand.ForcePickup(this, useHermiteCurve);
         }
 
         public void ForceBeingPickedUp(
             VRCPlayerApi.TrackingDataType heldTrackingType,
             Vector3 heldOffsetVector,
-            Quaternion heldOffsetRotation)
+            Quaternion heldOffsetRotation,
+            bool useHermiteCurve = false)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUp");
@@ -108,7 +111,7 @@ namespace JanSharp
             this.heldOffsetRotation = heldOffsetRotation;
             EnsureHasManagerRef();
             CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
-            hand.ForcePickupUsingExistingOffset(this);
+            hand.ForcePickupUsingExistingOffset(this, useHermiteCurve);
         }
     }
 }

@@ -15,8 +15,6 @@ namespace JanSharp.Internal
         [HideInInspector][SerializeField][SingletonReference] private QuickDebugUI qd;
 #endif
 
-        public const float PickupInterpolationDuration = 0.1f;
-
         [System.NonSerialized] public VRCPlayerApi.TrackingDataType trackingHandType;
         [System.NonSerialized] public VRC_Pickup.PickupHand pickupHandType;
         [System.NonSerialized] public HandType handType;
@@ -44,6 +42,7 @@ namespace JanSharp.Internal
 
         private bool hasActiveInteract;
         private bool hasActivePickup;
+        private bool usedConeModeLastUpdate;
         private CustomInteract activeInteract;
         [System.NonSerialized] public CustomPickup activePickup;
         private CustomInteractableBase activeScript;
@@ -279,6 +278,7 @@ namespace JanSharp.Internal
 
         private CustomInteractableBase TryGetNearInteractable(out bool isInteract)
         {
+            usedConeModeLastUpdate = false;
             // Max proximityReach is 1.
             // Divide by 2 because the definition is a diameter.
             float maxRadius = /* 1f * */ eyeHeightScale / 2f;
@@ -351,6 +351,7 @@ namespace JanSharp.Internal
 
         private CustomInteractableBase TryGetInteractableInCone(bool includeInteracts, out bool isInteract)
         {
+            usedConeModeLastUpdate = true;
             int layerMask = includeInteracts ? interactLayer | pickupLayer : (int)pickupLayer;
 
             trackingDataForHitPoint = localPlayer.GetTrackingData(trackingHandType);
@@ -652,7 +653,7 @@ namespace JanSharp.Internal
                 {
                     isAutoHolding = true;
                 }
-                PickupActivePickup();
+                PickupActivePickup(usedConeModeLastUpdate);
                 return;
             }
 
@@ -725,7 +726,7 @@ namespace JanSharp.Internal
             }
         }
 
-        private void PickupActivePickup(bool skipOffsetCalculation = false)
+        private void PickupActivePickup(bool useHermiteCurve, bool skipOffsetCalculation = false)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupActivePickup");
@@ -733,14 +734,27 @@ namespace JanSharp.Internal
             isHolding = true;
             pickedUpAt = Time.time;
             useConeModeUntilTime = -1f;
+            activePickup.usedHermiteCurveWhenLastPickedUp = useHermiteCurve;
 
             if (!skipOffsetCalculation)
                 CalculateActivePickupOffsets();
 
             boneAttachment.AttachToLocalTrackingData(trackingHandType, activeTransform);
             // TODO: Test and see how it feels to have interpolation enabled for pickups with exact grip.
-            interpolation.LerpLocalPosition(activeTransform, heldOffsetVector, PickupInterpolationDuration, this, nameof(PickupPositionInterpolationCallback), null);
-            interpolation.LerpLocalRotation(activeTransform, heldOffsetRotation, PickupInterpolationDuration, this, nameof(PickupRotationInterpolationCallback), null);
+            if (useHermiteCurve)
+            {
+                Vector3 directVector = heldOffsetVector - activeTransform.localPosition;
+                float distance = directVector.magnitude;
+                Vector3 originVelocity = Quaternion.Inverse(activeTransform.parent.rotation) * Vector3.up * distance / 2f;
+                float duration = Mathf.Min(CustomInteractablesManagerAPI.MaxPickupInterpolationDuration, CustomInteractablesManagerAPI.PickupInterpolationDuration * distance);
+                interpolation.HermiteCurveLocalPosition(activeTransform, originVelocity, heldOffsetVector, directVector, duration, this, nameof(PickupPositionInterpolationCallback), null);
+                interpolation.LerpLocalRotation(activeTransform, heldOffsetRotation, duration, this, nameof(PickupRotationInterpolationCallback), null);
+            }
+            else
+            {
+                interpolation.LerpLocalPosition(activeTransform, heldOffsetVector, CustomInteractablesManagerAPI.PickupInterpolationDuration, this, nameof(PickupPositionInterpolationCallback), null);
+                interpolation.LerpLocalRotation(activeTransform, heldOffsetRotation, CustomInteractablesManagerAPI.PickupInterpolationDuration, this, nameof(PickupRotationInterpolationCallback), null);
+            }
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.gameObject.SetActive(false);
 #endif
@@ -817,17 +831,17 @@ namespace JanSharp.Internal
             return true;
         }
 
-        public void ForcePickup(CustomPickup pickup)
+        public void ForcePickup(CustomPickup pickup, bool useHermiteCurve)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickup");
 #endif
             if (!PrepareForcePickup(pickup))
                 return;
-            PickupActivePickup();
+            PickupActivePickup(useHermiteCurve);
         }
 
-        public void ForcePickupUsingExistingOffset(CustomPickup pickup)
+        public void ForcePickupUsingExistingOffset(CustomPickup pickup, bool useHermiteCurve)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickupUsingExistingOffset");
@@ -836,8 +850,8 @@ namespace JanSharp.Internal
             heldOffsetVector = pickup.heldOffsetVector;
             heldOffsetRotation = pickup.heldOffsetRotation;
             if (alreadyHoldingThisPickup)
-                return;
-            PickupActivePickup(skipOffsetCalculation: true);
+                return; // TODO: Lerp if offsets differ.
+            PickupActivePickup(useHermiteCurve, skipOffsetCalculation: true);
         }
 
         public void DropActivePickup()
