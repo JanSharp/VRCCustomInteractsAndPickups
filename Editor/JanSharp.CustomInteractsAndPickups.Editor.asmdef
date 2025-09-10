@@ -1,5 +1,5 @@
 {
-    "name": "Jansharp.CustomInteractsAndPickups.Editor",
+    "name": "JanSharp.CustomInteractsAndPickups.Editor",
     "references": [
         "JanSharp.CustomInteractsAndPickups",
         "JanSharp.Common",
