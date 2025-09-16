@@ -117,6 +117,14 @@
 - [x] make the highlights draw under the interact/use text - just edited the render queue in the asset file, could not find it in the inspector anywhere
 - [x] ~~custom interacts need a custom inspector with an info box~~ converted that disgusting header for listeners into a tooltip
 - [ ] experiment with the non alloc version of overlap sphere, specifically measuring performance difference
+- [x] some way to attach pickups to a selection of bones, like hips, chest, legs, arms, feet, head. Something like that, maybe less than that
+  - [x] use down on the right stick as the input to attach an item - if it is held down while dropping a pickup, attach it
+  - [ ] add haptics debug settings
+  - [ ] use OnDestroy to detach pickups
+  - [ ] add events for items getting attached and detached
+  - do not do any lerping towards the attached bones. Even if we were to assume that it is a humanoid avatar, I mean just look at people irl, body parts have different sizes for different people
+    - [ ] should there be a limit to how far away a pickup can be though? I really don't want to deal with the scaling of such a limit as it would be completely arbitrary but maybe people want it
+- [ ] left right hand input swapping (through some runtime settings) for anything that differs between left and right, though this would likely be better handled by an actual full on input manager
 
 # VR Testing
 

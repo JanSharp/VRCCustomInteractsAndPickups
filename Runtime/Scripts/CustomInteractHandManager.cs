@@ -14,6 +14,8 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
         [HideInInspector][SerializeField][SingletonReference] private QuickDebugUI qd;
 #endif
+        public CustomInteractablesManager manager;
+        public CustomAttachedPickupsManager attachedManager;
 
         [System.NonSerialized] public VRCPlayerApi.TrackingDataType trackingHandType;
         [System.NonSerialized] public VRC_Pickup.PickupHand pickupHandType;
@@ -22,7 +24,6 @@ namespace JanSharp.Internal
         [System.NonSerialized] public Vector3 offsetVectorShift;
         [System.NonSerialized] public Vector3 palmDirection;
         [System.NonSerialized] public Vector3 coneDirection;
-        [System.NonSerialized] public CustomInteractablesManager manager;
 
         // DEBUG
         [SerializeField] private Transform debugSphere;
@@ -61,6 +62,8 @@ namespace JanSharp.Internal
         private Vector3 heldOffsetVector;
         private Quaternion heldOffsetRotation;
         private bool isHoldingUseButton;
+        private float lookVerticalInput;
+        private const float VerticalLookDownThreshold = -0.7f;
 
         private float lastInputUseEventTime = -1f;
         private float lastInputUseDownTime = -1f;
@@ -156,7 +159,7 @@ namespace JanSharp.Internal
 #endif
                     return;
                 }
-                DropActivePickup();
+                DropActivePickup(preventAttachment: true);
             }
             else if ((hasActiveInteract || hasActivePickup) && activeScript == null)
                 ClearActiveScriptVariables();
@@ -700,6 +703,11 @@ namespace JanSharp.Internal
             DropActivePickup();
         }
 
+        public override void InputLookVertical(float value, UdonInputEventArgs args)
+        {
+            lookVerticalInput = value;
+        }
+
         private void CalculateActivePickupOffsets()
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
@@ -731,6 +739,8 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupActivePickup");
 #endif
+            attachedManager.DetachIfAttached(activePickup);
+
             isHolding = true;
             pickedUpAt = Time.time;
             useConeModeUntilTime = -1f;
@@ -822,7 +832,7 @@ namespace JanSharp.Internal
             {
                 if (activePickup == pickup)
                     return false;
-                DropActivePickup();
+                DropActivePickup(preventAttachment: true);
             }
             if (pickup.exactGrip == null)
                 hitPoint = GetClosestPoint(pickup);
@@ -854,7 +864,7 @@ namespace JanSharp.Internal
             PickupActivePickup(useHermiteCurve, skipOffsetCalculation: true);
         }
 
-        public void DropActivePickup()
+        public void DropActivePickup(bool preventAttachment = false)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  DropActivePickup");
@@ -893,6 +903,10 @@ namespace JanSharp.Internal
             }
             prevActivePickup.isHeld = false;
             prevActivePickup.DispatchOnDrop();
+
+            if (preventAttachment || lookVerticalInput > VerticalLookDownThreshold)
+                return;
+            attachedManager.Attach(prevActivePickup);
         }
     }
 }

@@ -117,7 +117,6 @@ namespace JanSharp.Internal
                 leftHand.palmDirection = Vector3.up;
                 leftHand.coneDirection = Quaternion.AngleAxis(60f, Vector3.up) * Vector3.forward;
                 leftHand.offsetVectorShift = Vector3.zero;
-                leftHand.manager = this;
                 rightHand.trackingHandType = VRCPlayerApi.TrackingDataType.RightHand;
                 rightHand.pickupHandType = VRC_Pickup.PickupHand.Right;
                 rightHand.handType = HandType.RIGHT;
@@ -125,7 +124,6 @@ namespace JanSharp.Internal
                 rightHand.palmDirection = Vector3.down;
                 rightHand.coneDirection = Quaternion.AngleAxis(-60f, Vector3.up) * Vector3.forward;
                 rightHand.offsetVectorShift = Vector3.zero;
-                rightHand.manager = this;
             }
             else
             {
@@ -136,7 +134,6 @@ namespace JanSharp.Internal
                 leftHand.palmDirection = Vector3.forward;
                 leftHand.coneDirection = Vector3.forward;
                 leftHand.offsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f); // TODO: should this scale with eye height.
-                leftHand.manager = this;
                 Destroy(rightHand.gameObject); // Disabled scripts apparently still get VRChat's InoutFoo events, so destroy it instead.
             }
             UpdateAutoHoldMode();
