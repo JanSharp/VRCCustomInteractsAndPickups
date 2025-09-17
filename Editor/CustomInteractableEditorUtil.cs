@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework.Constraints;
 using UnityEditor;
 using UnityEngine;
 
@@ -41,12 +42,14 @@ namespace JanSharp
                     + $"specifically on the '{layerName}' layer. Colliders can be on this object and its "
                     + $"children, and they can be colliders and triggers.", EditorStyles.wordWrappedLabel);
 
+            int layerIndex = LayerMask.NameToLayer(layerName);
             using (new GUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("Set Layer"))
-                    SetLayer(
-                        targets.Select(t => t.gameObject).ToArray(),
-                        LayerMask.NameToLayer(layerName));
+                using (new EditorGUI.DisabledScope(disabled: targets.All(t => t.gameObject.layer == layerIndex)))
+                    if (GUILayout.Button("Set Layer"))
+                        SetLayer(
+                            targets.Select(t => t.gameObject).ToArray(),
+                            layerIndex);
                 if (GUILayout.Button(new GUIContent(
                     "Set Layer Including Children",
                     "If there are any other Custom Interact or Custom Pickup scripts as children of this "
@@ -54,7 +57,7 @@ namespace JanSharp
                 {
                     SetLayer(
                         GetGOsIncludingChildrenRespectingNesting(targets),
-                        LayerMask.NameToLayer(layerName));
+                        layerIndex);
                 }
             }
         }

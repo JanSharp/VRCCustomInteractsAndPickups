@@ -126,6 +126,7 @@
   - do not do any lerping towards the attached bones. Even if we were to assume that it is a humanoid avatar, I mean just look at people irl, body parts have different sizes for different people
     - [ ] should there be a limit to how far away a pickup can be though? I really don't want to deal with the scaling of such a limit as it would be completely arbitrary but maybe people want it
 - [ ] left right hand input swapping (through some runtime settings) for anything that differs between left and right, though this would likely be better handled by an actual full on input manager
+- [x] grey out the set layer button (the non including children button) when the layer has been set on the current game object already
 
 # VR Testing
 
