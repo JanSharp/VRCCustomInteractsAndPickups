@@ -20,7 +20,9 @@ namespace JanSharp
             + "public override void OnPickup()\n"
             + "public override void OnDrop()\n"
             + "public override void OnPickupUseDown()\n"
-            + "public override void OnPickupUseUp()")]
+            + "public override void OnPickupUseUp()\n"
+            + "public void OnPickupAttach()\n"
+            + "public void OnPickupDetach()")]
         [Space]
         public UdonSharpBehaviour[] listeners;
 
@@ -76,6 +78,26 @@ namespace JanSharp
             foreach (UdonSharpBehaviour listener in listeners)
                 if (listener != null)
                     listener.SendCustomEvent("_onPickupUseUp");
+        }
+
+        public void DispatchOnPickupAttach()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickupAttach");
+#endif
+            foreach (UdonSharpBehaviour listener in listeners)
+                if (listener != null)
+                    listener.SendCustomEvent("OnPickupAttach");
+        }
+
+        public void DispatchOnPickupDetach()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickupDetach");
+#endif
+            foreach (UdonSharpBehaviour listener in listeners)
+                if (listener != null)
+                    listener.SendCustomEvent("OnPickupDetach");
         }
 
         public void Drop()

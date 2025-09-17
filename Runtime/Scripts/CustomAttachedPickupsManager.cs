@@ -48,6 +48,7 @@ namespace JanSharp
             if (!attachedPickups.Remove(pickup, out DataToken bone))
                 return;
             boneAttachment.DetachFromBone(localPlayerId, (HumanBodyBones)bone.Int, pickup.transform);
+            pickup.DispatchOnPickupDetach();
         }
 
         public void Attach(CustomPickup pickup)
@@ -74,6 +75,7 @@ namespace JanSharp
                 return;
             boneAttachment.AttachToBone(localPlayer, (HumanBodyBones)foundBoneValue, pickupTransform);
             attachedPickups.Add(pickup, foundBoneValue);
+            pickup.DispatchOnPickupAttach();
         }
     }
 }
