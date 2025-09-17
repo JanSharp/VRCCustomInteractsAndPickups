@@ -48,6 +48,9 @@ namespace JanSharp
             if (!attachedPickups.Remove(pickup, out DataToken bone))
                 return;
             boneAttachment.DetachFromBone(localPlayerId, (HumanBodyBones)bone.Int, pickup.transform);
+            pickup.isAttached = false;
+            // Keep the attachedToBone value untouched such that scripts can continue to read what the last
+            // attached bone was.
             pickup.DispatchOnPickupDetach();
         }
 
@@ -73,8 +76,11 @@ namespace JanSharp
             }
             if (float.IsInfinity(foundDistance))
                 return;
-            boneAttachment.AttachToBone(localPlayer, (HumanBodyBones)foundBoneValue, pickupTransform);
+            HumanBodyBones foundBone = (HumanBodyBones)foundBoneValue;
+            boneAttachment.AttachToBone(localPlayer, foundBone, pickupTransform);
             attachedPickups.Add(pickup, foundBoneValue);
+            pickup.isAttached = true;
+            pickup.attachedToBone = foundBone;
             pickup.DispatchOnPickupAttach();
         }
     }

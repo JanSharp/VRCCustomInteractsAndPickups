@@ -38,6 +38,20 @@ namespace JanSharp
 
         [System.NonSerialized] public bool usedHermiteCurveWhenLastPickedUp;
 
+        /// <summary>
+        /// <para>When <see langword="true"/>, read the <see cref="Transform.localPosition"/> and
+        /// <see cref="Transform.localRotation"/> to know what offsets the pickup has in relation to the
+        /// attached bone <see cref="attachedToBone"/>.</para>
+        /// <para><see langword="true"/> inside of <c>OnPickupAttach()</c>, <see langword="false"/> inside of
+        /// <c>OnPickupDetach()</c>.</para>
+        /// </summary>
+        [System.NonSerialized] public bool isAttached;
+        /// <summary>
+        /// <para>The bone the pickup is either currently or was last attached to.</para>
+        /// <para>The value is undefined if the pickup has never been attached yet.</para>
+        /// </summary>
+        [System.NonSerialized] public HumanBodyBones attachedToBone;
+
         public override bool CanInteract() => !PreventInteraction && !isHeld;
 
         public void DispatchOnPickup()
