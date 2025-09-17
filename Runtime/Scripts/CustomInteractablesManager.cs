@@ -84,6 +84,7 @@ namespace JanSharp.Internal
         public GameObject highlightPartPrefab;
         public CustomInteractHandManager leftHand;
         public CustomInteractHandManager rightHand;
+        public CustomAttachedPickupsManager attachedManager;
 
         public Vector3 onSelectionGainedHaptics;
         public Vector3 onSelectionLostHaptics;
@@ -228,6 +229,14 @@ namespace JanSharp.Internal
                 rightHand.DropActivePickup();
             else
                 leftHand.DropActivePickup();
+        }
+
+        public void DetachPickup(CustomPickup pickup)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  DetachPickup");
+#endif
+            attachedManager.DetachIfAttached(pickup);
         }
 
         public CustomInteractHandManager GetHandForTrackingType(VRCPlayerApi.TrackingDataType trackingType)

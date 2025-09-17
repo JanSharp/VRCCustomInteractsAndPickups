@@ -906,7 +906,7 @@ namespace JanSharp.Internal
 
             if (preventAttachment || lookVerticalInput > VerticalLookDownThreshold)
                 return;
-            attachedManager.Attach(prevActivePickup);
+            attachedManager.AttachToNearestBone(prevActivePickup);
         }
     }
 }

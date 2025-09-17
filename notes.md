@@ -120,7 +120,7 @@
 - [x] some way to attach pickups to a selection of bones, like hips, chest, legs, arms, feet, head. Something like that, maybe less than that
   - [x] use down on the right stick as the input to attach an item - if it is held down while dropping a pickup, attach it
   - [ ] add haptics debug settings
-  - [ ] use OnDestroy to detach pickups
+  - [x] use OnDestroy to detach pickups
   - [x] add events for items getting attached and detached
   - [x] add field for what bone a pickup is attached to to the custom pickup script
   - do not do any lerping towards the attached bones. Even if we were to assume that it is a humanoid avatar, I mean just look at people irl, body parts have different sizes for different people

@@ -3,11 +3,12 @@ using UnityEngine;
 using VRC.SDK3.Data;
 using VRC.SDKBase;
 
-namespace JanSharp
+namespace JanSharp.Internal
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomAttachedPickupsManager : UdonSharpBehaviour
     {
+        public CustomInteractablesManager manager;
         [HideInInspector][SerializeField][SingletonReference] private BoneAttachmentManager boneAttachment;
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
         [HideInInspector][SerializeField][SingletonReference] private QuickDebugUI qd;
@@ -54,13 +55,12 @@ namespace JanSharp
             pickup.DispatchOnPickupDetach();
         }
 
-        public void Attach(CustomPickup pickup)
+        public void AttachToNearestBone(CustomPickup pickup)
         {
             // Using a colliders closest point rather than the pickup position would yield more
             // predictable results... however since I allowed having multiple colliders on a pickup this
             // kind of becomes really annoying and similarly im-performant.
-            Transform pickupTransform = pickup.transform;
-            Vector3 pickupPosition = pickupTransform.position;
+            Vector3 pickupPosition = pickup.transform.position;
             int foundBoneValue = -1;
             float foundDistance = float.PositiveInfinity;
             foreach (int boneValue in attachableBoneValues)
@@ -76,11 +76,16 @@ namespace JanSharp
             }
             if (float.IsInfinity(foundDistance))
                 return;
-            HumanBodyBones foundBone = (HumanBodyBones)foundBoneValue;
-            boneAttachment.AttachToBone(localPlayer, foundBone, pickupTransform);
-            attachedPickups.Add(pickup, foundBoneValue);
+            AttachToBone(pickup, (HumanBodyBones)foundBoneValue);
+        }
+
+        public void AttachToBone(CustomPickup pickup, HumanBodyBones attachedToBone)
+        {
+            boneAttachment.AttachToBone(localPlayer, attachedToBone, pickup.transform);
+            attachedPickups.Add(pickup, (int)attachedToBone);
+            pickup.manager = manager;
             pickup.isAttached = true;
-            pickup.attachedToBone = foundBone;
+            pickup.attachedToBone = attachedToBone;
             pickup.DispatchOnPickupAttach();
         }
     }

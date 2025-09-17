@@ -114,6 +114,17 @@ namespace JanSharp
                     listener.SendCustomEvent("OnPickupDetach");
         }
 
+        private void OnDestroy()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  OnDestroy");
+#endif
+            if (isHeld)
+                Drop();
+            else if (isAttached)
+                Detach();
+        }
+
         public void Drop()
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
@@ -122,6 +133,16 @@ namespace JanSharp
             if (!isHeld)
                 return;
             manager.DropPickup(this);
+        }
+
+        public void Detach()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  Drop");
+#endif
+            if (!isAttached)
+                return;
+            manager.attachedManager.DetachIfAttached(this);
         }
 
         public void ForceBeingPickedUp(VRCPlayerApi.TrackingDataType heldTrackingType, bool useHermiteCurve = false)
@@ -148,6 +169,25 @@ namespace JanSharp
             EnsureHasManagerRef();
             CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
             hand.ForcePickupUsingExistingOffset(this, useHermiteCurve);
+        }
+
+        /// <summary>
+        /// <para>Does not change the world position and rotation of the pickup, therefore also does not do
+        /// any interpolation. If that is required and or desired, perform said interpolation on the local
+        /// position and rotation after calling <see cref="ForceBeingAttached(HumanBodyBones)"/>.</para>
+        /// </summary>
+        /// <param name="attachedToBone"></param>
+        public void ForceBeingAttached(HumanBodyBones attachedToBone)
+        {
+            if (isAttached)
+            {
+                if (attachedToBone == this.attachedToBone)
+                    return;
+                Detach();
+            }
+            this.attachedToBone = attachedToBone;
+            EnsureHasManagerRef();
+            manager.attachedManager.AttachToBone(this, attachedToBone);
         }
     }
 }
