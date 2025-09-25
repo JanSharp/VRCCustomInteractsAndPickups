@@ -48,11 +48,13 @@ namespace JanSharp.Internal
         {
             if (!attachedPickups.Remove(pickup, out DataToken bone))
                 return;
+            pickup.BeginStateModification();
             boneAttachment.DetachFromBone(localPlayerId, (HumanBodyBones)bone.Int, pickup.transform);
             pickup.isAttached = false;
             // Keep the attachedToBone value untouched such that scripts can continue to read what the last
             // attached bone was.
             pickup.DispatchOnPickupDetach();
+            pickup.FinishStateModification();
         }
 
         public void AttachToNearestBone(CustomPickup pickup)
@@ -81,12 +83,14 @@ namespace JanSharp.Internal
 
         public void AttachToBone(CustomPickup pickup, HumanBodyBones attachedToBone)
         {
+            pickup.BeginStateModification();
             boneAttachment.AttachToBone(localPlayer, attachedToBone, pickup.transform);
             attachedPickups.Add(pickup, (int)attachedToBone);
             pickup.manager = manager;
             pickup.isAttached = true;
             pickup.attachedToBone = attachedToBone;
             pickup.DispatchOnPickupAttach();
+            pickup.FinishStateModification();
         }
     }
 }

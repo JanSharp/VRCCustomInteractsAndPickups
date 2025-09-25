@@ -22,7 +22,8 @@ namespace JanSharp
             + "public override void OnPickupUseDown()\n"
             + "public override void OnPickupUseUp()\n"
             + "public void OnPickupAttach()\n"
-            + "public void OnPickupDetach()")]
+            + "public void OnPickupDetach()\n"
+            + "public void OnPickupStateChanged()")]
         [Space]
         public UdonSharpBehaviour[] listeners;
 
@@ -51,6 +52,44 @@ namespace JanSharp
         /// <para>The value is undefined if the pickup has never been attached yet.</para>
         /// </summary>
         [System.NonSerialized] public HumanBodyBones attachedToBone;
+
+        /// <summary>
+        /// <para>Usable inside of <c>OnPickupStateChanged</c> to compare to
+        /// <see cref="isHeld"/>.</para>
+        /// <para>Read only.</para>
+        /// </summary>
+        [System.NonSerialized] public bool prevIsHeld;
+        /// <summary>
+        /// <para>Usable inside of <c>OnPickupStateChanged</c> to compare to
+        /// <see cref="heldTrackingType"/>.</para>
+        /// <para>Read only.</para>
+        /// </summary>
+        [System.NonSerialized] public VRCPlayerApi.TrackingDataType prevHeldTrackingType;
+        /// <summary>
+        /// <para>Usable inside of <c>OnPickupStateChanged</c> to compare to
+        /// <see cref="heldOffsetVector"/>.</para>
+        /// <para>Read only.</para>
+        /// </summary>
+        [System.NonSerialized] public Vector3 prevHeldOffsetVector;
+        /// <summary>
+        /// <para>Usable inside of <c>OnPickupStateChanged</c> to compare to
+        /// <see cref="heldOffsetRotation"/>.</para>
+        /// <para>Read only.</para>
+        /// </summary>
+        [System.NonSerialized] public Quaternion prevHeldOffsetRotation;
+        /// <summary>
+        /// <para>Usable inside of <c>OnPickupStateChanged</c> to compare to
+        /// <see cref="isAttached"/>.</para>
+        /// <para>Read only.</para>
+        /// </summary>
+        [System.NonSerialized] public bool prevIsAttached;
+        /// <summary>
+        /// <para>Usable inside of <c>OnPickupStateChanged</c> to compare to
+        /// <see cref="attachedToBone"/>.</para>
+        /// <para>Read only.</para>
+        /// </summary>
+        [System.NonSerialized] public HumanBodyBones prevAttachedToBone;
+        private int ongoingStateModifications;
 
         public override bool CanInteract() => !PreventInteraction && !isHeld;
 
@@ -112,6 +151,49 @@ namespace JanSharp
             foreach (UdonSharpBehaviour listener in listeners)
                 if (listener != null)
                     listener.SendCustomEvent("OnPickupDetach");
+        }
+
+        private void DispatchOnPickupStateChanged()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  DispatchOnPickupStateChanged");
+#endif
+            foreach (UdonSharpBehaviour listener in listeners)
+                if (listener != null)
+                    listener.SendCustomEvent("OnPickupStateChanged");
+        }
+
+        public void BeginStateModification()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  BeginStateModification - ongoingStateModifications: {ongoingStateModifications}");
+#endif
+            ongoingStateModifications++;
+        }
+
+        public void FinishStateModification()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  FinishStateModification - ongoingStateModifications: {ongoingStateModifications}");
+#endif
+            if ((--ongoingStateModifications) != 0)
+                return;
+            if (prevIsHeld == isHeld // The vast majority of the time isHeld or isAttached will differ,
+                && prevIsAttached == isAttached // making this if condition short circuit pretty quickly.
+                && prevHeldTrackingType == heldTrackingType
+                && prevHeldOffsetVector == heldOffsetVector
+                && prevHeldOffsetRotation == heldOffsetRotation
+                && prevAttachedToBone == attachedToBone)
+            {
+                return;
+            }
+            DispatchOnPickupStateChanged();
+            prevIsHeld = isHeld;
+            prevHeldTrackingType = heldTrackingType;
+            prevHeldOffsetVector = heldOffsetVector;
+            prevHeldOffsetRotation = heldOffsetRotation;
+            prevIsAttached = isAttached;
+            prevAttachedToBone = attachedToBone;
         }
 
         private void OnDestroy()

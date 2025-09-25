@@ -739,6 +739,7 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupActivePickup");
 #endif
+            activePickup.BeginStateModification();
             attachedManager.DetachIfAttached(activePickup);
 
             isHolding = true;
@@ -780,6 +781,7 @@ namespace JanSharp.Internal
             activePickup.heldOffsetVector = heldOffsetVector;
             activePickup.heldOffsetRotation = heldOffsetRotation;
             activePickup.DispatchOnPickup();
+            activePickup.FinishStateModification();
         }
 
         public void PickupPositionInterpolationCallback()
@@ -856,6 +858,7 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickupUsingExistingOffset");
 #endif
+            // TODO: Check pickup.isHeld, it might be held by the other hand.
             bool alreadyHoldingThisPickup = !PrepareForcePickup(pickup);
             heldOffsetVector = pickup.heldOffsetVector;
             heldOffsetRotation = pickup.heldOffsetRotation;
@@ -893,6 +896,8 @@ namespace JanSharp.Internal
                 return;
             }
 
+            prevActivePickup.BeginStateModification();
+
             if (isHoldingUseButton)
             {
                 isHoldingUseButton = false;
@@ -904,9 +909,10 @@ namespace JanSharp.Internal
             prevActivePickup.isHeld = false;
             prevActivePickup.DispatchOnDrop();
 
-            if (preventAttachment || lookVerticalInput > VerticalLookDownThreshold)
-                return;
-            attachedManager.AttachToNearestBone(prevActivePickup);
+            if (!preventAttachment && lookVerticalInput <= VerticalLookDownThreshold)
+                attachedManager.AttachToNearestBone(prevActivePickup);
+
+            prevActivePickup.FinishStateModification();
         }
     }
 }
