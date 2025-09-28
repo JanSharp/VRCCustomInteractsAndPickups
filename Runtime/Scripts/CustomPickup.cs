@@ -180,10 +180,12 @@ namespace JanSharp
                 return;
             if (prevIsHeld == isHeld // The vast majority of the time isHeld or isAttached will differ,
                 && prevIsAttached == isAttached // making this if condition short circuit pretty quickly.
-                && prevHeldTrackingType == heldTrackingType
-                && prevHeldOffsetVector == heldOffsetVector
-                && prevHeldOffsetRotation == heldOffsetRotation
-                && prevAttachedToBone == attachedToBone)
+                && (!isHeld // Value differences only matter if it was and still is held.
+                    || (prevHeldTrackingType == heldTrackingType
+                    && prevHeldOffsetVector == heldOffsetVector
+                    && prevHeldOffsetRotation == heldOffsetRotation))
+                && (!isAttached // Value differences only matter if it was and still is attached.
+                    || prevAttachedToBone == attachedToBone))
             {
                 return;
             }
@@ -201,6 +203,7 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  OnDestroy");
 #endif
+            // TODO: this causes runtime errors when the local player leaves while having an attached pickup.
             if (isHeld)
                 Drop();
             else if (isAttached)

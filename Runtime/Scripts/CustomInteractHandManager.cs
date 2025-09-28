@@ -703,6 +703,8 @@ namespace JanSharp.Internal
             DropActivePickup();
         }
 
+        // TODO: Move this to the main manger to deduplicate the event handler for that tiny bit of performance.
+        // TODO: Maybe do the same for the other input events too.
         public override void InputLookVertical(float value, UdonInputEventArgs args)
         {
             lookVerticalInput = value;
