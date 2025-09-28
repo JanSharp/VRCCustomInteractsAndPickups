@@ -150,6 +150,7 @@ MonoBehaviour:
     type: 3}
   leftHand: {fileID: 1715548069972870745}
   rightHand: {fileID: 1715548070137871318}
+  attachedManager: {fileID: 3750409550442984382}
   onSelectionGainedHaptics: {x: 0, y: 0, z: 0}
   onSelectionLostHaptics: {x: 0, y: 0, z: 0}
   onSelectionChangedHaptics: {x: 0, y: 0, z: 0}
@@ -2131,6 +2132,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 9458037834013998}
+  manager: {fileID: 1715548068568552372}
   boneAttachment: {fileID: 0}
   qd: {fileID: 0}
 --- !u!114 &9458037834013998
