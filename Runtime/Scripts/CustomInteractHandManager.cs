@@ -736,6 +736,15 @@ namespace JanSharp.Internal
             }
         }
 
+        private void LerpHeldPickupToHeldOffsets()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  LerpHeldPickupToHeldOffsets");
+#endif
+            interpolation.LerpLocalPosition(activeTransform, heldOffsetVector, CustomInteractablesManagerAPI.PickupInterpolationDuration, this, nameof(PickupPositionInterpolationCallback), null);
+            interpolation.LerpLocalRotation(activeTransform, heldOffsetRotation, CustomInteractablesManagerAPI.PickupInterpolationDuration, this, nameof(PickupRotationInterpolationCallback), null);
+        }
+
         private void PickupActivePickup(bool useHermiteCurve, bool skipOffsetCalculation = false)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
@@ -766,10 +775,7 @@ namespace JanSharp.Internal
                 interpolation.LerpLocalRotation(activeTransform, heldOffsetRotation, duration, this, nameof(PickupRotationInterpolationCallback), null);
             }
             else
-            {
-                interpolation.LerpLocalPosition(activeTransform, heldOffsetVector, CustomInteractablesManagerAPI.PickupInterpolationDuration, this, nameof(PickupPositionInterpolationCallback), null);
-                interpolation.LerpLocalRotation(activeTransform, heldOffsetRotation, CustomInteractablesManagerAPI.PickupInterpolationDuration, this, nameof(PickupRotationInterpolationCallback), null);
-            }
+                LerpHeldPickupToHeldOffsets();
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.gameObject.SetActive(false);
 #endif
@@ -871,7 +877,12 @@ namespace JanSharp.Internal
             heldOffsetVector = pickup.heldOffsetVector;
             heldOffsetRotation = pickup.heldOffsetRotation;
             if (alreadyHoldingThisPickup)
-                return; // TODO: Lerp if offsets differ.
+            {
+                LerpHeldPickupToHeldOffsets();
+                pickup.BeginStateModification();
+                pickup.FinishStateModification();
+                return;
+            }
             PickupActivePickup(useHermiteCurve, skipOffsetCalculation: true);
         }
 
