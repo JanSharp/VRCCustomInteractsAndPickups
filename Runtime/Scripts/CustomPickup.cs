@@ -203,7 +203,9 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  OnDestroy");
 #endif
-            // TODO: this causes runtime errors when the local player leaves while having an attached pickup.
+            // Maybe this'll prevent errors when leaving a world, not sure.
+            if (!Utilities.IsValid(Networking.LocalPlayer))
+                return;
             if (isHeld)
                 Drop();
             else if (isAttached)
