@@ -35,6 +35,16 @@ namespace JanSharp.Internal
         /// </summary>
         private DataDictionary attachedPickups = new DataDictionary();
 
+        public CustomPickup[] GetAllAttachedPickups()
+        {
+            int count = attachedPickups.Count;
+            CustomPickup[] result = new CustomPickup[count];
+            DataList keys = attachedPickups.GetKeys();
+            for (int i = 0; i < count; i++)
+                result[i] = (CustomPickup)keys[i].Reference;
+            return result;
+        }
+
         public void Start()
         {
             localPlayer = Networking.LocalPlayer;
