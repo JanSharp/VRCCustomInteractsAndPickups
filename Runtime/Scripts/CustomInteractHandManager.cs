@@ -743,6 +743,8 @@ namespace JanSharp.Internal
 #endif
             activePickup.BeginStateModification();
             attachedManager.DetachIfAttached(activePickup);
+            if (activePickup.isHeld) // Held by the other hand.
+                manager.DropPickup(activePickup);
 
             isHolding = true;
             pickedUpAt = Time.time;
@@ -860,8 +862,12 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickupUsingExistingOffset");
 #endif
-            // TODO: Check pickup.isHeld, it might be held by the other hand.
             bool alreadyHoldingThisPickup = !PrepareForcePickup(pickup);
+            // Even if it is currently held by the other hand still, dropping does not modify these variables,
+            // thus other systems can set these offsets without caring if the pickup is already held by either
+            // hand and the they can call ForcePickupUsingExistingOffset and it will just work.
+            // Although for OnDrop listeners it would be preferable if said external systems would first drop
+            // the pickup before modifying held offsets.
             heldOffsetVector = pickup.heldOffsetVector;
             heldOffsetRotation = pickup.heldOffsetRotation;
             if (alreadyHoldingThisPickup)
