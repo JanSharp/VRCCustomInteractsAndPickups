@@ -272,7 +272,10 @@ namespace JanSharp
             if (isAttached && attachedToBone == this.attachedToBone)
                 return;
             BeginStateModification();
-            Detach();
+            if (isHeld)
+                Drop();
+            else if (isAttached)
+                Detach();
             this.attachedToBone = attachedToBone;
             EnsureHasManagerRef();
             manager.attachedManager.AttachToBone(this, attachedToBone);
