@@ -89,8 +89,10 @@ namespace JanSharp.Internal
         public Vector3 onSelectionGainedHaptics;
         public Vector3 onSelectionLostHaptics;
         public Vector3 onSelectionChangedHaptics;
-        public Vector3 onPickupHaptics; // Very unsure about this one.
-        public Vector3 onDropHaptics; // Very unsure about this one.
+        public Vector3 onPickupHaptics; // Unsure about this one.
+        public Vector3 onDropHaptics; // Unsure about this one.
+        public Vector3 onPickupAndDetachHaptics; // Very unsure about this one.
+        public Vector3 onDropAndAttachHaptics; // Unsure about this one.
         // public Vector3 onInteractHaptics; // I don't believe that makes sense to add.
         // public Vector3 onUseHaptics; // I don't believe that makes sense to add.
 

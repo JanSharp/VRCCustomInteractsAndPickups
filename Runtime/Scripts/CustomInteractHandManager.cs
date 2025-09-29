@@ -55,6 +55,8 @@ namespace JanSharp.Internal
 
         private CustomInteractableBase lastHapticsState = null;
         private bool lastHapticsHoldingState = false;
+        private bool pickupWasAttachedForHaptics = false;
+        private bool dropResultedInAttachForHaptics = false;
 
         private bool isHolding;
         private bool isAutoHolding;
@@ -209,14 +211,20 @@ namespace JanSharp.Internal
                 lastHapticsState = activeScript;
                 if (isHolding)
                     return;
-                PlayHaptics(nameof(manager.onDropHaptics));
+                if (dropResultedInAttachForHaptics)
+                    PlayHaptics(nameof(manager.onDropAndAttachHaptics));
+                else
+                    PlayHaptics(nameof(manager.onDropHaptics));
                 lastHapticsHoldingState = false;
                 return;
             }
             if (isHolding)
             {
                 lastHapticsState = activeScript;
-                PlayHaptics(nameof(manager.onPickupHaptics));
+                if (pickupWasAttachedForHaptics)
+                    PlayHaptics(nameof(manager.onPickupAndDetachHaptics));
+                else
+                    PlayHaptics(nameof(manager.onPickupHaptics));
                 lastHapticsHoldingState = true;
                 return;
             }
@@ -744,6 +752,7 @@ namespace JanSharp.Internal
             if (activePickup.receivedOnDestroy)
                 return;
             activePickup.BeginStateModification();
+            pickupWasAttachedForHaptics = activePickup.isAttached;
             attachedManager.DetachIfAttached(activePickup);
             if (activePickup.isHeld) // Held by the other hand.
                 manager.DropPickup(activePickup);
@@ -905,6 +914,7 @@ namespace JanSharp.Internal
             if (prevActivePickup == null) // Got destroyed.
             {
                 isHoldingUseButton = false;
+                dropResultedInAttachForHaptics = false;
                 return;
             }
 
@@ -922,7 +932,10 @@ namespace JanSharp.Internal
             prevActivePickup.DispatchOnDrop();
 
             if (!preventAttachment && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold)
+            {
                 attachedManager.AttachToNearestBone(prevActivePickup);
+                dropResultedInAttachForHaptics = prevActivePickup.isAttached;
+            }
 
             prevActivePickup.FinishStateModification();
         }

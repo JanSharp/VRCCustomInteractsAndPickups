@@ -119,7 +119,7 @@
 - [ ] experiment with the non alloc version of overlap sphere, specifically measuring performance difference
 - [x] some way to attach pickups to a selection of bones, like hips, chest, legs, arms, feet, head. Something like that, maybe less than that
   - [x] use down on the right stick as the input to attach an item - if it is held down while dropping a pickup, attach it
-  - [ ] add haptics debug settings
+  - [x] add haptics debug settings
   - [x] use OnDestroy to detach pickups
   - [x] add events for items getting attached and detached
   - [x] add field for what bone a pickup is attached to to the custom pickup script

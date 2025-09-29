@@ -20,6 +20,8 @@ namespace JanSharp
                 NewHapticsEditor(nameof(manager.onSelectionChangedHaptics)),
                 NewHapticsEditor(nameof(manager.onPickupHaptics)),
                 NewHapticsEditor(nameof(manager.onDropHaptics)),
+                NewHapticsEditor(nameof(manager.onPickupAndDetachHaptics)),
+                NewHapticsEditor(nameof(manager.onDropAndAttachHaptics)),
                 // NewHapticsEditor(nameof(manager.onInteractHaptics)),
                 // NewHapticsEditor(nameof(manager.onUseHaptics)),
             }));
