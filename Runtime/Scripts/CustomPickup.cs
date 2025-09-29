@@ -276,9 +276,11 @@ namespace JanSharp
                 Drop();
             else if (isAttached)
                 Detach();
-            this.attachedToBone = attachedToBone;
-            EnsureHasManagerRef();
-            manager.attachedManager.AttachToBone(this, attachedToBone);
+            if (Networking.LocalPlayer.GetBonePosition(attachedToBone) != Vector3.zero)
+            {
+                EnsureHasManagerRef();
+                manager.attachedManager.AttachToBone(this, attachedToBone);
+            }
             FinishStateModification();
         }
     }
