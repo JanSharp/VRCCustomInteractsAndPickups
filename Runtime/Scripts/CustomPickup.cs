@@ -223,7 +223,7 @@ namespace JanSharp
         public void Detach()
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  Drop");
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  Detach");
 #endif
             if (!isAttached)
                 return;
@@ -264,15 +264,17 @@ namespace JanSharp
         /// <param name="attachedToBone"></param>
         public void ForceBeingAttached(HumanBodyBones attachedToBone)
         {
-            if (isAttached)
-            {
-                if (attachedToBone == this.attachedToBone)
-                    return;
-                Detach();
-            }
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingAttached");
+#endif
+            if (isAttached && attachedToBone == this.attachedToBone)
+                return;
+            BeginStateModification();
+            Detach();
             this.attachedToBone = attachedToBone;
             EnsureHasManagerRef();
             manager.attachedManager.AttachToBone(this, attachedToBone);
+            FinishStateModification();
         }
     }
 }
