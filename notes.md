@@ -131,7 +131,7 @@
 - [ ] left right hand input swapping (through some runtime settings) for anything that differs between left and right, though this would likely be better handled by an actual full on input manager
 - [x] grey out the set layer button (the non including children button) when the layer has been set on the current game object already
 - [x] ForceBeingAttached must drop the pickup if it is currently held and raise the drop event after the attach event
-- [ ] Any kind of forcing of the pickups (picking up, dropping, attaching, detaching) must only raise the OnPickupStateChanged event once throughout the whole process
+- [x] Any kind of forcing of the pickups (picking up, dropping, attaching, detaching) must only raise the OnPickupStateChanged event once throughout the whole process
 - [ ] There is no event nor otherwise clean way for/of other systems changing the local position and rotation of an attached pickup
 
 # VR Testing
