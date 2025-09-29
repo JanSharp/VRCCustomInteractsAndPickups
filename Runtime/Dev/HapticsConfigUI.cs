@@ -15,6 +15,7 @@ namespace JanSharp
         {
             editor.Draw(widgets.StdMoveWidgets(new WidgetData[]
             {
+                widgets.NewLabel("<size=150%>Custom Pickups And Interacts Haptics Config</size>"),
                 NewHapticsEditor(nameof(manager.onSelectionGainedHaptics)),
                 NewHapticsEditor(nameof(manager.onSelectionLostHaptics)),
                 NewHapticsEditor(nameof(manager.onSelectionChangedHaptics)),
