@@ -51,6 +51,31 @@ namespace JanSharp.Internal
             localPlayerId = localPlayer.playerId;
         }
 
+        public override void OnAvatarChanged(VRCPlayerApi player)
+        {
+            if (!player.isLocal)
+                return;
+            // The OnAvatarChanged appears to get raised once the avatar has finished loading, however I do
+            // not trust it as I've already observed oddities around positions of bones within the
+            // OnAvatarChanged event when working with the ItemSystem, thus using a 0.1 second delay here just
+            // as the ItemSystem is.
+            SendCustomEventDelayedSeconds(nameof(OnLocalPlayerAvatarChangedDelayed), 0.1f);
+        }
+
+        public void OnLocalPlayerAvatarChangedDelayed()
+        {
+            int count = attachedPickups.Count;
+            DataList keys = attachedPickups.GetKeys();
+            DataList values = attachedPickups.GetKeys();
+            for (int i = 0; i < count; i++)
+            {
+                HumanBodyBones bone = (HumanBodyBones)values[i].Int;
+                if (localPlayer.GetBonePosition(bone) != Vector3.zero)
+                    continue;
+                DetachIfAttached((CustomPickup)keys[i].Reference);
+            }
+        }
+
         public void DetachIfAttached(CustomPickup pickup)
         {
             if (!attachedPickups.Remove(pickup, out DataToken bone))
