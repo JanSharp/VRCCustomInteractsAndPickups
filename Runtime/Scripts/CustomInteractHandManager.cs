@@ -62,8 +62,6 @@ namespace JanSharp.Internal
         private Vector3 heldOffsetVector;
         private Quaternion heldOffsetRotation;
         private bool isHoldingUseButton;
-        private float lookVerticalInput;
-        private const float VerticalLookDownThreshold = -0.7f;
 
         private float lastInputUseEventTime = -1f;
         private float lastInputUseDownTime = -1f;
@@ -703,13 +701,6 @@ namespace JanSharp.Internal
             DropActivePickup();
         }
 
-        // TODO: Move this to the main manger to deduplicate the event handler for that tiny bit of performance.
-        // TODO: Maybe do the same for the other input events too.
-        public override void InputLookVertical(float value, UdonInputEventArgs args)
-        {
-            lookVerticalInput = value;
-        }
-
         private void CalculateActivePickupOffsets()
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
@@ -928,7 +919,7 @@ namespace JanSharp.Internal
             prevActivePickup.isHeld = false;
             prevActivePickup.DispatchOnDrop();
 
-            if (!preventAttachment && lookVerticalInput <= VerticalLookDownThreshold)
+            if (!preventAttachment && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold)
                 attachedManager.AttachToNearestBone(prevActivePickup);
 
             prevActivePickup.FinishStateModification();

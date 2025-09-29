@@ -97,6 +97,8 @@ namespace JanSharp.Internal
         private VRCPlayerApi localPlayer;
         private bool isInVR = true;
         private int fixedUpdateCounter;
+        [System.NonSerialized] public float lookVerticalInput;
+        public const float VerticalLookDownThreshold = -0.7f;
 
         public override CustomPickup HeldInLeftHand => leftHand.activePickup;
         public override CustomPickup HeldInRightHand => rightHand.activePickup;
@@ -198,6 +200,12 @@ namespace JanSharp.Internal
             leftHand.SetEyeHeightScale(eyeHeightScale);
             if (isInVR)
                 rightHand.SetEyeHeightScale(eyeHeightScale);
+        }
+
+        // TODO: Maybe move the other hand input events here too.
+        public override void InputLookVertical(float value, UdonInputEventArgs args)
+        {
+            lookVerticalInput = value;
         }
 
         private void Update()
