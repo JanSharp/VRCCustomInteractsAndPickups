@@ -741,6 +741,8 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupActivePickup");
 #endif
+            if (activePickup.receivedOnDestroy)
+                return;
             activePickup.BeginStateModification();
             attachedManager.DetachIfAttached(activePickup);
             if (activePickup.isHeld) // Held by the other hand.

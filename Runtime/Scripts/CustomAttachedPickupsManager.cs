@@ -115,6 +115,8 @@ namespace JanSharp.Internal
 
         public void AttachToBone(CustomPickup pickup, HumanBodyBones attachedToBone)
         {
+            if (pickup.receivedOnDestroy)
+                return;
             pickup.BeginStateModification();
             boneAttachment.AttachToBone(localPlayer, attachedToBone, pickup.transform);
             attachedPickups.Add(pickup, (int)attachedToBone);

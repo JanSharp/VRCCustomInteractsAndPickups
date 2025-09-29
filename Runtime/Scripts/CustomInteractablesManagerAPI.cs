@@ -12,8 +12,7 @@ namespace JanSharp
         public abstract CustomPickup HeldOnDesktop { get; }
         /// <summary>
         /// <para>A new instance of an array.</para>
-        /// <para>Could contain <see langword="null"/>, though it is incredibly unlikely and requires a pickup
-        /// to get attached after its <c>OnDestroy</c> event has been raised.</para>
+        /// <para>Does not contain any <see langword="null"/> elements.</para>
         /// </summary>
         public abstract CustomPickup[] AttachedPickups { get; }
     }

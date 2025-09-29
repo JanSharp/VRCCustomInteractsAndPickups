@@ -127,7 +127,7 @@
     - [ ] should there be a limit to how far away a pickup can be though? I really don't want to deal with the scaling of such a limit as it would be completely arbitrary but maybe people want it
   - [x] automatically detach if a bone that a pickup is attached to stops existing due to switching avatars
   - [x] prevent force attachment to bones that do not exist
-  - [ ] could prevent forcing attachment to bones of pickups that have already received their OnDestroy event
+  - [x] could prevent forcing attachment to bones of pickups that have already received their OnDestroy event
 - [ ] left right hand input swapping (through some runtime settings) for anything that differs between left and right, though this would likely be better handled by an actual full on input manager
 - [x] grey out the set layer button (the non including children button) when the layer has been set on the current game object already
 - [x] ForceBeingAttached must drop the pickup if it is currently held and raise the drop event after the attach event

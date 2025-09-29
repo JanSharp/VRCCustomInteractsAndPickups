@@ -27,6 +27,8 @@ namespace JanSharp
         [Space]
         public UdonSharpBehaviour[] listeners;
 
+        [System.NonSerialized] public bool receivedOnDestroy = false;
+
         [System.NonSerialized] public bool isHeld;
         /// <summary>
         /// <para>One of <see cref="VRCPlayerApi.TrackingDataType.LeftHand"/> (VR),
@@ -203,6 +205,7 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  OnDestroy");
 #endif
+            receivedOnDestroy = true;
             // Maybe this'll prevent errors when leaving a world, not sure.
             if (!Utilities.IsValid(Networking.LocalPlayer))
                 return;
