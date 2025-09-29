@@ -10,9 +10,6 @@ namespace JanSharp.Internal
     {
         public CustomInteractablesManager manager;
         [HideInInspector][SerializeField][SingletonReference] private BoneAttachmentManager boneAttachment;
-#if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
-        [HideInInspector][SerializeField][SingletonReference] private QuickDebugUI qd;
-#endif
         private VRCPlayerApi localPlayer;
         private int localPlayerId;
 
