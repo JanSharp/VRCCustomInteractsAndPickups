@@ -59,7 +59,8 @@ namespace JanSharp
                 return;
             Initialize();
             foreach (CustomInteractHighlightPart part in highlightParts)
-                part.gameObject.SetActive(true);
+                if (part != null)
+                    part.gameObject.SetActive(true);
         }
 
         public void HideHighlight()
@@ -70,7 +71,8 @@ namespace JanSharp
             if ((--shownCount) != 0)
                 return;
             foreach (CustomInteractHighlightPart part in highlightParts)
-                part.gameObject.SetActive(false);
+                if (part != null)
+                    part.gameObject.SetActive(false);
         }
 
         protected void GenerateHighlight()
@@ -86,7 +88,7 @@ namespace JanSharp
             foreach (MeshRenderer renderer in renderers)
             {
                 MeshFilter filter = renderer.GetComponent<MeshFilter>();
-                if (filter == null)
+                if (filter == null || renderer.GetComponent<ExcludeFromInteractableHighlight>() != null)
                     continue;
                 GameObject clone = Instantiate(manager.highlightPartPrefab);
                 clone.transform.SetParent(renderer.transform, worldPositionStays: false);
