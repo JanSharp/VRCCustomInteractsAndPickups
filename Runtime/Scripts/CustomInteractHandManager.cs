@@ -133,8 +133,13 @@ namespace JanSharp.Internal
             updateSw.Reset();
             updateSw.Start();
 #endif
-            if (isHolding && activeScript != null)
-                UpdateUseText();
+            if (activeScript != null)
+            {
+                if (isHolding)
+                    UpdateUseText();
+                else
+                    UpdateInteractText();
+            }
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
             updateSw.Stop();
             qd.ShowForOneFrame(this, "Update MS", StopwatchUtil.FormatAvgMinMax(updateSw, updateContainer));
@@ -175,12 +180,13 @@ namespace JanSharp.Internal
 
             if (script == null)
                 ClearActiveScript();
-            else if (script == activeScript)
-                UpdateInteractText();
-            else if (isInteract)
-                SetActiveInteract((CustomInteract)script);
-            else
-                SetActivePickup((CustomPickup)script);
+            else if (script != activeScript)
+            {
+                if (isInteract)
+                    SetActiveInteract((CustomInteract)script);
+                else
+                    SetActivePickup((CustomPickup)script);
+            }
 
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
             fixedUpdateSw.Stop();
@@ -523,9 +529,6 @@ namespace JanSharp.Internal
 
         private void UpdateInteractText()
         {
-            if (activeScript == null)
-                return;
-
             if (!isInVR)
             {
                 interactTextElemDesktop.text = activeScript.interactText;
