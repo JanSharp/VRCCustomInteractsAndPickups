@@ -934,6 +934,8 @@ namespace JanSharp.Internal
             prevActivePickup.isHeld = false;
             prevActivePickup.DispatchOnDrop();
 
+            // BUG: Apparently manager.lookVerticalInput can be a non zero value on desktop, however attachment
+            // on desktop does not make sense because the user would not be able to pick up those pickups again
             if (!preventAttachment && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold)
             {
                 attachedManager.AttachToNearestBone(prevActivePickup);
