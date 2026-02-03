@@ -257,5 +257,13 @@ namespace JanSharp.Internal
 #endif
             return trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHand : leftHand;
         }
+
+        public override Quaternion GetHandRotationNormalization(VRCPlayerApi.TrackingDataType trackingType)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  GetHandRotationNormalization");
+#endif
+            return (trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHand : leftHand).rotationNormalization;
+        }
     }
 }

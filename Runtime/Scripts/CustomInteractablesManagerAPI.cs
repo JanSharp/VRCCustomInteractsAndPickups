@@ -1,4 +1,6 @@
 using UdonSharp;
+using UnityEngine;
+using VRC.SDKBase;
 
 namespace JanSharp
 {
@@ -15,5 +17,15 @@ namespace JanSharp
         /// <para>Does not contain any <see langword="null"/> elements.</para>
         /// </summary>
         public abstract CustomPickup[] AttachedPickups { get; }
+
+        /// <summary>
+        /// <para>Get the rotation to rotate a hand's tracking data rotation by in order to make the forward
+        /// direction point close to the direction of the index finger and the up direction relatively aligned
+        /// with the thumb.</para>
+        /// </summary>
+        /// <param name="trackingType"><see cref="VRCPlayerApi.TrackingDataType.LeftHand"/> or
+        /// <see cref="VRCPlayerApi.TrackingDataType.RightHand"/>.</param>
+        /// <returns></returns>
+        public abstract Quaternion GetHandRotationNormalization(VRCPlayerApi.TrackingDataType trackingType);
     }
 }
