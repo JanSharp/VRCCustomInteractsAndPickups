@@ -59,7 +59,7 @@
                 // return float4(saturate((1 - dot(i.normal, forward)).xxx), 1) * _Color;
                 float fresnel = 1 - dot(i.normal, forward);
                 float base = (_SinTime.w + 1) / 2;
-                return float4(_Color.rgb, _Color.w * (0.2 * base + 0.8 * fresnel));
+                return float4(_Color.rgb, _Color.w * (0.05 * base + 0.8 * fresnel));
             }
             ENDCG
         }
