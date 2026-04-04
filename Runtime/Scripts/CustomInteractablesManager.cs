@@ -207,6 +207,8 @@ namespace JanSharp.Internal
         // TODO: Maybe move the other hand input events here too.
         public override void InputLookVertical(float value, UdonInputEventArgs args)
         {
+            // Even though we only care about this value in VR, just set it unconditionally in here as to not
+            // waste the performance on a branch in this function.
             lookVerticalInput = value;
         }
 
