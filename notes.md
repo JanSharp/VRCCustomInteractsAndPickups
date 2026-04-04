@@ -136,7 +136,7 @@
 - [x] Remove the CustomInteractHighlightPart as it's a waste of instantiate performance. Because Udon
 - [ ] Sounds, just like haptics, but audible, especially for picking up attached pickups
 - [x] disable attach on desktop as vertical mouse movement counts as look vertical input and can cause attaching of items upon dropping
-- [ ] make attachment an option
+- [x] make attachment an option
 
 # VR Testing
 

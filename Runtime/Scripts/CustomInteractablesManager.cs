@@ -80,12 +80,29 @@ namespace JanSharp.Internal
             }
         }
 
+        [Tooltip("All pickups with 'Attachment Mode' set to 'Use Default Mode From Manager' will use this value.")]
+        [SerializeField] private bool defaultAttachmentMode = true;
+        public bool DefaultAttachmentMode
+        {
+            get => defaultAttachmentMode;
+            set
+            {
+                if (defaultAttachmentMode == value)
+                    return;
+                defaultAttachmentMode = value;
+                if (!defaultAttachmentMode)
+                    attachedManager.DetachAllWhichUseDefaultModeFromManager();
+            }
+        }
+
+        [Space]
         public Material highlightMat;
         public GameObject highlightPartPrefab;
         public CustomInteractHandManager leftHand;
         public CustomInteractHandManager rightHand;
         public CustomAttachedPickupsManager attachedManager;
 
+        [Space]
         public Vector3 onSelectionGainedHaptics;
         public Vector3 onSelectionLostHaptics;
         public Vector3 onSelectionChangedHaptics;

@@ -126,5 +126,27 @@ namespace JanSharp.Internal
             pickup.DispatchOnPickupAttach();
             pickup.FinishStateModification();
         }
+
+        public void DetachAll()
+        {
+            int count = attachedPickups.Count;
+            DataList keys = attachedPickups.GetKeys();
+            for (int i = 0; i < count; i++)
+                DetachIfAttached((CustomPickup)keys[i].Reference);
+        }
+
+        public void DetachAllWhichUseDefaultModeFromManager()
+        {
+            int count = attachedPickups.Count;
+            DataList keys = attachedPickups.GetKeys();
+            for (int i = 0; i < count; i++)
+            {
+                CustomPickup pickup = (CustomPickup)keys[i].Reference;
+                // Pickups can be forced to get attached, so do not use CanAttach here as that could detach
+                // unrelated pickups.
+                if (pickup.AttachmentMode == CustomPickupAttachmentMode.UseDefaultModeFromManager)
+                    DetachIfAttached(pickup);
+            }
+        }
     }
 }

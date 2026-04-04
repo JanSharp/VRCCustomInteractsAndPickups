@@ -5,6 +5,13 @@ using VRC.SDKBase;
 
 namespace JanSharp
 {
+    public enum CustomPickupAttachmentMode
+    {
+        UseDefaultModeFromManager,
+        Disabled,
+        Enabled,
+    }
+
     [RequireComponent(typeof(Rigidbody))]
     [DisallowMultipleComponent]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
@@ -16,6 +23,21 @@ namespace JanSharp
             + "position, this transform would be exactly at your hand tracking position, which I believe to "
             + "be around the palm.")]
         public Transform exactGrip;
+
+        [SerializeField] private CustomPickupAttachmentMode attachmentMode = CustomPickupAttachmentMode.UseDefaultModeFromManager;
+        public CustomPickupAttachmentMode AttachmentMode
+        {
+            get => attachmentMode;
+            set
+            {
+                if (attachmentMode == value)
+                    return;
+                attachmentMode = value;
+                if (!AttachmentIsEnabled)
+                    Detach();
+            }
+        }
+
         [Tooltip("Each Listener can define any or all of these:\n"
             + "public override void OnPickup()\n"
             + "public override void OnDrop()\n"
@@ -26,6 +48,28 @@ namespace JanSharp
             + "public void OnPickupStateChanged()")]
         [Space]
         public UdonSharpBehaviour[] listeners;
+
+        private uint preventAttachment = 0u;
+        public bool PreventAttachment => preventAttachment != 0u;
+        public void IncrementPreventAttachment()
+        {
+            preventAttachment++;
+            Detach();
+        }
+        public void DecrementPreventAttachment() => preventAttachment--;
+
+        public bool AttachmentIsEnabled
+        {
+            get
+            {
+                if (attachmentMode != CustomPickupAttachmentMode.UseDefaultModeFromManager)
+                    return attachmentMode != CustomPickupAttachmentMode.Enabled;
+                EnsureHasManagerRef();
+                return manager.DefaultAttachmentMode;
+            }
+        }
+
+        public bool CanAttach => preventAttachment == 0u && AttachmentIsEnabled;
 
         [System.NonSerialized] public bool receivedOnDestroy = false;
 

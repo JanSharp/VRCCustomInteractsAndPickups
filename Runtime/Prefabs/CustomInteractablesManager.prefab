@@ -145,6 +145,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1715548068568552375}
   autoHoldMode: 0
+  defaultAttachmentMode: 1
   highlightMat: {fileID: 2100000, guid: b85159ff156c9d64bbc37de5d27c92a1, type: 2}
   highlightPartPrefab: {fileID: 3503689976940156827, guid: 2f4b817e2a19632fd9425bcce67f1369,
     type: 3}
@@ -156,6 +157,8 @@ MonoBehaviour:
   onSelectionChangedHaptics: {x: 0, y: 0, z: 0}
   onPickupHaptics: {x: 0, y: 0, z: 0}
   onDropHaptics: {x: 0, y: 0, z: 0}
+  onPickupAndDetachHaptics: {x: 0, y: 0, z: 0}
+  onDropAndAttachHaptics: {x: 0, y: 0, z: 0}
 --- !u!114 &1715548068568552375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1113,7 +1116,6 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 1715548069972870743}
   boneAttachment: {fileID: 0}
   interpolation: {fileID: 0}
-  qd: {fileID: 0}
   manager: {fileID: 1715548068568552372}
   attachedManager: {fileID: 3750409550442984382}
   debugSphere: {fileID: 8851396050561953452}
@@ -1391,7 +1393,6 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 1715548070137871316}
   boneAttachment: {fileID: 0}
   interpolation: {fileID: 0}
-  qd: {fileID: 0}
   manager: {fileID: 1715548068568552372}
   attachedManager: {fileID: 3750409550442984382}
   debugSphere: {fileID: 8789106495079318041}
@@ -2134,7 +2135,6 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 9458037834013998}
   manager: {fileID: 1715548068568552372}
   boneAttachment: {fileID: 0}
-  qd: {fileID: 0}
 --- !u!114 &9458037834013998
 MonoBehaviour:
   m_ObjectHideFlags: 0

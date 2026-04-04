@@ -936,7 +936,10 @@ namespace JanSharp.Internal
 
             // Vertical mouse movement counts as lookVerticalInput on desktop. Ignore desktop entirely, the
             // user would not be able to pick up an attached item anymore.
-            if (isInVR && !preventAttachment && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold)
+            if (isInVR
+                && !preventAttachment
+                && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold
+                && prevActivePickup.CanAttach)
             {
                 attachedManager.AttachToNearestBone(prevActivePickup);
                 dropResultedInAttachForHaptics = prevActivePickup.isAttached;

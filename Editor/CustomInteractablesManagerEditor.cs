@@ -13,11 +13,13 @@ namespace JanSharp
     {
         private SerializedObject so;
         private SerializedProperty autoHoldModeProp;
+        private SerializedProperty defaultAttachmentModeProp;
 
         public void OnEnable()
         {
             so = serializedObject;
             autoHoldModeProp = so.FindProperty("autoHoldMode");
+            defaultAttachmentModeProp = so.FindProperty("defaultAttachmentMode");
         }
 
         public override void OnInspectorGUI()
@@ -26,9 +28,10 @@ namespace JanSharp
                 return;
             so.Update();
             EditorGUILayout.PropertyField(autoHoldModeProp);
+            EditorGUILayout.PropertyField(defaultAttachmentModeProp);
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             GUILayout.Label("Debug / Internal", EditorStyles.boldLabel);
-            DrawPropertiesExcluding(so, "m_Script", "autoHoldMode");
+            DrawPropertiesExcluding(so, "m_Script", "autoHoldMode", "defaultAttachmentMode");
 #endif
             so.ApplyModifiedProperties();
         }
