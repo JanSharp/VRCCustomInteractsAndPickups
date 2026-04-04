@@ -19,7 +19,7 @@ namespace JanSharp
         public string interactText;
         [HideInInspector][SingletonReference] public CustomInteractablesManager manager;
         protected bool initialized;
-        protected CustomInteractHighlightPart[] highlightParts;
+        protected GameObject[] highlightParts;
         private int shownCount = 0;
         private uint preventInteraction = 0u;
 
@@ -58,9 +58,9 @@ namespace JanSharp
             if ((++shownCount) != 1)
                 return;
             Initialize();
-            foreach (CustomInteractHighlightPart part in highlightParts)
+            foreach (GameObject part in highlightParts)
                 if (part != null)
-                    part.gameObject.SetActive(true);
+                    part.SetActive(true);
         }
 
         public void HideHighlight()
@@ -70,9 +70,9 @@ namespace JanSharp
 #endif
             if ((--shownCount) != 0)
                 return;
-            foreach (CustomInteractHighlightPart part in highlightParts)
+            foreach (GameObject part in highlightParts)
                 if (part != null)
-                    part.gameObject.SetActive(false);
+                    part.SetActive(false);
         }
 
         protected void GenerateHighlight()
@@ -83,24 +83,22 @@ namespace JanSharp
             sw.Start();
 #endif
             MeshRenderer[] renderers = this.GetComponentsInChildren<MeshRenderer>(includeInactive: true);
-            highlightParts = new CustomInteractHighlightPart[renderers.Length];
+            highlightParts = new GameObject[renderers.Length];
             int partsCount = 0;
             foreach (MeshRenderer renderer in renderers)
             {
                 MeshFilter filter = renderer.GetComponent<MeshFilter>();
                 if (filter == null || renderer.GetComponent<ExcludeFromInteractableHighlight>() != null)
                     continue;
-                GameObject clone = Instantiate(manager.highlightPartPrefab);
-                clone.transform.SetParent(renderer.transform, worldPositionStays: false);
-                CustomInteractHighlightPart part = clone.GetComponent<CustomInteractHighlightPart>();
-                part.originalMeshFilter = filter;
-                part.originalMeshRenderer = renderer;
-                part.meshRenderer.enabled = renderer.enabled;
-                part.meshFilter.mesh = filter.mesh;
+                GameObject part = Instantiate(manager.highlightPartPrefab);
+                part.transform.SetParent(renderer.transform, worldPositionStays: false);
+                MeshRenderer partRenderer = part.GetComponent<MeshRenderer>();
+                partRenderer.enabled = renderer.enabled;
+                part.GetComponent<MeshFilter>().mesh = filter.mesh;
                 Material[] materials = renderer.sharedMaterials;
                 for (int j = 0; j < materials.Length; j++)
                     materials[j] = manager.highlightMat;
-                part.meshRenderer.sharedMaterials = materials;
+                partRenderer.sharedMaterials = materials;
                 highlightParts[partsCount++] = part;
             }
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG

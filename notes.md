@@ -133,7 +133,7 @@
 - [x] ForceBeingAttached must drop the pickup if it is currently held and raise the drop event after the attach event
 - [x] Any kind of forcing of the pickups (picking up, dropping, attaching, detaching) must only raise the OnPickupStateChanged event once throughout the whole process
 - [ ] There is no event nor otherwise clean way for/of other systems changing the local position and rotation of an attached pickup
-- [ ] Remove the CustomInteractHighlightPart as it's a waste of instantiate performance. Because Udon
+- [x] Remove the CustomInteractHighlightPart as it's a waste of instantiate performance. Because Udon
 - [ ] Sounds, just like haptics, but audible, especially for picking up attached pickups
 - [x] disable attach on desktop as vertical mouse movement counts as look vertical input and can cause attaching of items upon dropping
 - [ ] make attachment an option
