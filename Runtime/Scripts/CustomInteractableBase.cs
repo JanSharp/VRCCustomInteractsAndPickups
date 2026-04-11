@@ -57,6 +57,14 @@ namespace JanSharp
 #endif
             if ((++shownCount) != 1)
                 return;
+            ActivateHighlight();
+        }
+
+        private void ActivateHighlight()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  ActivateHighlight");
+#endif
             Initialize();
             foreach (GameObject part in highlightParts)
                 if (part != null)
@@ -73,6 +81,23 @@ namespace JanSharp
             foreach (GameObject part in highlightParts)
                 if (part != null)
                     part.SetActive(false);
+        }
+
+        public void InvalidateHighlight()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  InvalidateHighlight - shownCount: {shownCount}");
+#endif
+            if (!initialized)
+                return;
+            foreach (GameObject part in highlightParts)
+                if (part != null)
+                    Destroy(part);
+            highlightParts = null;
+            initialized = false;
+            // In case the highlight is currently being shown.
+            if (shownCount > 0)
+                ActivateHighlight();
         }
 
         protected void GenerateHighlight()
