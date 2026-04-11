@@ -19,7 +19,7 @@ namespace JanSharp
         public string interactText;
         [HideInInspector][SingletonReference] public CustomInteractablesManager manager;
         protected bool initialized = false;
-        private int waitingForRecreateHighlightCalls = 0;
+        private uint waitingForRecreateHighlightCalls = 0u;
         protected GameObject[] highlightParts;
         private int shownCount = 0;
         private uint preventInteraction = 0u;
@@ -66,7 +66,7 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  ActivateHighlight");
 #endif
-            if (waitingForRecreateHighlightCalls != 0)
+            if (waitingForRecreateHighlightCalls != 0u)
                 return;
             Initialize();
             foreach (GameObject part in highlightParts)
@@ -127,7 +127,7 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  CreateHighlightIfShown - shownCount: {shownCount}");
 #endif
-            if (waitingForRecreateHighlightCalls == 0)
+            if (waitingForRecreateHighlightCalls == 0u)
             {
                 Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to call RecreateHighlightIfShown "
                     + $"without a prior matching InvalidateHighlight on '{this.name}'.", this);
