@@ -18,7 +18,8 @@ namespace JanSharp
         public float desktopReach = 2.5f;
         public string interactText;
         [HideInInspector][SingletonReference] public CustomInteractablesManager manager;
-        protected bool initialized;
+        protected bool initialized = false;
+        private int waitingForRecreateHighlightCalls = 0;
         protected GameObject[] highlightParts;
         private int shownCount = 0;
         private uint preventInteraction = 0u;
@@ -65,6 +66,8 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  ActivateHighlight");
 #endif
+            if (waitingForRecreateHighlightCalls != 0)
+                return;
             Initialize();
             foreach (GameObject part in highlightParts)
                 if (part != null)
@@ -76,14 +79,24 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  HideHighlight - shownCount: {shownCount}");
 #endif
-            if ((--shownCount) != 0)
+            if ((--shownCount) != 0 || !initialized) // initialized is false when waitingForRecreateHighlightCalls is non zero.
                 return;
             foreach (GameObject part in highlightParts)
                 if (part != null)
                     part.SetActive(false);
         }
 
-        public void InvalidateHighlight()
+        /// <summary>
+        /// <para>Use this to tell the interactable that it's meshes and or hierarchy is changing.</para>
+        /// <para>If it has already been changed, <paramref name="skipRecreatingHighlight"/> can be left as
+        /// <see langword="false"/>.</para>
+        /// <para>If changes involve moving objects out of the hierarchy of the interactable, call this
+        /// function before making changes and pass <see langword="true"/> to
+        /// <paramref name="skipRecreatingHighlight"/>. It is subsequently required to call
+        /// <see cref="RecreateHighlightIfShown"/> once desired changes have been made.</para>
+        /// </summary>
+        /// <param name="skipRecreatingHighlight"></param>
+        public void InvalidateHighlight(bool skipRecreatingHighlight = false)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  InvalidateHighlight - shownCount: {shownCount}");
@@ -95,9 +108,34 @@ namespace JanSharp
                     Destroy(part);
             highlightParts = null;
             initialized = false;
-            // In case the highlight is currently being shown.
-            if (shownCount > 0)
+            if (skipRecreatingHighlight)
+                waitingForRecreateHighlightCalls++;
+            else if (shownCount > 0)
                 ActivateHighlight();
+        }
+
+        /// <summary>
+        /// <para>Must only call this in conjunction with a prior <see cref="InvalidateHighlight(bool)"/>
+        /// call. See its annotations.</para>
+        /// <para>There can be multiple nested pairs of <see cref="InvalidateHighlight(bool)"/> and
+        /// <see cref="RecreateHighlightIfShown"/> calls. Only the most outer and last call to
+        /// <see cref="RecreateHighlightIfShown"/> will actually recreate the highlight, and any call to
+        /// <see cref="ShowHighlight"/> in between does not create a highlight either.</para>
+        /// </summary>
+        public void RecreateHighlightIfShown()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] InteractableBase {this.name}  CreateHighlightIfShown - shownCount: {shownCount}");
+#endif
+            if (waitingForRecreateHighlightCalls == 0)
+            {
+                Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to call RecreateHighlightIfShown "
+                    + $"without a prior matching InvalidateHighlight on '{this.name}'.", this);
+                return;
+            }
+            waitingForRecreateHighlightCalls--;
+            if (shownCount > 0)
+                ActivateHighlight(); // Checks if waitingForRecreateHighlightCalls is 0.
         }
 
         protected void GenerateHighlight()
