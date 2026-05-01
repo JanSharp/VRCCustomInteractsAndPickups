@@ -199,6 +199,12 @@ namespace JanSharp
                     listener.SendCustomEvent("OnPickupDetach");
         }
 
+        /// <summary>
+        /// <para>Can be raised even though nothing changed.</para>
+        /// <para>There is no reason to attempt to prevent it from getting raised, because as soon as more
+        /// than one listener is involved, all listeners past the first one would no longer have the guarantee
+        /// of any values actually differing.</para>
+        /// </summary>
         private void DispatchOnPickupStateChanged()
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
@@ -224,17 +230,6 @@ namespace JanSharp
 #endif
             if ((--ongoingStateModifications) != 0)
                 return;
-            if (prevIsHeld == isHeld // The vast majority of the time isHeld or isAttached will differ,
-                && prevIsAttached == isAttached // making this if condition short circuit pretty quickly.
-                && (!isHeld // Value differences only matter if it was and still is held.
-                    || (prevHeldTrackingType == heldTrackingType
-                    && prevHeldOffsetVector == heldOffsetVector
-                    && prevHeldOffsetRotation == heldOffsetRotation))
-                && (!isAttached // Value differences only matter if it was and still is attached.
-                    || prevAttachedToBone == attachedToBone))
-            {
-                return;
-            }
             DispatchOnPickupStateChanged();
             prevIsHeld = isHeld;
             prevHeldTrackingType = heldTrackingType;
