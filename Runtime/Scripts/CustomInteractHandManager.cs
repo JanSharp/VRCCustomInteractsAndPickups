@@ -85,6 +85,7 @@ namespace JanSharp.Internal
         public const string InteractLayerName = "Interactive";
         public const string PickupLayerName = "Pickup";
         private int interactLayerNumber;
+        private int pickupLayerNumber;
         private LayerMask interactLayer;
         private LayerMask pickupLayer;
         private const float InteractAndUseTextScale = 0.5f;
@@ -110,8 +111,9 @@ namespace JanSharp.Internal
             hasDropKeyBind = !isInVR;
             maxClickDurationSeconds = isInVR ? MaxClickDurationSecondsVR : MaxClickDurationSecondsDesktop;
             interactLayerNumber = LayerMask.NameToLayer(InteractLayerName);
+            pickupLayerNumber = LayerMask.NameToLayer(PickupLayerName);
             interactLayer = (LayerMask)(1 << interactLayerNumber);
-            pickupLayer = (LayerMask)(1 << LayerMask.NameToLayer(PickupLayerName));
+            pickupLayer = (LayerMask)(1 << pickupLayerNumber);
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
             updateContainer = StopwatchUtil.CreateDataContainer();
             fixedUpdateContainer = StopwatchUtil.CreateDataContainer();
@@ -828,6 +830,8 @@ namespace JanSharp.Internal
             {
                 if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
                     continue; // even though in normal Unity... this is not possible to be null.
+                if (collider.gameObject.layer != pickupLayerNumber)
+                    continue;
                 VRCPlayerApi.TrackingData trackingData = localPlayer.GetTrackingData(trackingHandType);
                 Vector3 trackingDataPosition = trackingData.position;
                 Vector3 closestPoint = collider.ClosestPoint(trackingDataPosition);
