@@ -819,7 +819,7 @@ namespace JanSharp.Internal
                 activeTransform.localRotation = heldOffsetRotation;
         }
 
-        private Vector3 GetClosestPoint(CustomPickup pickup)
+        private void GetClosestHitPoint(CustomPickup pickup)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  GetClosestPoint");
@@ -841,7 +841,10 @@ namespace JanSharp.Internal
                 closestDistance = distance;
                 closestHitPoint = closestPoint;
             }
-            return closestHitPoint;
+            hitPoint = closestHitPoint;
+            Transform t = pickup.transform;
+            interactablePositionForHitPoint = t.position;
+            interactableRotationForHitPoint = t.rotation;
         }
 
         private bool PrepareForcePickup(CustomPickup pickup)
@@ -855,8 +858,8 @@ namespace JanSharp.Internal
                     return false;
                 DropActivePickup(preventAttachment: true);
             }
-            if (pickup.exactGrip == null)
-                hitPoint = GetClosestPoint(pickup);
+            if (pickup.primaryExactGrip == null)
+                GetClosestHitPoint(pickup);
             // TODO: remove pointless enabling and disabling of the highlight
             SetActivePickup(pickup);
             return true;
