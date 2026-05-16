@@ -30,6 +30,8 @@ namespace JanSharp
 
         public abstract bool CanInteract();
 
+        public abstract float GetEffectiveVRReach();
+
         protected void EnsureHasManagerRef()
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG

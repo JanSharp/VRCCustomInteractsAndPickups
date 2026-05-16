@@ -133,14 +133,14 @@ namespace JanSharp.Internal
             isInVR = localPlayer.IsUserInVR();
             if (isInVR)
             {
-                leftHand.trackingHandType = VRCPlayerApi.TrackingDataType.LeftHand;
+                leftHand.handTrackingType = VRCPlayerApi.TrackingDataType.LeftHand;
                 leftHand.pickupHandType = VRC_Pickup.PickupHand.Left;
                 leftHand.handType = HandType.LEFT;
                 leftHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
                 leftHand.palmDirection = Vector3.up;
                 leftHand.coneDirection = Quaternion.AngleAxis(60f, Vector3.up) * Vector3.forward;
                 leftHand.offsetVectorShift = Vector3.zero;
-                rightHand.trackingHandType = VRCPlayerApi.TrackingDataType.RightHand;
+                rightHand.handTrackingType = VRCPlayerApi.TrackingDataType.RightHand;
                 rightHand.pickupHandType = VRC_Pickup.PickupHand.Right;
                 rightHand.handType = HandType.RIGHT;
                 rightHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
@@ -150,7 +150,7 @@ namespace JanSharp.Internal
             }
             else
             {
-                leftHand.trackingHandType = VRCPlayerApi.TrackingDataType.Head;
+                leftHand.handTrackingType = VRCPlayerApi.TrackingDataType.Head;
                 leftHand.pickupHandType = VRC_Pickup.PickupHand.None;
                 leftHand.handType = HandType.LEFT; // Does not matter, is not used.
                 leftHand.rotationNormalization = Quaternion.identity;
@@ -255,7 +255,7 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  DropPickup");
 #endif
-            if (pickup.heldTrackingType == VRCPlayerApi.TrackingDataType.RightHand)
+            if (pickup.primaryHeldTrackingType == VRCPlayerApi.TrackingDataType.RightHand)
                 rightHand.DropActivePickup();
             else
                 leftHand.DropActivePickup();
@@ -267,6 +267,17 @@ namespace JanSharp.Internal
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  DetachPickup");
 #endif
             attachedManager.DetachIfAttached(pickup);
+        }
+
+        public void MakeSecondaryHandPrimary(CustomPickup pickup)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  MakeSecondaryHandPrimary");
+#endif
+            if (pickup.secondaryHeldTrackingType == VRCPlayerApi.TrackingDataType.RightHand)
+                rightHand.BecomePrimaryHand(pickup);
+            else
+                leftHand.BecomePrimaryHand(pickup);
         }
 
         public CustomInteractHandManager GetHandForTrackingType(VRCPlayerApi.TrackingDataType trackingType)

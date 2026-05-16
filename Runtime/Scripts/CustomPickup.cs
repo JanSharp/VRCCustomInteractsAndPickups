@@ -17,12 +17,20 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomPickup : CustomInteractableBase
     {
+        public const float VRReachForAlreadyHeldPickups = 0.1f;
+
         public string useText;
         [Tooltip("Imagine making finger guns with your hands. The index finger would match the forward vector "
             + "(blue), the thumb would match the up vector (green) of this Exact Grip transform.\nIn terms of "
             + "position, this transform would be exactly at your hand tracking position, which I believe to "
             + "be around the palm.")]
-        public Transform exactGrip;
+        [UnityEngine.Serialization.FormerlySerializedAs("exactGrip")] // TODO: Remove.
+        public Transform primaryExactGrip;
+        [Tooltip("Imagine making finger guns with your hands. The index finger would match the forward vector "
+            + "(blue), the thumb would match the up vector (green) of this Exact Grip transform.\nIn terms of "
+            + "position, this transform would be exactly at your hand tracking position, which I believe to "
+            + "be around the palm.")]
+        public Transform secondaryExactGrip;
 
         [SerializeField] private CustomPickupAttachmentMode attachmentMode = CustomPickupAttachmentMode.UseDefaultModeFromManager;
         public CustomPickupAttachmentMode AttachmentMode
@@ -37,6 +45,13 @@ namespace JanSharp
                     Detach();
             }
         }
+
+        [Tooltip("When held with both hands and the primary hand drops this pickup, should the other hand "
+            + "become the new primary holding hand? Otherwise the other stays secondary, and there is no "
+            + "primary.")]
+        public bool droppingTransfersPrimaryHand = true;
+
+        public CustomPickupController pickupController;
 
         [Tooltip("Each Listener can define any or all of these:\n"
             + "public override void OnPickup()\n"
@@ -73,15 +88,38 @@ namespace JanSharp
 
         [System.NonSerialized] public bool receivedOnDestroy = false;
 
+        /// <summary>
+        /// <para><see langword="true"/> whenever <see cref="isHeldByPrimaryHand"/> and or
+        /// <see cref="isHeldBySecondaryHand"/> is <see langword="true"/>.</para>
+        /// <para>A variable rather than a property purely for performance (micro optimization)
+        /// reasons.</para>
+        /// </summary>
         [System.NonSerialized] public bool isHeld;
+
+        [System.NonSerialized] public bool isHeldByPrimaryHand;
         /// <summary>
         /// <para>One of <see cref="VRCPlayerApi.TrackingDataType.LeftHand"/> (VR),
         /// <see cref="VRCPlayerApi.TrackingDataType.RightHand"/> (VR) or
         /// <see cref="VRCPlayerApi.TrackingDataType.Head"/> (desktop).</para>
         /// </summary>
-        [System.NonSerialized] public VRCPlayerApi.TrackingDataType heldTrackingType;
-        [System.NonSerialized] public Vector3 heldOffsetVector;
-        [System.NonSerialized] public Quaternion heldOffsetRotation;
+        [System.NonSerialized] public VRCPlayerApi.TrackingDataType primaryHeldTrackingType;
+        /// <summary>
+        /// <para>In hand local space, in other words relative to hand position, rotated by hand
+        /// rotation.</para>
+        /// </summary>
+        [System.NonSerialized] public Vector3 primaryOffsetVector;
+        /// <summary>
+        /// <para>In hand local space, in other words relative to hand rotation.</para>
+        /// </summary>
+        [System.NonSerialized] public Quaternion primaryOffsetRotation;
+
+        [System.NonSerialized] public bool isHeldBySecondaryHand;
+        /// <inheritdoc cref="primaryHeldTrackingType"/>
+        [System.NonSerialized] public VRCPlayerApi.TrackingDataType secondaryHeldTrackingType;
+        /// <inheritdoc cref="primaryOffsetVector"/>
+        [System.NonSerialized] public Vector3 secondaryOffsetVector;
+        /// <inheritdoc cref="primaryOffsetRotation"/>
+        [System.NonSerialized] public Quaternion secondaryOffsetRotation;
 
         [System.NonSerialized] public bool usedHermiteCurveWhenLastPickedUp;
 
@@ -101,7 +139,9 @@ namespace JanSharp
 
         private int ongoingStateModifications;
 
-        public override bool CanInteract() => !PreventInteraction && !isHeld;
+        public override bool CanInteract() => !PreventInteraction;
+
+        public override float GetEffectiveVRReach() => isHeld ? VRReachForAlreadyHeldPickups : vRReach;
 
         public void DispatchOnPickup()
         {
@@ -232,30 +272,14 @@ namespace JanSharp
             manager.attachedManager.DetachIfAttached(this);
         }
 
-        public void ForceBeingPickedUp(VRCPlayerApi.TrackingDataType heldTrackingType, bool useHermiteCurve = false)
+        public void ForceBeingPickedUp(VRCPlayerApi.TrackingDataType heldTrackingType)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUp");
 #endif
             EnsureHasManagerRef();
             CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
-            hand.ForcePickup(this, useHermiteCurve);
-        }
-
-        public void ForceBeingPickedUp(
-            VRCPlayerApi.TrackingDataType heldTrackingType,
-            Vector3 heldOffsetVector,
-            Quaternion heldOffsetRotation,
-            bool useHermiteCurve = false)
-        {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUp");
-#endif
-            this.heldOffsetVector = heldOffsetVector;
-            this.heldOffsetRotation = heldOffsetRotation;
-            EnsureHasManagerRef();
-            CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
-            hand.ForcePickupUsingExistingOffset(this, useHermiteCurve);
+            hand.ForcePickup(this);
         }
 
         /// <summary>
@@ -282,6 +306,14 @@ namespace JanSharp
                 manager.attachedManager.AttachToBone(this, attachedToBone);
             }
             FinishStateModification();
+        }
+
+        public void MakeSecondaryHandPrimary()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  MakeSecondaryHandPrimary");
+#endif
+            manager.MakeSecondaryHandPrimary(this);
         }
     }
 }

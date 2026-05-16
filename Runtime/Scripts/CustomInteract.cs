@@ -17,6 +17,8 @@ namespace JanSharp
 
         public override bool CanInteract() => !PreventInteraction;
 
+        public override float GetEffectiveVRReach() => vRReach;
+
         public void DispatchOnInteract()
         {
             for (int i = 0; i < actualListeners.Length; i++)

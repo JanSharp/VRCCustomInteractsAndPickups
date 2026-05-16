@@ -9,15 +9,17 @@ namespace JanSharp.Internal
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomInteractHandManager : UdonSharpBehaviour
     {
-        [HideInInspector][SerializeField][SingletonReference] private BoneAttachmentManager boneAttachment;
-        [HideInInspector][SerializeField][SingletonReference] private InterpolationManager interpolation;
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
         [HideInInspector][SerializeField][SingletonReference] private QuickDebugUI qd;
 #endif
         public CustomInteractablesManager manager;
+        public CustomInteractHandManager otherHandManager;
         public CustomAttachedPickupsManager attachedManager;
+        public CustomPickupPickingUpState pickingUpStateForController;
+        public CustomPickupState stateForController;
+        public CustomPickupController fallbackPickupController;
 
-        [System.NonSerialized] public VRCPlayerApi.TrackingDataType trackingHandType;
+        [System.NonSerialized] public VRCPlayerApi.TrackingDataType handTrackingType;
         [System.NonSerialized] public VRC_Pickup.PickupHand pickupHandType;
         [System.NonSerialized] public HandType handType;
         [System.NonSerialized] public Quaternion rotationNormalization;
@@ -43,7 +45,7 @@ namespace JanSharp.Internal
 
         private bool hasActiveInteract;
         private bool hasActivePickup;
-        private bool usedConeModeLastUpdate;
+        private bool isControllingActivePickup;
         private CustomInteract activeInteract;
         [System.NonSerialized] public CustomPickup activePickup;
         private CustomInteractableBase activeScript;
@@ -60,6 +62,7 @@ namespace JanSharp.Internal
 
         private bool isHolding;
         private bool isAutoHolding;
+        private bool isPrimaryHoldingHand;
         private float pickedUpAt = -1;
         private Vector3 heldOffsetVector;
         private Quaternion heldOffsetRotation;
@@ -114,6 +117,7 @@ namespace JanSharp.Internal
             pickupLayerNumber = LayerMask.NameToLayer(PickupLayerName);
             interactLayer = (LayerMask)(1 << interactLayerNumber);
             pickupLayer = (LayerMask)(1 << pickupLayerNumber);
+            pickingUpStateForController.SetProgramVariable(CustomPickupPickingUpState.PickupLayerNumberFieldName, pickupLayerNumber);
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
             updateContainer = StopwatchUtil.CreateDataContainer();
             fixedUpdateContainer = StopwatchUtil.CreateDataContainer();
@@ -137,6 +141,8 @@ namespace JanSharp.Internal
 #endif
             if (activeScript != null)
             {
+                if (isControllingActivePickup)
+                    UpdateControlledPickup();
                 if (isHolding)
                     UpdateUseText();
                 else
@@ -258,7 +264,7 @@ namespace JanSharp.Internal
         {
             float maxDistance = 25f * eyeHeightScale;
 
-            trackingDataForHitPoint = localPlayer.GetTrackingData(trackingHandType);
+            trackingDataForHitPoint = localPlayer.GetTrackingData(handTrackingType);
             Vector3 raycastOrigin = trackingDataForHitPoint.position;
             Vector3 raycastForward = trackingDataForHitPoint.rotation * rotationNormalization * Vector3.forward;
 
@@ -295,12 +301,11 @@ namespace JanSharp.Internal
 
         private CustomInteractableBase TryGetNearInteractable(out bool isInteract)
         {
-            usedConeModeLastUpdate = false;
             // Max proximityReach is 1.
             // Divide by 2 because the definition is a diameter.
             float maxRadius = /* 1f * */ eyeHeightScale / 2f;
 
-            trackingDataForHitPoint = localPlayer.GetTrackingData(trackingHandType);
+            trackingDataForHitPoint = localPlayer.GetTrackingData(handTrackingType);
             Vector3 handPosition = trackingDataForHitPoint.position;
 
             bool closestIsInteract = false;
@@ -323,7 +328,7 @@ namespace JanSharp.Internal
                     continue;
                 Vector3 closestPoint = collider.ClosestPoint(handPosition);
                 float distanceFromHand = Vector3.Distance(handPosition, closestPoint);
-                float vrReach = interactable.vRReach;
+                float vrReach = interactable.GetEffectiveVRReach();
                 float scaledReach = vrReach * eyeHeightScale;
                 if (distanceFromHand > scaledReach || distanceFromHand >= closestDistance)
                     continue;
@@ -368,10 +373,9 @@ namespace JanSharp.Internal
 
         private CustomInteractableBase TryGetInteractableInCone(bool includeInteracts, out bool isInteract)
         {
-            usedConeModeLastUpdate = true;
             int layerMask = includeInteracts ? interactLayer | pickupLayer : (int)pickupLayer;
 
-            trackingDataForHitPoint = localPlayer.GetTrackingData(trackingHandType);
+            trackingDataForHitPoint = localPlayer.GetTrackingData(handTrackingType);
             Vector3 handPosition = trackingDataForHitPoint.position;
 
             bool closestIsInteract = false;
@@ -404,7 +408,7 @@ namespace JanSharp.Internal
                         continue;
                     Vector3 closestPoint = collider.ClosestPoint(handPosition);
                     float distanceFromHand = Vector3.Distance(handPosition, closestPoint);
-                    if (distanceFromHand >= closestDistance)
+                    if (distanceFromHand >= closestDistance) // This bypasses reach checks even for already held pickups. But it's probably acceptable.
                         continue;
                     closestIsInteract = currentIsInteract;
                     closestInteractable = interactable;
@@ -531,13 +535,16 @@ namespace JanSharp.Internal
 
         private void UpdateInteractText()
         {
+            string interactText = (hasActivePickup && activePickup.isHeld)
+                ? "" // No text when it is a pickup and said pickup is held by the other hand.
+                : activeScript.interactText;
+
             if (!isInVR)
             {
-                interactTextElemDesktop.text = activeScript.interactText;
+                interactTextElemDesktop.text = interactText;
                 return;
             }
 
-            string interactText = activeScript.interactText;
             interactTextElem.text = interactText;
             if (!string.IsNullOrWhiteSpace(interactText)) // Optimization.
                 MoveTextToHand(interactTextRoot);
@@ -581,8 +588,42 @@ namespace JanSharp.Internal
             projected = Vector3.ProjectOnPlane((Quaternion.Inverse(yRotation) * headRotation) * Vector3.forward, Vector3.right);
             Quaternion tiltRotation = Quaternion.LookRotation(projected);
 
-            textTransform.position = localPlayer.GetTrackingData(trackingHandType).position;
-            textTransform.rotation = yRotation * tiltRotation;
+            textTransform.SetPositionAndRotation(
+                localPlayer.GetTrackingData(handTrackingType).position,
+                yRotation * tiltRotation);
+        }
+
+        private void PopulateStateForController()
+        {
+            stateForController.pickup = activePickup;
+            stateForController.pickupTransform = activeTransform;
+            if (activePickup.isHeldByPrimaryHand)
+            {
+                var hand = localPlayer.GetTrackingData(activePickup.primaryHeldTrackingType);
+                Quaternion rotation = hand.rotation * rotationNormalization;
+                stateForController.primaryHandPosition = hand.position + rotation * offsetVectorShift;
+                stateForController.primaryHandRotation = rotation;
+                // TODO: Only define rotationNormalization once if this ends up being the way this goes.
+                // The same value gets used for both hands.
+            }
+            if (activePickup.isHeldBySecondaryHand)
+            {
+                var hand = localPlayer.GetTrackingData(activePickup.secondaryHeldTrackingType);
+                Quaternion rotation = hand.rotation * rotationNormalization;
+                stateForController.secondaryHandPosition = hand.position + rotation * offsetVectorShift;
+                stateForController.secondaryHandRotation = rotation;
+            }
+        }
+
+        private CustomPickupController GetActivePickupController()
+        {
+            return activePickup.pickupController ?? fallbackPickupController;
+        }
+
+        private void UpdateControlledPickup()
+        {
+            PopulateStateForController();
+            GetActivePickupController().MovePickup(stateForController);
         }
 
         public override void InputUse(bool value, UdonInputEventArgs args)
@@ -667,7 +708,7 @@ namespace JanSharp.Internal
                 {
                     isAutoHolding = true;
                 }
-                PickupActivePickup(usedConeModeLastUpdate);
+                PickupActivePickup(hasHitPoint: true);
                 return;
             }
 
@@ -714,42 +755,28 @@ namespace JanSharp.Internal
             DropActivePickup();
         }
 
-        private void CalculateActivePickupOffsets()
+        private void PopulatePickingUpStateForController(bool hasHitPoint)
         {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  CalculateActivePickupOffsets");
-#endif
-            Transform exactGrip = activePickup.exactGrip;
-            if (exactGrip == null)
-            {
-                // Move to hand.
-                Vector3 handPosition = trackingDataForHitPoint.position;
-                Quaternion inverseTrackingDataRotation = Quaternion.Inverse(trackingDataForHitPoint.rotation);
-                Vector3 distanceFromTrackingData = inverseTrackingDataRotation * (hitPoint - handPosition);
-                heldOffsetRotation = inverseTrackingDataRotation * interactableRotationForHitPoint;
-                heldOffsetVector = inverseTrackingDataRotation * (interactablePositionForHitPoint - handPosition)
-                    - distanceFromTrackingData + offsetVectorShift;
-            }
-            else
-            {
-                // Exact grip.
-                Quaternion activeRotation = activeTransform.rotation;
-                Vector3 offsetVector = Quaternion.Inverse(activeRotation) * (activeTransform.position - exactGrip.position);
-                heldOffsetRotation = rotationNormalization * Quaternion.Inverse(exactGrip.rotation) * activeRotation;
-                heldOffsetVector = heldOffsetRotation * offsetVector + offsetVectorShift;
-            }
+            pickingUpStateForController.pickup = activePickup;
+            pickingUpStateForController.pickupTransform = activeTransform;
+
+            var hand = localPlayer.GetTrackingData(activePickup.primaryHeldTrackingType);
+            Quaternion handRotation = hand.rotation * rotationNormalization;
+            pickingUpStateForController.handPosition = hand.position + handRotation * offsetVectorShift;
+            pickingUpStateForController.handRotation = handRotation;
+
+            pickingUpStateForController.hasClosestPoint = hasHitPoint;
+            if (!hasHitPoint)
+                return;
+            pickingUpStateForController.closestPoint = hitPoint;
+            Quaternion rotation = trackingDataForHitPoint.rotation * rotationNormalization;
+            pickingUpStateForController.handPositionForClosestPoint = trackingDataForHitPoint.position + rotation * offsetVectorShift;
+            pickingUpStateForController.handRotationForClosestPoint = rotation;
+            pickingUpStateForController.pickupPositionForClosestPoint = interactablePositionForHitPoint;
+            pickingUpStateForController.pickupRotationForClosestPoint = interactableRotationForHitPoint;
         }
 
-        private void LerpHeldPickupToHeldOffsets()
-        {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  LerpHeldPickupToHeldOffsets");
-#endif
-            interpolation.LerpLocalPosition(activeTransform, heldOffsetVector, CustomInteractablesManagerAPI.PickupInterpolationDuration, this, nameof(PickupPositionInterpolationCallback), null);
-            interpolation.LerpLocalRotation(activeTransform, heldOffsetRotation, CustomInteractablesManagerAPI.PickupInterpolationDuration, this, nameof(PickupRotationInterpolationCallback), null);
-        }
-
-        private void PickupActivePickup(bool useHermiteCurve, bool skipOffsetCalculation = false)
+        private void PickupActivePickup(bool hasHitPoint)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupActivePickup");
@@ -759,30 +786,15 @@ namespace JanSharp.Internal
             activePickup.BeginStateModification();
             pickupWasAttachedForHaptics = activePickup.isAttached;
             attachedManager.DetachIfAttached(activePickup);
-            if (activePickup.isHeld) // Held by the other hand.
-                manager.DropPickup(activePickup);
 
             isHolding = true;
             pickedUpAt = Time.time;
             useConeModeUntilTime = -1f;
-            activePickup.usedHermiteCurveWhenLastPickedUp = useHermiteCurve;
 
-            if (!skipOffsetCalculation)
-                CalculateActivePickupOffsets();
+            CustomPickupController pickupController = GetActivePickupController();
+            PopulatePickingUpStateForController(hasHitPoint);
+            pickupController.HandlePickingUp(pickingUpStateForController);
 
-            boneAttachment.AttachToLocalTrackingData(trackingHandType, activeTransform);
-            // TODO: Test and see how it feels to have interpolation enabled for pickups with exact grip.
-            if (useHermiteCurve)
-            {
-                Vector3 directVector = heldOffsetVector - activeTransform.localPosition;
-                float distance = directVector.magnitude;
-                Vector3 originVelocity = Quaternion.Inverse(activeTransform.parent.rotation) * Vector3.up * distance / 2f;
-                float duration = Mathf.Min(CustomInteractablesManagerAPI.MaxPickupInterpolationDuration, CustomInteractablesManagerAPI.PickupInterpolationDuration * distance);
-                interpolation.HermiteCurveLocalPosition(activeTransform, originVelocity, heldOffsetVector, directVector, duration, this, nameof(PickupPositionInterpolationCallback), null);
-                interpolation.LerpLocalRotation(activeTransform, heldOffsetRotation, duration, this, nameof(PickupRotationInterpolationCallback), null);
-            }
-            else
-                LerpHeldPickupToHeldOffsets();
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             debugLine.gameObject.SetActive(false);
 #endif
@@ -793,58 +805,37 @@ namespace JanSharp.Internal
             HideInteractText();
             EnableDisableUseText();
 
+            if (pickingUpStateForController.shouldBecomeSecondaryHand)
+            {
+                if (activePickup.isHeldBySecondaryHand)
+                    otherHandManager.DropActivePickup();
+                isControllingActivePickup = !activePickup.isHeldByPrimaryHand; // Only control if the other hand is not controlling it.
+                isPrimaryHoldingHand = false;
+                activePickup.isHeldBySecondaryHand = true;
+                activePickup.secondaryHeldTrackingType = handTrackingType;
+                activePickup.secondaryOffsetVector = pickingUpStateForController.heldOffsetVector;
+                activePickup.secondaryOffsetRotation = pickingUpStateForController.heldOffsetRotation;
+                PopulateStateForController();
+                pickupController.HandleSecondaryPickingUp(stateForController);
+            }
+            else
+            {
+                if (activePickup.isHeldByPrimaryHand)
+                    otherHandManager.DropActivePickup();
+                if (activePickup.isHeldBySecondaryHand)
+                    otherHandManager.isControllingActivePickup = false;
+                isControllingActivePickup = true; // The primary hand is always the one in control, if there is primary one.
+                isPrimaryHoldingHand = true;
+                activePickup.isHeldByPrimaryHand = true;
+                activePickup.primaryHeldTrackingType = handTrackingType;
+                activePickup.primaryOffsetVector = pickingUpStateForController.heldOffsetVector;
+                activePickup.primaryOffsetRotation = pickingUpStateForController.heldOffsetRotation;
+                PopulateStateForController();
+                pickupController.HandlePrimaryPickingUp(stateForController);
+            }
             activePickup.isHeld = true;
-            activePickup.heldTrackingType = trackingHandType;
-            activePickup.heldOffsetVector = heldOffsetVector;
-            activePickup.heldOffsetRotation = heldOffsetRotation;
             activePickup.DispatchOnPickup();
             activePickup.FinishStateModification();
-        }
-
-        public void PickupPositionInterpolationCallback()
-        {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupPositionInterpolationCallback - isHolding: {isHolding}");
-#endif
-            if (isHolding && activeTransform != null)
-                activeTransform.localPosition = heldOffsetVector;
-        }
-
-        public void PickupRotationInterpolationCallback()
-        {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupRotationInterpolationCallback - isHolding: {isHolding}");
-#endif
-            if (isHolding && activeTransform != null)
-                activeTransform.localRotation = heldOffsetRotation;
-        }
-
-        private void GetClosestHitPoint(CustomPickup pickup)
-        {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  GetClosestPoint");
-#endif
-            float closestDistance = float.PositiveInfinity;
-            Vector3 closestHitPoint = pickup.transform.position; // Default for when there are 0 colliders.
-            foreach (Collider collider in pickup.GetComponentsInChildren<Collider>())
-            {
-                if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
-                    continue; // even though in normal Unity... this is not possible to be null.
-                if (collider.gameObject.layer != pickupLayerNumber)
-                    continue;
-                VRCPlayerApi.TrackingData trackingData = localPlayer.GetTrackingData(trackingHandType);
-                Vector3 trackingDataPosition = trackingData.position;
-                Vector3 closestPoint = collider.ClosestPoint(trackingDataPosition);
-                float distance = Vector3.Distance(trackingDataPosition, closestPoint);
-                if (distance >= closestDistance)
-                    continue;
-                closestDistance = distance;
-                closestHitPoint = closestPoint;
-            }
-            hitPoint = closestHitPoint;
-            Transform t = pickup.transform;
-            interactablePositionForHitPoint = t.position;
-            interactableRotationForHitPoint = t.rotation;
         }
 
         private bool PrepareForcePickup(CustomPickup pickup)
@@ -858,44 +849,19 @@ namespace JanSharp.Internal
                     return false;
                 DropActivePickup(preventAttachment: true);
             }
-            if (pickup.primaryExactGrip == null)
-                GetClosestHitPoint(pickup);
             // TODO: remove pointless enabling and disabling of the highlight
             SetActivePickup(pickup);
             return true;
         }
 
-        public void ForcePickup(CustomPickup pickup, bool useHermiteCurve)
+        public void ForcePickup(CustomPickup pickup)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickup");
 #endif
             if (!PrepareForcePickup(pickup))
                 return;
-            PickupActivePickup(useHermiteCurve);
-        }
-
-        public void ForcePickupUsingExistingOffset(CustomPickup pickup, bool useHermiteCurve)
-        {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickupUsingExistingOffset");
-#endif
-            bool alreadyHoldingThisPickup = !PrepareForcePickup(pickup);
-            // Even if it is currently held by the other hand still, dropping does not modify these variables,
-            // thus other systems can set these offsets without caring if the pickup is already held by either
-            // hand and the they can call ForcePickupUsingExistingOffset and it will just work.
-            // Although for OnDrop listeners it would be preferable if said external systems would first drop
-            // the pickup before modifying held offsets.
-            heldOffsetVector = pickup.heldOffsetVector;
-            heldOffsetRotation = pickup.heldOffsetRotation;
-            if (alreadyHoldingThisPickup)
-            {
-                LerpHeldPickupToHeldOffsets();
-                pickup.BeginStateModification();
-                pickup.FinishStateModification();
-                return;
-            }
-            PickupActivePickup(useHermiteCurve, skipOffsetCalculation: true);
+            PickupActivePickup(hasHitPoint: false);
         }
 
         public void DropActivePickup(bool preventAttachment = false)
@@ -908,25 +874,24 @@ namespace JanSharp.Internal
                 return;
             }
 #endif
-            boneAttachment.DetachFromLocalTrackingData(trackingHandType, activeTransform);
             isHolding = false;
             isAutoHolding = false;
-            if (activeTransform != null)
-            {
-                interpolation.CancelPositionInterpolation(activeTransform);
-                interpolation.CancelRotationInterpolation(activeTransform);
-            }
             if (isInVR)
                 SendCustomEventDelayedFrames(nameof(UpdateHaptics), 1);
 
-            CustomPickup prevActivePickup = activePickup;
-            ClearActiveScriptVariables();
-            if (prevActivePickup == null) // Got destroyed.
+            if (activePickup == null) // Got destroyed.
             {
+                ClearActiveScriptVariables();
                 isHoldingUseButton = false;
                 dropResultedInAttachForHaptics = false;
                 return;
             }
+
+            CustomPickup prevActivePickup = activePickup;
+            CustomPickupController prevPickupController = GetActivePickupController();
+            PopulateStateForController();
+
+            ClearActiveScriptVariables();
 
             prevActivePickup.BeginStateModification();
 
@@ -938,21 +903,69 @@ namespace JanSharp.Internal
                 // and this function should therefore probably be marked as recursive, because it could be called
                 // recursively... but so could every calling function so uhh idk typical Udon moment I guess.
             }
-            prevActivePickup.isHeld = false;
-            prevActivePickup.DispatchOnDrop();
 
-            // Vertical mouse movement counts as lookVerticalInput on desktop. Ignore desktop entirely, the
-            // user would not be able to pick up an attached item anymore.
-            if (isInVR
-                && !preventAttachment
-                && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold
-                && prevActivePickup.CanAttach)
+            isControllingActivePickup = false;
+
+            if (isPrimaryHoldingHand)
             {
-                attachedManager.AttachToNearestBone(prevActivePickup);
-                dropResultedInAttachForHaptics = prevActivePickup.isAttached;
+                isPrimaryHoldingHand = false;
+                prevActivePickup.isHeldByPrimaryHand = false;
+                prevActivePickup.isHeld = prevActivePickup.isHeldBySecondaryHand;
+                prevPickupController.HandlePrimaryDropping(stateForController);
+            }
+            else
+            {
+                prevActivePickup.isHeldBySecondaryHand = false;
+                prevActivePickup.isHeld = prevActivePickup.isHeldByPrimaryHand;
+                prevPickupController.HandleSecondaryDropping(stateForController);
+            }
+
+            if (isHolding)
+            {
+                Debug.LogError($"{nameof(CustomPickupController.HandlePrimaryDropping)} and "
+                    + $"{nameof(CustomPickupController.HandleSecondaryDropping)} must not pick up the dropped "
+                    + $"pickup by the same hand again.");
+            }
+
+            if (prevActivePickup.isHeld && !isHolding)
+                otherHandManager.isControllingActivePickup = true;
+            else
+            {
+                prevActivePickup.DispatchOnDrop();
+                // Vertical mouse movement counts as lookVerticalInput on desktop. Ignore desktop entirely, the
+                // user would not be able to pick up an attached item anymore.
+                if (isInVR
+                    && !preventAttachment
+                    && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold
+                    && prevActivePickup.CanAttach)
+                {
+                    attachedManager.AttachToNearestBone(prevActivePickup);
+                    dropResultedInAttachForHaptics = prevActivePickup.isAttached;
+                }
             }
 
             prevActivePickup.FinishStateModification();
+        }
+
+        public void BecomePrimaryHand(CustomPickup pickup)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  BecomePrimaryHand");
+#endif
+            if (!isHolding // This hand is not holding anything.
+                || isPrimaryHoldingHand // Holding but already primary.
+                || pickup != activePickup // Holding a different pickup.
+                || pickup.isHeldByPrimaryHand) // The other hand is holding it. This method refuses to swap hands.
+            {
+                return;
+            }
+            isPrimaryHoldingHand = true;
+            isControllingActivePickup = true;
+            pickup.isHeldByPrimaryHand = true;
+            pickup.isHeldBySecondaryHand = false;
+            pickup.primaryHeldTrackingType = handTrackingType;
+            pickup.primaryOffsetVector = pickup.secondaryOffsetVector;
+            pickup.primaryOffsetRotation = pickup.secondaryOffsetRotation;
         }
     }
 }

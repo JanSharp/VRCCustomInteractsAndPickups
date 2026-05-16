@@ -97,6 +97,7 @@
 - [x] move the sphere cast to be tangential to the palm rather than centered on the palm. It does not make sense to be able to pick something up that is on the outside/back of the hand
 - [x] drop makes the item flash in desktop. Need to clear variables
 - [ ] the ability to pass from one hand to the other is likely useful
+  - [ ] do multi hand grabbing
 - [ ] ask more people about the raycast in VR, it's an accessibility thing so you don't have to kneel down to the floor to pick something up from the ground...
 - [x] change MaxClickDurationSeconds to 0.4 or 0.5 for VR
   - [ ] maybe just put it on a slider in a debug UI so people can test
@@ -137,6 +138,17 @@
 - [ ] Sounds, just like haptics, but audible, especially for picking up attached pickups
 - [x] disable attach on desktop as vertical mouse movement counts as look vertical input and can cause attaching of items upon dropping
 - [x] make attachment an option
+- [ ] change how an interactable object creates highlight parts
+- [ ] maybe make attaching to bones use the hand position as the point to determine which bone to attach to
+- [ ] when picking up a pickup or interacting with an interact, check CanInteract again, as time has passed since the check when that script became the active script, the value could have changed
+- [ ] a field on interactable called something like "interactionPassthrough" which when set will defer any attempts to interact with that interactable to the given other interactable. This includes highlighting the other interactable instead, and if the other one currently has interaction prevented, no interaction will happen at all. The one with "interactionPassthrough" set is basically entirely ignored, it is just a proxy
+- [ ] highlight controllers similar to pickup controllers again with a default implementation if left empty
+- [ ] pipe handling of use down and up input through controllers which then dictate when to raise events on all the custom pickup listeners
+- [ ] give controllers an update function through which desktop rotation controls can be handled
+- [ ] add interpolation to the default controller
+- [ ] think about how to best or neatly handle pickup interaction disabling when held by one hand (choosing if the other hand can interact with it)
+- [ ] test and see how it feels to have interpolation enabled for pickups with exact grip
+- [ ] rework forcing picking up. Probably have a separate one for primary and secondary
 
 # VR Testing
 
