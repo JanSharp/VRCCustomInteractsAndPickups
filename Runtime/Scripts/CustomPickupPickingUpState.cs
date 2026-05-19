@@ -6,8 +6,7 @@ namespace JanSharp
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomPickupPickingUpState : UdonSharpBehaviour
     {
-        private int pickupLayerNumber;
-        public const string PickupLayerNumberFieldName = nameof(pickupLayerNumber);
+        [HideInInspector][SerializeField][SingletonReference] private CustomInteractablesManagerAPI manager;
 
         #region Input
 
@@ -35,22 +34,7 @@ namespace JanSharp
             pickupRotationForClosestPoint = pickupTransform.rotation;
             handPositionForClosestPoint = handPosition;
             handRotationForClosestPoint = handRotation;
-
-            float closestDistance = float.PositiveInfinity;
-            closestPoint = pickupPositionForClosestPoint; // Default for when there are 0 colliders.
-            foreach (Collider collider in pickupTransform.GetComponentsInChildren<Collider>())
-            {
-                if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
-                    continue; // even though in normal Unity... this is not possible to be null.
-                if (collider.gameObject.layer != pickupLayerNumber)
-                    continue;
-                Vector3 point = collider.ClosestPoint(handPosition);
-                float distance = Vector3.Distance(handPosition, point);
-                if (distance >= closestDistance)
-                    continue;
-                closestDistance = distance;
-                closestPoint = point;
-            }
+            closestPoint = manager.GetClosestPoint(pickupTransform, handPosition);
         }
 
         #endregion

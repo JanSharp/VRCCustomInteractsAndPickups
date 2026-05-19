@@ -119,6 +119,15 @@ namespace JanSharp.Internal
         [System.NonSerialized] public float lookVerticalInput;
         public const float VerticalLookDownThreshold = -0.7f;
 
+        private int interactLayerNumber;
+        private int pickupLayerNumber;
+        private LayerMask interactLayer;
+        private LayerMask pickupLayer;
+        public override int InteractLayerNumber => interactLayerNumber;
+        public override int PickupLayerNumber => pickupLayerNumber;
+        public override LayerMask InteractLayer => interactLayer;
+        public override LayerMask PickupLayer => pickupLayer;
+
         public override CustomPickup HeldInLeftHand => leftHand.activePickup;
         public override CustomPickup HeldInRightHand => rightHand.activePickup;
         public override CustomPickup HeldOnDesktop => leftHand.activePickup;
@@ -131,6 +140,12 @@ namespace JanSharp.Internal
 #endif
             localPlayer = Networking.LocalPlayer;
             isInVR = localPlayer.IsUserInVR();
+
+            interactLayerNumber = LayerMask.NameToLayer(InteractLayerName);
+            pickupLayerNumber = LayerMask.NameToLayer(PickupLayerName);
+            interactLayer = (LayerMask)(1 << interactLayerNumber);
+            pickupLayer = (LayerMask)(1 << pickupLayerNumber);
+
             if (isInVR)
             {
                 leftHand.handTrackingType = VRCPlayerApi.TrackingDataType.LeftHand;
@@ -159,6 +174,7 @@ namespace JanSharp.Internal
                 leftHand.offsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f); // TODO: should this scale with eye height.
                 Destroy(rightHand.gameObject); // Disabled scripts apparently still get VRChat's InoutFoo events, so destroy it instead.
             }
+
             UpdateAutoHoldMode();
             leftHand.Initialize();
             if (isInVR)
@@ -294,6 +310,29 @@ namespace JanSharp.Internal
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  GetHandRotationNormalization");
 #endif
             return (trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHand : leftHand).rotationNormalization;
+        }
+
+        public override Vector3 GetClosestPoint(Transform pickupTransform, Vector3 handPosition)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  GetClosestPoint");
+#endif
+            float closestDistance = float.PositiveInfinity;
+            Vector3 closestPoint = pickupTransform.position; // Default for when there are 0 colliders.
+            foreach (Collider collider in pickupTransform.GetComponentsInChildren<Collider>())
+            {
+                if (collider == null) // Some VRC internal that we're not allowed to access so we get null instead,
+                    continue; // even though in normal Unity... this is not possible to be null.
+                if (collider.gameObject.layer != pickupLayerNumber)
+                    continue;
+                Vector3 point = collider.ClosestPoint(handPosition);
+                float distance = Vector3.Distance(handPosition, point);
+                if (distance >= closestDistance)
+                    continue;
+                closestDistance = distance;
+                closestPoint = point;
+            }
+            return closestPoint;
         }
     }
 }

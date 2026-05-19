@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JanSharp.Internal;
 using UdonSharp;
 using UdonSharpEditor;
 using UnityEditor;
@@ -99,7 +98,7 @@ namespace JanSharp
                 return;
             CustomInteractableEditorUtil.DrawLayerHelpBoxAndButtons(
                 "Interact",
-                CustomInteractHandManager.InteractLayerName,
+                CustomInteractablesManagerAPI.InteractLayerName,
                 targets.Cast<CustomInteract>().Select(i => i.transform));
             EditorGUILayout.Space();
             so.Update();

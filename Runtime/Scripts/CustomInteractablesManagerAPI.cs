@@ -7,6 +7,13 @@ namespace JanSharp
     [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractablesManager.prefab
     public abstract class CustomInteractablesManagerAPI : UdonSharpBehaviour
     {
+        public const string InteractLayerName = "Interactive";
+        public const string PickupLayerName = "Pickup";
+        public abstract int InteractLayerNumber { get; }
+        public abstract int PickupLayerNumber { get; }
+        public abstract LayerMask InteractLayer { get; }
+        public abstract LayerMask PickupLayer { get; }
+
         public abstract CustomPickup HeldInLeftHand { get; }
         public abstract CustomPickup HeldInRightHand { get; }
         public abstract CustomPickup HeldOnDesktop { get; }
@@ -25,5 +32,7 @@ namespace JanSharp
         /// <see cref="VRCPlayerApi.TrackingDataType.RightHand"/>.</param>
         /// <returns></returns>
         public abstract Quaternion GetHandRotationNormalization(VRCPlayerApi.TrackingDataType trackingType);
+
+        public abstract Vector3 GetClosestPoint(Transform pickupTransform, Vector3 handPosition);
     }
 }

@@ -1,5 +1,4 @@
 using System.Linq;
-using JanSharp.Internal;
 using UdonSharpEditor;
 using UnityEditor;
 
@@ -22,7 +21,7 @@ namespace JanSharp
                 return;
             CustomInteractableEditorUtil.DrawLayerHelpBoxAndButtons(
                 "Pickup",
-                CustomInteractHandManager.PickupLayerName,
+                CustomInteractablesManagerAPI.PickupLayerName,
                 targets.Cast<CustomPickup>().Select(i => i.transform));
             EditorGUILayout.Space();
             so.Update();

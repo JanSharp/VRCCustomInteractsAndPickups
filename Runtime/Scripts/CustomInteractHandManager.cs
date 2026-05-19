@@ -85,8 +85,6 @@ namespace JanSharp.Internal
         private const float SimultaneousInputSeconds = 0.2f;
         private const float ConeModeDurationSeconds = 2f;
 
-        public const string InteractLayerName = "Interactive";
-        public const string PickupLayerName = "Pickup";
         private int interactLayerNumber;
         private int pickupLayerNumber;
         private LayerMask interactLayer;
@@ -113,11 +111,10 @@ namespace JanSharp.Internal
             isInVR = localPlayer.IsUserInVR();
             hasDropKeyBind = !isInVR;
             maxClickDurationSeconds = isInVR ? MaxClickDurationSecondsVR : MaxClickDurationSecondsDesktop;
-            interactLayerNumber = LayerMask.NameToLayer(InteractLayerName);
-            pickupLayerNumber = LayerMask.NameToLayer(PickupLayerName);
-            interactLayer = (LayerMask)(1 << interactLayerNumber);
-            pickupLayer = (LayerMask)(1 << pickupLayerNumber);
-            pickingUpStateForController.SetProgramVariable(CustomPickupPickingUpState.PickupLayerNumberFieldName, pickupLayerNumber);
+            interactLayerNumber = manager.InteractLayerNumber;
+            pickupLayerNumber = manager.PickupLayerNumber;
+            interactLayer = manager.InteractLayer;
+            pickupLayer = manager.PickupLayer;
 #if CUSTOM_INTERACTS_AND_PICKUPS_STOPWATCH
             updateContainer = StopwatchUtil.CreateDataContainer();
             fixedUpdateContainer = StopwatchUtil.CreateDataContainer();

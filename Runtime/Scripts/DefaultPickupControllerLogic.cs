@@ -7,6 +7,8 @@ namespace JanSharp
     [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractablesManager.prefab
     public class DefaultPickupControllerLogic : UdonSharpBehaviour
     {
+        [HideInInspector][SerializeField][SingletonReference] private CustomInteractablesManagerAPI manager;
+
         /// <summary>
         /// <para>Using a field rather than an out parameter for micro optimization reasons.</para>
         /// </summary>
@@ -67,7 +69,7 @@ namespace JanSharp
             CustomPickup pickup = state.pickup;
             if (!pickup.isHeldBySecondaryHand)
                 return;
-            MakeSecondaryOffsetsMatchCurrentLocation(state);
+            MakeSecondaryOffsetsMatchCurrentLocation(state, ensureNotFloating: true);
             if (pickup.droppingTransfersPrimaryHand)
                 pickup.MakeSecondaryHandPrimary();
         }
@@ -75,42 +77,46 @@ namespace JanSharp
         public void HandleSecondaryDropping(CustomPickupState state)
         {
             if (state.pickup.isHeldByPrimaryHand)
-                MakePrimaryOffsetsMatchCurrentLocation(state);
+                MakePrimaryOffsetsMatchCurrentLocation(state, ensureNotFloating: false);
         }
 
-        public void MakePrimaryOffsetsMatchCurrentLocation(CustomPickupState state)
+        public void MakePrimaryOffsetsMatchCurrentLocation(CustomPickupState state, bool ensureNotFloating)
         {
             CustomPickup pickup = state.pickup;
+            Vector3 primaryHandPosition = state.primaryHandPosition;
+
+            if (ensureNotFloating)
+            {
+                Vector3 closestPoint = manager.GetClosestPoint(state.pickupTransform, primaryHandPosition);
+                if ((primaryHandPosition - closestPoint).magnitude > ShortDistanceNotNeedingInterpolation)
+                    pickup.StartInterpolation();
+                primaryHandPosition = closestPoint;
+            }
+
             Transform pickupTransform = state.pickupTransform;
             Quaternion inverseHandRotation = Quaternion.Inverse(state.primaryHandRotation);
-            Vector3 offsetVector = inverseHandRotation * (pickupTransform.position - state.primaryHandPosition);
-            float desiredMagnitude = pickup.primaryOffsetVector.magnitude;
-            float tooLongBy = offsetVector.magnitude - desiredMagnitude;
-            if (tooLongBy > 0f)
-            {
-                offsetVector = offsetVector.normalized * desiredMagnitude;
-                if (tooLongBy > ShortDistanceNotNeedingInterpolation)
-                    pickup.StartInterpolation();
-            }
+            Vector3 offsetVector = inverseHandRotation * (pickupTransform.position - primaryHandPosition);
             pickup.primaryOffsetVector = offsetVector;
             pickup.primaryOffsetRotation = inverseHandRotation * pickupTransform.rotation;
         }
 
-        public void MakeSecondaryOffsetsMatchCurrentLocation(CustomPickupState state)
+        public void MakeSecondaryOffsetsMatchCurrentLocation(CustomPickupState state, bool ensureNotFloating)
         {
             // 100% copy paste, with "primary" replaced with "secondary".
             CustomPickup pickup = state.pickup;
+            Vector3 secondaryHandPosition = state.secondaryHandPosition;
+
+            if (ensureNotFloating)
+            {
+                Vector3 closestPoint = manager.GetClosestPoint(state.pickupTransform, secondaryHandPosition);
+                if ((secondaryHandPosition - closestPoint).magnitude > ShortDistanceNotNeedingInterpolation)
+                    pickup.StartInterpolation();
+                secondaryHandPosition = closestPoint;
+            }
+
             Transform pickupTransform = state.pickupTransform;
             Quaternion inverseHandRotation = Quaternion.Inverse(state.secondaryHandRotation);
-            Vector3 offsetVector = inverseHandRotation * (pickupTransform.position - state.secondaryHandPosition);
-            float desiredMagnitude = pickup.secondaryOffsetVector.magnitude;
-            float tooLongBy = offsetVector.magnitude - desiredMagnitude;
-            if (tooLongBy > 0f)
-            {
-                offsetVector = offsetVector.normalized * desiredMagnitude;
-                if (tooLongBy > ShortDistanceNotNeedingInterpolation)
-                    pickup.StartInterpolation();
-            }
+            Vector3 offsetVector = inverseHandRotation * (pickupTransform.position - secondaryHandPosition);
             pickup.secondaryOffsetVector = offsetVector;
             pickup.secondaryOffsetRotation = inverseHandRotation * pickupTransform.rotation;
         }
