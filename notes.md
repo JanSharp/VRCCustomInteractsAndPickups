@@ -145,7 +145,7 @@
 - [ ] highlight controllers similar to pickup controllers again with a default implementation if left empty
 - [ ] pipe handling of use down and up input through controllers which then dictate when to raise events on all the custom pickup listeners
 - [ ] give controllers an update function through which desktop rotation controls can be handled
-- [ ] add interpolation to the default controller
+- [x] add interpolation to the default controller
 - [ ] think about how to best or neatly handle pickup interaction disabling when held by one hand (choosing if the other hand can interact with it)
 - [ ] test and see how it feels to have interpolation enabled for pickups with exact grip
 - [ ] rework forcing picking up. Probably have a separate one for primary and secondary

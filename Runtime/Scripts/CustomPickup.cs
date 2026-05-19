@@ -88,6 +88,23 @@ namespace JanSharp
 
         [System.NonSerialized] public bool receivedOnDestroy = false;
 
+        public const float InterpolationDuration = 0.15f;
+        [System.NonSerialized] public float interpolationProgress = 1f;
+        private uint preventInterpolation = 0u;
+        public bool PreventInterpolation => preventInterpolation != 0u;
+        public void IncrementPreventInterpolation()
+        {
+            preventInterpolation++;
+            StopInterpolation();
+        }
+        public void DecrementPreventInterpolation() => preventInterpolation--;
+        public void StartInterpolation()
+        {
+            if (preventInterpolation == 0u)
+                interpolationProgress = 0f;
+        }
+        public void StopInterpolation() => interpolationProgress = 1f;
+
         /// <summary>
         /// <para><see langword="true"/> whenever <see cref="isHeldByPrimaryHand"/> and or
         /// <see cref="isHeldBySecondaryHand"/> is <see langword="true"/>.</para>

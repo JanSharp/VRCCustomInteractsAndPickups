@@ -811,6 +811,7 @@ namespace JanSharp.Internal
                     otherHandManager.DropActivePickup();
                 isControllingActivePickup = !activePickup.isHeldByPrimaryHand; // Only control if the other hand is not controlling it.
                 isPrimaryHoldingHand = false;
+                activePickup.isHeld = true;
                 activePickup.isHeldBySecondaryHand = true;
                 activePickup.secondaryHeldTrackingType = handTrackingType;
                 activePickup.secondaryOffsetVector = pickingUpStateForController.heldOffsetVector;
@@ -826,6 +827,7 @@ namespace JanSharp.Internal
                     otherHandManager.isControllingActivePickup = false;
                 isControllingActivePickup = true; // The primary hand is always the one in control, if there is primary one.
                 isPrimaryHoldingHand = true;
+                activePickup.isHeld = true;
                 activePickup.isHeldByPrimaryHand = true;
                 activePickup.primaryHeldTrackingType = handTrackingType;
                 activePickup.primaryOffsetVector = pickingUpStateForController.heldOffsetVector;
@@ -833,7 +835,6 @@ namespace JanSharp.Internal
                 PopulateStateForController();
                 pickupController.HandlePrimaryPickingUp(stateForController);
             }
-            activePickup.isHeld = true;
             activePickup.DispatchOnPickup();
             activePickup.FinishStateModification();
         }

@@ -7,6 +7,15 @@ namespace JanSharp
     [SingletonScript("bb7ec25f46ae4ab699263323ebfb58ec")] // Runtime/Prefabs/CustomInteractablesManager.prefab
     public class DefaultPickupControllerLogic : UdonSharpBehaviour
     {
+        /// <summary>
+        /// <para>Using a field rather than an out parameter for micro optimization reasons.</para>
+        /// </summary>
+        private Vector3 targetPosition;
+        /// <inheritdoc cref="targetPosition"/>
+        private Quaternion targetRotation;
+
+        private const float ShortDistanceNotNeedingInterpolation = 0.02f;
+
         // Public so other custom pickup controllers can use this function if they wish.
         public void CalculatePickupOffsets(CustomPickupPickingUpState state, Transform exactGrip)
         {
@@ -39,6 +48,10 @@ namespace JanSharp
                 CalculatePickupOffsets(state, pickup.secondaryExactGrip);
             else
                 CalculatePickupOffsets(state, pickup.primaryExactGrip);
+
+            float distanceToMove = Mathf.Abs((state.pickupTransform.position - state.handPosition).magnitude - state.heldOffsetVector.magnitude);
+            if (!pickup.isHeld && distanceToMove > ShortDistanceNotNeedingInterpolation)
+                pickup.StartInterpolation();
         }
 
         public void HandlePrimaryPickingUp(CustomPickupState state)
@@ -71,7 +84,15 @@ namespace JanSharp
             Transform pickupTransform = state.pickupTransform;
             Quaternion inverseHandRotation = Quaternion.Inverse(state.primaryHandRotation);
             Vector3 offsetVector = inverseHandRotation * (pickupTransform.position - state.primaryHandPosition);
-            pickup.primaryOffsetVector = offsetVector.normalized * pickup.primaryOffsetVector.magnitude;
+            float desiredMagnitude = pickup.primaryOffsetVector.magnitude;
+            float tooLongBy = offsetVector.magnitude - desiredMagnitude;
+            if (tooLongBy > 0f)
+            {
+                offsetVector = offsetVector.normalized * desiredMagnitude;
+                if (tooLongBy > ShortDistanceNotNeedingInterpolation)
+                    pickup.StartInterpolation();
+            }
+            pickup.primaryOffsetVector = offsetVector;
             pickup.primaryOffsetRotation = inverseHandRotation * pickupTransform.rotation;
         }
 
@@ -82,11 +103,57 @@ namespace JanSharp
             Transform pickupTransform = state.pickupTransform;
             Quaternion inverseHandRotation = Quaternion.Inverse(state.secondaryHandRotation);
             Vector3 offsetVector = inverseHandRotation * (pickupTransform.position - state.secondaryHandPosition);
-            pickup.secondaryOffsetVector = offsetVector.normalized * pickup.secondaryOffsetVector.magnitude;
+            float desiredMagnitude = pickup.secondaryOffsetVector.magnitude;
+            float tooLongBy = offsetVector.magnitude - desiredMagnitude;
+            if (tooLongBy > 0f)
+            {
+                offsetVector = offsetVector.normalized * desiredMagnitude;
+                if (tooLongBy > ShortDistanceNotNeedingInterpolation)
+                    pickup.StartInterpolation();
+            }
+            pickup.secondaryOffsetVector = offsetVector;
             pickup.secondaryOffsetRotation = inverseHandRotation * pickupTransform.rotation;
         }
 
         public void MovePickup(CustomPickupState state)
+        {
+            GetLocationToMoveTo(state);
+
+            CustomPickup pickup = state.pickup;
+            float progress = pickup.interpolationProgress;
+            if (progress >= 1f)
+            {
+                state.pickupTransform.SetPositionAndRotation(targetPosition, targetRotation);
+                return;
+            }
+
+            float toAdd = Time.deltaTime / CustomPickup.InterpolationDuration;
+            // If progress is 0.6f and toAdd is 0.1f then currentStep is 0.25f.
+            // Effectively one quarter of the way from current position (0.6f) to target position (1.0f).
+            float currentStep = toAdd / (1f - progress);
+            progress += toAdd;
+            if (progress >= 1f)
+            {
+                pickup.interpolationProgress = 1f;
+                state.pickupTransform.SetPositionAndRotation(targetPosition, targetRotation);
+                return;
+            }
+
+            pickup.interpolationProgress = progress;
+            Transform pickupTransform = state.pickupTransform;
+            pickupTransform.SetPositionAndRotation(
+                Vector3.Lerp(pickupTransform.position, targetPosition, currentStep),
+                Quaternion.Lerp(pickupTransform.rotation, targetRotation, currentStep));
+        }
+
+        public void GetLocationToMoveTo(CustomPickupState state, out Vector3 position, out Quaternion rotation)
+        {
+            GetLocationToMoveTo(state);
+            position = targetPosition;
+            rotation = targetRotation;
+        }
+
+        private void GetLocationToMoveTo(CustomPickupState state)
         {
             CustomPickup pickup = state.pickup;
             Quaternion primaryHandRotation = state.primaryHandRotation;
@@ -95,9 +162,8 @@ namespace JanSharp
             {
                 if (!pickup.isHeldByPrimaryHand)
                 {
-                    state.pickupTransform.SetPositionAndRotation(
-                        state.secondaryHandPosition + state.secondaryHandRotation * pickup.secondaryOffsetVector,
-                        state.secondaryHandRotation * pickup.secondaryOffsetRotation);
+                    targetPosition = state.secondaryHandPosition + state.secondaryHandRotation * pickup.secondaryOffsetVector;
+                    targetRotation = state.secondaryHandRotation * pickup.secondaryOffsetRotation;
                     return;
                 }
 
@@ -117,9 +183,8 @@ namespace JanSharp
                     Quaternion.Inverse(primaryHandRotation) * (state.secondaryHandPosition - state.primaryHandPosition));
             }
 
-            state.pickupTransform.SetPositionAndRotation(
-                state.primaryHandPosition + primaryHandRotation * pickup.primaryOffsetVector,
-                primaryHandRotation * pickup.primaryOffsetRotation);
+            targetPosition = state.primaryHandPosition + primaryHandRotation * pickup.primaryOffsetVector;
+            targetRotation = primaryHandRotation * pickup.primaryOffsetRotation;
         }
     }
 }
