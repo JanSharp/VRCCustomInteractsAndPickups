@@ -66,7 +66,7 @@ namespace JanSharp.Internal
         {
             int count = attachedPickups.Count;
             DataList keys = attachedPickups.GetKeys();
-            DataList values = attachedPickups.GetKeys();
+            DataList values = attachedPickups.GetValues();
             for (int i = 0; i < count; i++)
             {
                 HumanBodyBones bone = (HumanBodyBones)values[i].Int;
