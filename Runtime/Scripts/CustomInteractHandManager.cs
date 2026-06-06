@@ -22,6 +22,7 @@ namespace JanSharp.Internal
         [System.NonSerialized] public VRCPlayerApi.TrackingDataType handTrackingType;
         [System.NonSerialized] public VRC_Pickup.PickupHand pickupHandType;
         [System.NonSerialized] public HandType handType;
+        [System.NonSerialized] public DroppingHandType droppingHandType;
         [System.NonSerialized] public Quaternion rotationNormalization;
         [System.NonSerialized] public Vector3 offsetVectorShift;
         [System.NonSerialized] public Vector3 palmDirection;
@@ -937,7 +938,7 @@ namespace JanSharp.Internal
                     && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold
                     && prevActivePickup.CanAttach)
                 {
-                    attachedManager.AttachToNearestBone(prevActivePickup);
+                    attachedManager.AttachToNearestBone(prevActivePickup, droppingHandType);
                     dropResultedInAttachForHaptics = prevActivePickup.isAttached;
                 }
             }

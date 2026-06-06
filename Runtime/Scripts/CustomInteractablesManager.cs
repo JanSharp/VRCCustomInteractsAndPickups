@@ -151,6 +151,7 @@ namespace JanSharp.Internal
                 leftHand.handTrackingType = VRCPlayerApi.TrackingDataType.LeftHand;
                 leftHand.pickupHandType = VRC_Pickup.PickupHand.Left;
                 leftHand.handType = HandType.LEFT;
+                leftHand.droppingHandType = DroppingHandType.Left;
                 leftHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
                 leftHand.palmDirection = Vector3.up;
                 leftHand.coneDirection = Quaternion.AngleAxis(60f, Vector3.up) * Vector3.forward;
@@ -158,6 +159,7 @@ namespace JanSharp.Internal
                 rightHand.handTrackingType = VRCPlayerApi.TrackingDataType.RightHand;
                 rightHand.pickupHandType = VRC_Pickup.PickupHand.Right;
                 rightHand.handType = HandType.RIGHT;
+                rightHand.droppingHandType = DroppingHandType.Right;
                 rightHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
                 rightHand.palmDirection = Vector3.down;
                 rightHand.coneDirection = Quaternion.AngleAxis(-60f, Vector3.up) * Vector3.forward;
@@ -168,6 +170,7 @@ namespace JanSharp.Internal
                 leftHand.handTrackingType = VRCPlayerApi.TrackingDataType.Head;
                 leftHand.pickupHandType = VRC_Pickup.PickupHand.None;
                 leftHand.handType = HandType.LEFT; // Does not matter, is not used.
+                leftHand.droppingHandType = DroppingHandType.None; // Does not matter, is not used.
                 leftHand.rotationNormalization = Quaternion.identity;
                 leftHand.palmDirection = Vector3.forward;
                 leftHand.coneDirection = Vector3.forward;

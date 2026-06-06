@@ -5,6 +5,22 @@ using VRC.SDKBase;
 
 namespace JanSharp.Internal
 {
+    public enum DroppingHandType
+    {
+        /// <summary>
+        /// <para>The pickup will be able to attach to both left and right arm bones.</para>
+        /// </summary>
+        None = 0, // Also used as an index into an array.
+        /// <summary>
+        /// <para>The pickup will be able to attach to right arm bones.</para>
+        /// </summary>
+        Left = 1, // Also used as an index into an array.
+        /// <summary>
+        /// <para>The pickup will be able to attach to left arm bones.</para>
+        /// </summary>
+        Right = 2, // Also used as an index into an array.
+    }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class CustomAttachedPickupsManager : UdonSharpBehaviour
     {
@@ -13,22 +29,60 @@ namespace JanSharp.Internal
         private VRCPlayerApi localPlayer;
         private int localPlayerId;
 
-        private int[] attachableBoneValues = new int[]
+        // Very much copy paste, however I decided I prefer this over having setup logic in Start.
+
+        private int[] attachableBoneValuesFromNone = new int[]
         {
             (int)HumanBodyBones.Head,
             (int)HumanBodyBones.Chest,
             (int)HumanBodyBones.Hips,
-            // (int)HumanBodyBones.LeftUpperArm,
-            // (int)HumanBodyBones.LeftLowerArm,
+            (int)HumanBodyBones.LeftUpperArm, //
+            (int)HumanBodyBones.LeftLowerArm, //
             (int)HumanBodyBones.LeftUpperLeg,
             (int)HumanBodyBones.LeftLowerLeg,
             (int)HumanBodyBones.LeftFoot,
-            // (int)HumanBodyBones.RightUpperArm,
-            // (int)HumanBodyBones.RightLowerArm,
+            (int)HumanBodyBones.RightUpperArm, //
+            (int)HumanBodyBones.RightLowerArm, //
             (int)HumanBodyBones.RightUpperLeg,
             (int)HumanBodyBones.RightLowerLeg,
             (int)HumanBodyBones.RightFoot,
         };
+
+        private int[] attachableBoneValuesFromLeft = new int[]
+        {
+            (int)HumanBodyBones.Head,
+            (int)HumanBodyBones.Chest,
+            (int)HumanBodyBones.Hips,
+            // (int)HumanBodyBones.LeftUpperArm, //
+            // (int)HumanBodyBones.LeftLowerArm, //
+            (int)HumanBodyBones.LeftUpperLeg,
+            (int)HumanBodyBones.LeftLowerLeg,
+            (int)HumanBodyBones.LeftFoot,
+            (int)HumanBodyBones.RightUpperArm, //
+            (int)HumanBodyBones.RightLowerArm, //
+            (int)HumanBodyBones.RightUpperLeg,
+            (int)HumanBodyBones.RightLowerLeg,
+            (int)HumanBodyBones.RightFoot,
+        };
+
+        private int[] attachableBoneValuesFromRight = new int[]
+        {
+            (int)HumanBodyBones.Head,
+            (int)HumanBodyBones.Chest,
+            (int)HumanBodyBones.Hips,
+            (int)HumanBodyBones.LeftUpperArm, //
+            (int)HumanBodyBones.LeftLowerArm, //
+            (int)HumanBodyBones.LeftUpperLeg,
+            (int)HumanBodyBones.LeftLowerLeg,
+            (int)HumanBodyBones.LeftFoot,
+            // (int)HumanBodyBones.RightUpperArm, //
+            // (int)HumanBodyBones.RightLowerArm, //
+            (int)HumanBodyBones.RightUpperLeg,
+            (int)HumanBodyBones.RightLowerLeg,
+            (int)HumanBodyBones.RightFoot,
+        };
+
+        private int[][] attachableBoneValuesLut;
 
         /// <summary>
         /// <para><see cref="CustomPickup"/> pickup => <see cref="int"/> (<see cref="HumanBodyBones"/>) bone</para>
@@ -49,6 +103,10 @@ namespace JanSharp.Internal
         {
             localPlayer = Networking.LocalPlayer;
             localPlayerId = localPlayer.playerId;
+            attachableBoneValuesLut = new int[3][];
+            attachableBoneValuesLut[(int)DroppingHandType.None] = attachableBoneValuesFromNone;
+            attachableBoneValuesLut[(int)DroppingHandType.Left] = attachableBoneValuesFromLeft;
+            attachableBoneValuesLut[(int)DroppingHandType.Right] = attachableBoneValuesFromRight;
         }
 
         public override void OnAvatarChanged(VRCPlayerApi player)
@@ -89,7 +147,7 @@ namespace JanSharp.Internal
             pickup.FinishStateModification();
         }
 
-        public void AttachToNearestBone(CustomPickup pickup)
+        public void AttachToNearestBone(CustomPickup pickup, DroppingHandType droppingHand)
         {
             // Using a colliders closest point rather than the pickup position would yield more
             // predictable results... however since I allowed having multiple colliders on a pickup this
@@ -97,7 +155,7 @@ namespace JanSharp.Internal
             Vector3 pickupPosition = pickup.transform.position;
             int foundBoneValue = -1;
             float foundDistance = float.PositiveInfinity;
-            foreach (int boneValue in attachableBoneValues)
+            foreach (int boneValue in attachableBoneValuesLut[(int)droppingHand])
             {
                 Vector3 bonePosition = localPlayer.GetBonePosition((HumanBodyBones)boneValue);
                 if (bonePosition == Vector3.zero)
