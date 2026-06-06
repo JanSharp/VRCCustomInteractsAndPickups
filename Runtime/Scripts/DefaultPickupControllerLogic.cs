@@ -26,8 +26,8 @@ namespace JanSharp
                 // Move to hand.
                 state.EnsureHasClosestPoint();
                 Quaternion inverseHandRotation = Quaternion.Inverse(state.handRotationForClosestPoint);
-                state.heldOffsetRotation = inverseHandRotation * state.pickupRotationForClosestPoint;
                 state.heldOffsetVector = inverseHandRotation * (state.pickupPositionForClosestPoint - state.closestPoint);
+                state.heldOffsetRotation = inverseHandRotation * state.pickupRotationForClosestPoint;
             }
             else
             {
@@ -36,8 +36,8 @@ namespace JanSharp
                 Quaternion pickupRotation = pickupTransform.rotation;
                 Vector3 offsetVector = Quaternion.Inverse(pickupRotation) * (pickupTransform.position - exactGrip.position);
                 Quaternion heldOffsetRotation = Quaternion.Inverse(exactGrip.rotation) * pickupRotation;
-                state.heldOffsetRotation = heldOffsetRotation;
                 state.heldOffsetVector = heldOffsetRotation * offsetVector;
+                state.heldOffsetRotation = heldOffsetRotation;
             }
         }
 
@@ -95,8 +95,7 @@ namespace JanSharp
 
             Transform pickupTransform = state.pickupTransform;
             Quaternion inverseHandRotation = Quaternion.Inverse(state.primaryHandRotation);
-            Vector3 offsetVector = inverseHandRotation * (pickupTransform.position - primaryHandPosition);
-            pickup.primaryOffsetVector = offsetVector;
+            pickup.primaryOffsetVector = inverseHandRotation * (pickupTransform.position - primaryHandPosition);
             pickup.primaryOffsetRotation = inverseHandRotation * pickupTransform.rotation;
         }
 
@@ -116,8 +115,7 @@ namespace JanSharp
 
             Transform pickupTransform = state.pickupTransform;
             Quaternion inverseHandRotation = Quaternion.Inverse(state.secondaryHandRotation);
-            Vector3 offsetVector = inverseHandRotation * (pickupTransform.position - secondaryHandPosition);
-            pickup.secondaryOffsetVector = offsetVector;
+            pickup.secondaryOffsetVector = inverseHandRotation * (pickupTransform.position - secondaryHandPosition);
             pickup.secondaryOffsetRotation = inverseHandRotation * pickupTransform.rotation;
         }
 
