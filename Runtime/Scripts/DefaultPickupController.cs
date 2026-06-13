@@ -49,5 +49,26 @@ namespace JanSharp
             if (chainedController != null)
                 chainedController.MovePickup(state);
         }
+
+        public override void HandleAttaching(CustomPickupAttachedState state)
+        {
+            defaultLogic.HandleAttaching(state);
+            if (chainedController != null)
+                chainedController.HandleAttaching(state);
+        }
+
+        public override void HandleDetaching(CustomPickupAttachedState state)
+        {
+            defaultLogic.HandleDetaching(state);
+            if (chainedController != null)
+                chainedController.HandleDetaching(state);
+        }
+
+        public override void MoveAttachedPickup(CustomPickupAttachedState state)
+        {
+            defaultLogic.MoveAttachedPickup(state);
+            if (chainedController != null)
+                chainedController.MoveAttachedPickup(state);
+        }
     }
 }

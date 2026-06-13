@@ -131,6 +131,8 @@ namespace JanSharp.Internal
         public override CustomPickup HeldInLeftHand => leftHand.activePickup;
         public override CustomPickup HeldInRightHand => rightHand.activePickup;
         public override CustomPickup HeldOnDesktop => leftHand.activePickup;
+        public override CustomPickup[] AttachedPickupsRaw => attachedManager.attachedPickups;
+        public override int AttachedPickupsCount => attachedManager.attachedPickupsCount;
         public override CustomPickup[] AttachedPickups => attachedManager.GetAllAttachedPickups();
 
         private void Start()
@@ -253,6 +255,7 @@ namespace JanSharp.Internal
             leftHand.UpdateHand();
             if (isInVR)
                 rightHand.UpdateHand();
+            attachedManager.UpdateAttachedPickups();
         }
 
         private void FixedUpdate()

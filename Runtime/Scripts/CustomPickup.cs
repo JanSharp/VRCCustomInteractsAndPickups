@@ -153,6 +153,19 @@ namespace JanSharp
         /// <para>The value is undefined if the pickup has never been attached yet.</para>
         /// </summary>
         [System.NonSerialized] public HumanBodyBones attachedToBone;
+        /// <summary>
+        /// <para>In bone local space, in other words relative to bone position, rotated by bone
+        /// rotation.</para>
+        /// </summary>
+        [System.NonSerialized] public Vector3 attachedOffsetVector;
+        /// <summary>
+        /// <para>In bone local space, in other words relative to bone rotation.</para>
+        /// </summary>
+        [System.NonSerialized] public Quaternion attachedOffsetRotation;
+        /// <summary>
+        /// <para>For use by the <see cref="CustomAttachedPickupsManager"/> script only.</para>
+        /// </summary>
+        [System.NonSerialized] public int internalAttachedIndex;
 
         private int ongoingStateModifications;
 

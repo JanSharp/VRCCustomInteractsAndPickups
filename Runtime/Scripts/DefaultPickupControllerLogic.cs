@@ -166,8 +166,9 @@ namespace JanSharp
             {
                 if (!pickup.isHeldByPrimaryHand)
                 {
-                    targetPosition = state.secondaryHandPosition + state.secondaryHandRotation * pickup.secondaryOffsetVector;
-                    targetRotation = state.secondaryHandRotation * pickup.secondaryOffsetRotation;
+                    Quaternion secondaryHandRotation = state.secondaryHandRotation;
+                    targetPosition = state.secondaryHandPosition + secondaryHandRotation * pickup.secondaryOffsetVector;
+                    targetRotation = secondaryHandRotation * pickup.secondaryOffsetRotation;
                     return;
                 }
 
@@ -189,6 +190,28 @@ namespace JanSharp
 
             targetPosition = state.primaryHandPosition + primaryHandRotation * pickup.primaryOffsetVector;
             targetRotation = primaryHandRotation * pickup.primaryOffsetRotation;
+        }
+
+        public void HandleAttaching(CustomPickupAttachedState state)
+        {
+            CustomPickup pickup = state.pickup;
+            Transform pickupTransform = state.pickupTransform;
+            Quaternion inverseBoneRotation = Quaternion.Inverse(state.boneRotation);
+            pickup.attachedOffsetVector = inverseBoneRotation * (pickupTransform.position - state.bonePosition);
+            pickup.attachedOffsetRotation = inverseBoneRotation * pickupTransform.rotation;
+        }
+
+        public void HandleDetaching(CustomPickupAttachedState state)
+        {
+        }
+
+        public void MoveAttachedPickup(CustomPickupAttachedState state)
+        {
+            CustomPickup pickup = state.pickup;
+            Quaternion boneRotation = state.boneRotation;
+            state.pickupTransform.SetPositionAndRotation(
+                state.bonePosition + boneRotation * pickup.attachedOffsetVector,
+                boneRotation * pickup.attachedOffsetRotation);
         }
     }
 }

@@ -149,6 +149,7 @@
 - [ ] think about how to best or neatly handle pickup interaction disabling when held by one hand (choosing if the other hand can interact with it)
 - [ ] test and see how it feels to have interpolation enabled for pickups with exact grip
 - [ ] rework forcing picking up. Probably have a separate one for primary and secondary
+- [x] attachment also needs to go through the controllers
 
 # VR Testing
 

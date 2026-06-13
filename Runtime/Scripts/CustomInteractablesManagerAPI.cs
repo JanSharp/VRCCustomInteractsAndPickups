@@ -18,8 +18,15 @@ namespace JanSharp
         public abstract CustomPickup HeldInRightHand { get; }
         public abstract CustomPickup HeldOnDesktop { get; }
         /// <summary>
+        /// <para>A reference to the internal array, must not be modified.</para>
+        /// <para>Only elements up to <see cref="AttachedPickupsCount"/> are used.</para>
+        /// <para>May contain <see langword="null"/> elements.</para>
+        /// </summary>
+        public abstract CustomPickup[] AttachedPickupsRaw { get; }
+        public abstract int AttachedPickupsCount { get; }
+        /// <summary>
         /// <para>A new instance of an array.</para>
-        /// <para>Does not contain any <see langword="null"/> elements.</para>
+        /// <para>May contain <see langword="null"/> elements.</para>
         /// </summary>
         public abstract CustomPickup[] AttachedPickups { get; }
 

@@ -25,9 +25,9 @@ namespace JanSharp.Internal
     public class CustomAttachedPickupsManager : UdonSharpBehaviour
     {
         public CustomInteractablesManager manager;
-        [HideInInspector][SerializeField][SingletonReference] private BoneAttachmentManager boneAttachment;
+        public CustomPickupAttachedState stateForController;
+        public CustomPickupController fallbackPickupController;
         private VRCPlayerApi localPlayer;
-        private int localPlayerId;
 
         // Very much copy paste, however I decided I prefer this over having setup logic in Start.
 
@@ -87,64 +87,64 @@ namespace JanSharp.Internal
         /// <summary>
         /// <para><see cref="CustomPickup"/> pickup => <see cref="int"/> (<see cref="HumanBodyBones"/>) bone</para>
         /// </summary>
-        private DataDictionary attachedPickups = new DataDictionary();
+        private DataDictionary attachedPickupsLut = new DataDictionary();
+        [System.NonSerialized] public CustomPickup[] attachedPickups = new CustomPickup[ArrList.MinCapacity];
+        [System.NonSerialized] public int attachedPickupsCount = 0;
 
         public CustomPickup[] GetAllAttachedPickups()
         {
-            int count = attachedPickups.Count;
-            CustomPickup[] result = new CustomPickup[count];
-            DataList keys = attachedPickups.GetKeys();
-            for (int i = 0; i < count; i++)
-                result[i] = (CustomPickup)keys[i].Reference;
+            CustomPickup[] result = new CustomPickup[attachedPickupsCount];
+            System.Array.Copy(attachedPickups, result, attachedPickupsCount);
             return result;
         }
 
         public void Start()
         {
             localPlayer = Networking.LocalPlayer;
-            localPlayerId = localPlayer.playerId;
             attachableBoneValuesLut = new int[3][];
             attachableBoneValuesLut[(int)DroppingHandType.None] = attachableBoneValuesFromNone;
             attachableBoneValuesLut[(int)DroppingHandType.Left] = attachableBoneValuesFromLeft;
             attachableBoneValuesLut[(int)DroppingHandType.Right] = attachableBoneValuesFromRight;
         }
 
-        public override void OnAvatarChanged(VRCPlayerApi player)
+        private void PopulateStateForController(CustomPickup pickup, HumanBodyBones bone)
         {
-            if (!player.isLocal)
-                return;
-            // The OnAvatarChanged appears to get raised once the avatar has finished loading, however I do
-            // not trust it as I've already observed oddities around positions of bones within the
-            // OnAvatarChanged event when working with the ItemSystem, thus using a 0.1 second delay here just
-            // as the ItemSystem is.
-            SendCustomEventDelayedSeconds(nameof(OnLocalPlayerAvatarChangedDelayed), 0.1f);
-        }
-
-        public void OnLocalPlayerAvatarChangedDelayed()
-        {
-            int count = attachedPickups.Count;
-            DataList keys = attachedPickups.GetKeys();
-            DataList values = attachedPickups.GetValues();
-            for (int i = 0; i < count; i++)
-            {
-                HumanBodyBones bone = (HumanBodyBones)values[i].Int;
-                if (localPlayer.GetBonePosition(bone) != Vector3.zero)
-                    continue;
-                DetachIfAttached((CustomPickup)keys[i].Reference);
-            }
+            stateForController.pickup = pickup;
+            stateForController.pickupTransform = pickup.transform;
+            stateForController.bonePosition = localPlayer.GetBonePosition(bone);
+            stateForController.boneRotation = localPlayer.GetBoneRotation(bone);
         }
 
         public void DetachIfAttached(CustomPickup pickup)
         {
-            if (!attachedPickups.Remove(pickup, out DataToken bone))
+            if (!attachedPickupsLut.Remove(pickup, out DataToken boneToken))
                 return;
+            // Using this bone rather than pickup.attachedToBone
+            // because the latter could have been modified by an external script.
+            HumanBodyBones bone = (HumanBodyBones)boneToken.Int;
+
+            RemoveFromAttachedPickupsList(pickup.internalAttachedIndex);
+
             pickup.BeginStateModification();
-            boneAttachment.DetachFromBone(localPlayerId, (HumanBodyBones)bone.Int, pickup.transform);
+            PopulateStateForController(pickup, bone);
+            (pickup.pickupController ?? fallbackPickupController).HandleDetaching(stateForController);
             pickup.isAttached = false;
             // Keep the attachedToBone value untouched such that scripts can continue to read what the last
             // attached bone was.
             pickup.DispatchOnPickupDetach();
             pickup.FinishStateModification();
+        }
+
+        private void RemoveFromAttachedPickupsList(int indexToRemove)
+        {
+            attachedPickupsCount--;
+            if (indexToRemove >= attachedPickupsCount) // Micro optimization, no need to move anything if the removed index was top.
+                return;
+            CustomPickup top = attachedPickups[attachedPickupsCount];
+            if (top == null)
+                return;
+            attachedPickups[indexToRemove] = top;
+            top.internalAttachedIndex = indexToRemove;
         }
 
         public void AttachToNearestBone(CustomPickup pickup, DroppingHandType droppingHand)
@@ -176,27 +176,30 @@ namespace JanSharp.Internal
             if (pickup.receivedOnDestroy)
                 return;
             pickup.BeginStateModification();
-            boneAttachment.AttachToBone(localPlayer, attachedToBone, pickup.transform);
-            attachedPickups.Add(pickup, (int)attachedToBone);
+            attachedPickupsLut.Add(pickup, (int)attachedToBone);
+            pickup.internalAttachedIndex = attachedPickupsCount;
+            ArrList.Add(ref attachedPickups, ref attachedPickupsCount, pickup);
             pickup.manager = manager;
             pickup.isAttached = true;
             pickup.attachedToBone = attachedToBone;
+            PopulateStateForController(pickup, attachedToBone);
+            (pickup.pickupController ?? fallbackPickupController).HandleAttaching(stateForController);
             pickup.DispatchOnPickupAttach();
             pickup.FinishStateModification();
         }
 
         public void DetachAll()
         {
-            int count = attachedPickups.Count;
-            DataList keys = attachedPickups.GetKeys();
+            int count = attachedPickupsLut.Count;
+            DataList keys = attachedPickupsLut.GetKeys();
             for (int i = 0; i < count; i++)
                 DetachIfAttached((CustomPickup)keys[i].Reference);
         }
 
         public void DetachAllWhichUseDefaultModeFromManager()
         {
-            int count = attachedPickups.Count;
-            DataList keys = attachedPickups.GetKeys();
+            int count = attachedPickupsLut.Count;
+            DataList keys = attachedPickupsLut.GetKeys();
             for (int i = 0; i < count; i++)
             {
                 CustomPickup pickup = (CustomPickup)keys[i].Reference;
@@ -204,6 +207,31 @@ namespace JanSharp.Internal
                 // unrelated pickups.
                 if (pickup.AttachmentMode == CustomPickupAttachmentMode.UseDefaultModeFromManager)
                     DetachIfAttached(pickup);
+            }
+        }
+
+        public void UpdateAttachedPickups()
+        {
+            for (int i = attachedPickupsCount - 1; i >= 0; i--)
+            {
+                CustomPickup pickup = attachedPickups[i];
+                if (pickup == null)
+                {
+                    RemoveFromAttachedPickupsList(i);
+                    continue;
+                }
+                stateForController.pickup = pickup;
+                stateForController.pickupTransform = pickup.transform;
+                HumanBodyBones bone = pickup.attachedToBone;
+                Vector3 bonePosition = localPlayer.GetBonePosition(bone);
+                if (bonePosition == Vector3.zero) // Handles avatar switches.
+                {
+                    DetachIfAttached(pickup);
+                    continue;
+                }
+                stateForController.bonePosition = bonePosition;
+                stateForController.boneRotation = localPlayer.GetBoneRotation(bone);
+                (pickup.pickupController ?? fallbackPickupController).MoveAttachedPickup(stateForController);
             }
         }
     }

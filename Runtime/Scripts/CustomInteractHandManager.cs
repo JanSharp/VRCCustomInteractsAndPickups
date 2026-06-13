@@ -613,15 +613,10 @@ namespace JanSharp.Internal
             }
         }
 
-        private CustomPickupController GetActivePickupController()
-        {
-            return activePickup.pickupController ?? fallbackPickupController;
-        }
-
         private void UpdateControlledPickup()
         {
             PopulateStateForController();
-            GetActivePickupController().MovePickup(stateForController);
+            (activePickup.pickupController ?? fallbackPickupController).MovePickup(stateForController);
         }
 
         public override void InputUse(bool value, UdonInputEventArgs args)
@@ -789,7 +784,7 @@ namespace JanSharp.Internal
             pickedUpAt = Time.time;
             useConeModeUntilTime = -1f;
 
-            CustomPickupController pickupController = GetActivePickupController();
+            CustomPickupController pickupController = activePickup.pickupController ?? fallbackPickupController;
             PopulatePickingUpStateForController(hasHitPoint);
             pickupController.HandlePickingUp(pickingUpStateForController);
 
@@ -887,7 +882,7 @@ namespace JanSharp.Internal
             }
 
             CustomPickup prevActivePickup = activePickup;
-            CustomPickupController prevPickupController = GetActivePickupController();
+            CustomPickupController prevPickupController = activePickup.pickupController ?? fallbackPickupController;
             PopulateStateForController();
 
             ClearActiveScriptVariables();
