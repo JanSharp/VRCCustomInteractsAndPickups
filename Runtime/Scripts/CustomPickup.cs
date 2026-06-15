@@ -138,8 +138,6 @@ namespace JanSharp
         /// <inheritdoc cref="primaryOffsetRotation"/>
         [System.NonSerialized] public Quaternion secondaryOffsetRotation;
 
-        [System.NonSerialized] public bool usedHermiteCurveWhenLastPickedUp;
-
         /// <summary>
         /// <para>When <see langword="true"/>, read the <see cref="attachedOffsetVector"/> and
         /// <see cref="attachedOffsetRotation"/> to know what offsets the pickup has in relation to the
