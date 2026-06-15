@@ -243,7 +243,7 @@ namespace JanSharp
         /// <summary>
         /// <para>For use by the <see cref="CustomAttachedPickupsManager"/> script only.</para>
         /// </summary>
-        [System.NonSerialized] public int internalAttachedIndex;
+        [System.NonSerialized] public int internalAttachedIndex = CustomAttachedPickupsManager.NonAttachedInternalIndex;
 
         private int ongoingStateModifications;
 

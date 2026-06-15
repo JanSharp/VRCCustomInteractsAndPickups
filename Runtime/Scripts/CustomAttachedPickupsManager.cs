@@ -29,6 +29,8 @@ namespace JanSharp.Internal
         public CustomPickupController fallbackPickupController;
         private VRCPlayerApi localPlayer;
 
+        public const int NonAttachedInternalIndex = -1;
+
         // Very much copy paste, however I decided I prefer this over having setup logic in Start.
 
         private int[] attachableBoneValuesFromNone = new int[]
@@ -85,11 +87,6 @@ namespace JanSharp.Internal
         private int[][] attachableBoneValuesLut;
 
         /// <summary>
-        /// <para><see cref="CustomPickup"/> pickup => <see cref="int"/> (<see cref="HumanBodyBones"/>) bone</para>
-        /// <para>Keys are never <see langword="null"/>.</para>
-        /// </summary>
-        private DataDictionary attachedPickupsLut = new DataDictionary();
-        /// <summary>
         /// <para>Never contains <see langword="null"/>.</para>
         /// </summary>
         [System.NonSerialized] public CustomPickup[] attachedPickups = new CustomPickup[ArrList.MinCapacity];
@@ -121,16 +118,12 @@ namespace JanSharp.Internal
 
         public void DetachIfAttached(CustomPickup pickup)
         {
-            if (!attachedPickupsLut.Remove(pickup, out DataToken boneToken))
+            if (pickup.internalAttachedIndex == NonAttachedInternalIndex)
                 return;
-            // Using this bone rather than pickup.attachedToBone
-            // because the latter could have been modified by an external script.
-            HumanBodyBones bone = (HumanBodyBones)boneToken.Int;
-
-            RemoveFromAttachedPickupsList(pickup.internalAttachedIndex);
+            RemoveFromAttachedPickupsList(pickup);
 
             pickup.BeginStateModification();
-            PopulateStateForController(pickup, bone);
+            PopulateStateForController(pickup, pickup.attachedToBone);
             (pickup.pickupController ?? fallbackPickupController).HandleDetaching(stateForController);
             pickup.SetControlState(CustomPickupControlState.None);
             // Keep the attachedToBone value untouched such that scripts can continue to read what the last
@@ -139,8 +132,11 @@ namespace JanSharp.Internal
             pickup.FinishStateModification();
         }
 
-        private void RemoveFromAttachedPickupsList(int indexToRemove)
+        private void RemoveFromAttachedPickupsList(CustomPickup pickup)
         {
+            int indexToRemove = pickup.internalAttachedIndex;
+            pickup.internalAttachedIndex = NonAttachedInternalIndex;
+
             attachedPickupsCount--;
             if (indexToRemove >= attachedPickupsCount) // Micro optimization, no need to move anything if the removed index was top.
                 return;
@@ -178,7 +174,6 @@ namespace JanSharp.Internal
             if (pickup.receivedOnDestroy)
                 return;
             pickup.BeginStateModification();
-            attachedPickupsLut.Add(pickup, (int)attachedToBone);
             pickup.internalAttachedIndex = attachedPickupsCount;
             ArrList.Add(ref attachedPickups, ref attachedPickupsCount, pickup);
             pickup.manager = manager;
