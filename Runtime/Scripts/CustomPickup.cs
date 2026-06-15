@@ -141,8 +141,8 @@ namespace JanSharp
         [System.NonSerialized] public bool usedHermiteCurveWhenLastPickedUp;
 
         /// <summary>
-        /// <para>When <see langword="true"/>, read the <see cref="Transform.localPosition"/> and
-        /// <see cref="Transform.localRotation"/> to know what offsets the pickup has in relation to the
+        /// <para>When <see langword="true"/>, read the <see cref="attachedOffsetVector"/> and
+        /// <see cref="attachedOffsetRotation"/> to know what offsets the pickup has in relation to the
         /// attached bone <see cref="attachedToBone"/>.</para>
         /// <para><see langword="true"/> inside of <c>OnPickupAttach()</c>, <see langword="false"/> inside of
         /// <c>OnPickupDetach()</c>.</para>
