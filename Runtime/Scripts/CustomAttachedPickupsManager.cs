@@ -86,8 +86,12 @@ namespace JanSharp.Internal
 
         /// <summary>
         /// <para><see cref="CustomPickup"/> pickup => <see cref="int"/> (<see cref="HumanBodyBones"/>) bone</para>
+        /// <para>Keys are never <see langword="null"/>.</para>
         /// </summary>
         private DataDictionary attachedPickupsLut = new DataDictionary();
+        /// <summary>
+        /// <para>Never contains <see langword="null"/>.</para>
+        /// </summary>
         [System.NonSerialized] public CustomPickup[] attachedPickups = new CustomPickup[ArrList.MinCapacity];
         [System.NonSerialized] public int attachedPickupsCount = 0;
 
@@ -141,8 +145,6 @@ namespace JanSharp.Internal
             if (indexToRemove >= attachedPickupsCount) // Micro optimization, no need to move anything if the removed index was top.
                 return;
             CustomPickup top = attachedPickups[attachedPickupsCount];
-            if (top == null)
-                return;
             attachedPickups[indexToRemove] = top;
             top.internalAttachedIndex = indexToRemove;
         }
@@ -215,11 +217,6 @@ namespace JanSharp.Internal
             for (int i = attachedPickupsCount - 1; i >= 0; i--)
             {
                 CustomPickup pickup = attachedPickups[i];
-                if (pickup == null)
-                {
-                    RemoveFromAttachedPickupsList(i);
-                    continue;
-                }
                 stateForController.pickup = pickup;
                 stateForController.pickupTransform = pickup.transform;
                 HumanBodyBones bone = pickup.attachedToBone;
