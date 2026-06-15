@@ -132,7 +132,7 @@ namespace JanSharp.Internal
             pickup.BeginStateModification();
             PopulateStateForController(pickup, bone);
             (pickup.pickupController ?? fallbackPickupController).HandleDetaching(stateForController);
-            pickup.isAttached = false;
+            pickup.SetControlState(CustomPickupControlState.None);
             // Keep the attachedToBone value untouched such that scripts can continue to read what the last
             // attached bone was.
             pickup.DispatchOnPickupDetach();
@@ -182,7 +182,8 @@ namespace JanSharp.Internal
             pickup.internalAttachedIndex = attachedPickupsCount;
             ArrList.Add(ref attachedPickups, ref attachedPickupsCount, pickup);
             pickup.manager = manager;
-            pickup.isAttached = true;
+            pickup.SetControlState(CustomPickupControlState.Attached);
+            pickup.SetControllingPlayer(localPlayer);
             pickup.attachedToBone = attachedToBone;
             PopulateStateForController(pickup, attachedToBone);
             (pickup.pickupController ?? fallbackPickupController).HandleAttaching(stateForController);

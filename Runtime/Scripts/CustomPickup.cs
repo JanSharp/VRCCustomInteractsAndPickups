@@ -12,6 +12,13 @@ namespace JanSharp
         Enabled,
     }
 
+    public enum CustomPickupControlState
+    {
+        None,
+        Held,
+        Attached,
+    }
+
     [RequireComponent(typeof(Rigidbody))]
     [DisallowMultipleComponent]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
@@ -105,11 +112,83 @@ namespace JanSharp
         }
         public void StopInterpolation() => interpolationProgress = 1f;
 
+        public void SetControlState(CustomPickupControlState state)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            if (this.state != state && this.state != CustomPickupControlState.None && state != CustomPickupControlState.None)
+            {
+                Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to change the control state of "
+                    + $"a pickup without going to state None in between. For the purpose of having reliable "
+                    + $"controlling player information inside of the drop or detach events raised on pickup "
+                    + $"controllers this is forbidden.");
+                return;
+            }
+#endif
+            this.state = state;
+            isHeld = state == CustomPickupControlState.Held;
+            isAttached = state == CustomPickupControlState.Attached;
+        }
+
+        public void SetControllingPlayer(VRCPlayerApi player)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            if (controllingPlayer != player && state != CustomPickupControlState.None)
+            {
+                Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to change the controlling player of "
+                    + $"a pickup while the control state is not None. For the purpose of having reliable "
+                    + $"controlling player information inside of the drop or detach events raised on pickup "
+                    + $"controllers this is forbidden.");
+                return;
+            }
+#endif
+            controllingPlayer = player;
+            controllingPlayerId = (uint)player.playerId;
+            controllingPlayerIsLocal = player.isLocal;
+        }
+
+        public void SetControllingPlayer(uint playerId, bool isLocal)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            if (controllingPlayerId != playerId && state != CustomPickupControlState.None)
+            {
+                Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to change the controlling player of "
+                    + $"a pickup while the control state is not None. For the purpose of having reliable "
+                    + $"controlling player information inside of the drop or detach events raised on pickup "
+                    + $"controllers this is forbidden.");
+                return;
+            }
+#endif
+            controllingPlayer = VRCPlayerApi.GetPlayerById((int)playerId);
+            controllingPlayerId = playerId;
+            controllingPlayerIsLocal = isLocal;
+        }
+
+        /// <summary>
+        /// <para>Readonly. Modify through <see cref="SetControlState(CustomPickupControlState)"/>.</para>
+        /// </summary>
+        [System.NonSerialized] public CustomPickupControlState state;
+        /// <summary>
+        /// <para>Can be <see langword="null"/> even while <see cref="state"/> is not
+        /// <see cref="CustomPickupControlState.None"/>. In that case <see cref="controllingPlayerId"/> and
+        /// <see cref="controllingPlayerIsLocal"/> do remain usable however.</para>
+        /// <para>Readonly. Modify through one of the <c>SetControllingPlayer</c> functions.</para>
+        /// </summary>
+        [System.NonSerialized] public VRCPlayerApi controllingPlayer;
+        /// <summary>
+        /// <para>Readonly. Modify through one of the <c>SetControllingPlayer</c> functions.</para>
+        /// </summary>
+        [System.NonSerialized] public uint controllingPlayerId;
+        /// <summary>
+        /// <para>Readonly. Modify through one of the <c>SetControllingPlayer</c> functions.</para>
+        /// </summary>
+        [System.NonSerialized] public bool controllingPlayerIsLocal;
+
         /// <summary>
         /// <para><see langword="true"/> whenever <see cref="isHeldByPrimaryHand"/> and or
         /// <see cref="isHeldBySecondaryHand"/> is <see langword="true"/>.</para>
         /// <para>A variable rather than a property purely for performance (micro optimization)
         /// reasons.</para>
+        /// <para>Readonly. Modify through <see cref="SetControlState(CustomPickupControlState)"/>.</para>
         /// </summary>
         [System.NonSerialized] public bool isHeld;
 
@@ -144,6 +223,7 @@ namespace JanSharp
         /// attached bone <see cref="attachedToBone"/>.</para>
         /// <para><see langword="true"/> inside of <c>OnPickupAttach()</c>, <see langword="false"/> inside of
         /// <c>OnPickupDetach()</c>.</para>
+        /// <para>Readonly. Modify through <see cref="SetControlState(CustomPickupControlState)"/>.</para>
         /// </summary>
         [System.NonSerialized] public bool isAttached;
         /// <summary>

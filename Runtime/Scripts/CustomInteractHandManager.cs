@@ -804,7 +804,8 @@ namespace JanSharp.Internal
                     otherHandManager.DropActivePickup();
                 isControllingActivePickup = !activePickup.isHeldByPrimaryHand; // Only control if the other hand is not controlling it.
                 isPrimaryHoldingHand = false;
-                activePickup.isHeld = true;
+                activePickup.SetControlState(CustomPickupControlState.Held);
+                activePickup.SetControllingPlayer(localPlayer);
                 activePickup.isHeldBySecondaryHand = true;
                 activePickup.secondaryHeldTrackingType = handTrackingType;
                 activePickup.secondaryOffsetVector = pickingUpStateForController.heldOffsetVector;
@@ -820,7 +821,8 @@ namespace JanSharp.Internal
                     otherHandManager.isControllingActivePickup = false;
                 isControllingActivePickup = true; // The primary hand is always the one in control, if there is primary one.
                 isPrimaryHoldingHand = true;
-                activePickup.isHeld = true;
+                activePickup.SetControlState(CustomPickupControlState.Held);
+                activePickup.SetControllingPlayer(localPlayer);
                 activePickup.isHeldByPrimaryHand = true;
                 activePickup.primaryHeldTrackingType = handTrackingType;
                 activePickup.primaryOffsetVector = pickingUpStateForController.heldOffsetVector;
@@ -904,13 +906,15 @@ namespace JanSharp.Internal
             {
                 isPrimaryHoldingHand = false;
                 prevActivePickup.isHeldByPrimaryHand = false;
-                prevActivePickup.isHeld = prevActivePickup.isHeldBySecondaryHand;
+                if (!prevActivePickup.isHeldBySecondaryHand)
+                    prevActivePickup.SetControlState(CustomPickupControlState.None);
                 prevPickupController.HandlePrimaryDropping(stateForController);
             }
             else
             {
                 prevActivePickup.isHeldBySecondaryHand = false;
-                prevActivePickup.isHeld = prevActivePickup.isHeldByPrimaryHand;
+                if (!prevActivePickup.isHeldByPrimaryHand)
+                    prevActivePickup.SetControlState(CustomPickupControlState.None);
                 prevPickupController.HandleSecondaryDropping(stateForController);
             }
 
