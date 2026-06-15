@@ -192,19 +192,15 @@ namespace JanSharp.Internal
 
         public void DetachAll()
         {
-            int count = attachedPickupsLut.Count;
-            DataList keys = attachedPickupsLut.GetKeys();
-            for (int i = 0; i < count; i++)
-                DetachIfAttached((CustomPickup)keys[i].Reference);
+            for (int i = attachedPickupsCount - 1; i >= 0; i--)
+                DetachIfAttached(attachedPickups[i]);
         }
 
         public void DetachAllWhichUseDefaultModeFromManager()
         {
-            int count = attachedPickupsLut.Count;
-            DataList keys = attachedPickupsLut.GetKeys();
-            for (int i = 0; i < count; i++)
+            for (int i = attachedPickupsCount - 1; i >= 0; i--)
             {
-                CustomPickup pickup = (CustomPickup)keys[i].Reference;
+                CustomPickup pickup = attachedPickups[i];
                 // Pickups can be forced to get attached, so do not use CanAttach here as that could detach
                 // unrelated pickups.
                 if (pickup.AttachmentMode == CustomPickupAttachmentMode.UseDefaultModeFromManager)
