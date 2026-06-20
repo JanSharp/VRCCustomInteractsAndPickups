@@ -150,6 +150,8 @@
 - [ ] test and see how it feels to have interpolation enabled for pickups with exact grip
 - [ ] rework forcing picking up. Probably have a separate one for primary and secondary
 - [x] attachment also needs to go through the controllers
+- [ ] onSelectionGainedHaptics gets "raised" when dropping a pickup. Should it?
+- [ ] Add interpolation to MoveAttachedPickup default implementation, it's needed on remote clients
 
 # VR Testing
 

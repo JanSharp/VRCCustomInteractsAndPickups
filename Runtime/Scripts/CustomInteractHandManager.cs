@@ -798,10 +798,15 @@ namespace JanSharp.Internal
             HideInteractText();
             EnableDisableUseText();
 
+            bool doRaiseOnPickup = !activePickup.isHeld;
+
             if (pickingUpStateForController.shouldBecomeSecondaryHand)
             {
                 if (activePickup.isHeldBySecondaryHand)
+                {
                     otherHandManager.DropActivePickup();
+                    doRaiseOnPickup = true;
+                }
                 isControllingActivePickup = !activePickup.isHeldByPrimaryHand; // Only control if the other hand is not controlling it.
                 isPrimaryHoldingHand = false;
                 activePickup.SetControlState(CustomPickupControlState.Held);
@@ -816,7 +821,10 @@ namespace JanSharp.Internal
             else
             {
                 if (activePickup.isHeldByPrimaryHand)
+                {
                     otherHandManager.DropActivePickup();
+                    doRaiseOnPickup = true;
+                }
                 if (activePickup.isHeldBySecondaryHand)
                     otherHandManager.isControllingActivePickup = false;
                 isControllingActivePickup = true; // The primary hand is always the one in control, if there is primary one.
@@ -830,7 +838,9 @@ namespace JanSharp.Internal
                 PopulateStateForController();
                 pickupController.HandlePrimaryPickingUp(stateForController);
             }
-            activePickup.DispatchOnPickup();
+
+            if (doRaiseOnPickup)
+                activePickup.DispatchOnPickup();
             activePickup.FinishStateModification();
         }
 
@@ -930,8 +940,8 @@ namespace JanSharp.Internal
             else
             {
                 prevActivePickup.DispatchOnDrop();
-                // Vertical mouse movement counts as lookVerticalInput on desktop. Ignore desktop entirely, the
-                // user would not be able to pick up an attached item anymore.
+                // Vertical mouse movement counts as lookVerticalInput on desktop. Ignore desktop entirely,
+                // the user would not be able to pick up an attached item anymore.
                 if (isInVR
                     && !preventAttachment
                     && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold
