@@ -753,7 +753,7 @@ namespace JanSharp.Internal
             pickingUpStateForController.pickup = activePickup;
             pickingUpStateForController.pickupTransform = activeTransform;
 
-            var hand = localPlayer.GetTrackingData(activePickup.primaryHeldTrackingType);
+            var hand = localPlayer.GetTrackingData(handTrackingType);
             Quaternion handRotation = hand.rotation * rotationNormalization;
             pickingUpStateForController.handPosition = hand.position + handRotation * offsetVectorShift;
             pickingUpStateForController.handRotation = handRotation;
