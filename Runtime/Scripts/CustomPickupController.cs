@@ -4,66 +4,21 @@ namespace JanSharp
 {
     public abstract class CustomPickupController : UdonSharpBehaviour
     {
-        public CustomPickupController chainedController;
-
-        public virtual void HandlePickingUp(CustomPickupPickingUpState state)
-        {
-            if (chainedController != null)
-                chainedController.HandlePickingUp(state);
-        }
-
-        public virtual void HandlePrimaryPickingUp(CustomPickupState state)
-        {
-            if (chainedController != null)
-                chainedController.HandlePrimaryPickingUp(state);
-        }
-
-        public virtual void HandleSecondaryPickingUp(CustomPickupState state)
-        {
-            if (chainedController != null)
-                chainedController.HandleSecondaryPickingUp(state);
-        }
-
-        public virtual void HandlePrimaryDropping(CustomPickupState state)
-        {
-            if (chainedController != null)
-                chainedController.HandlePrimaryDropping(state);
-        }
-
-        public virtual void HandleSecondaryDropping(CustomPickupState state)
-        {
-            if (chainedController != null)
-                chainedController.HandleSecondaryDropping(state);
-        }
-
+        public abstract void HandlePickingUp(CustomPickupPickingUpState state);
+        public abstract void HandlePrimaryPickingUp(CustomPickupState state);
+        public abstract void HandleSecondaryPickingUp(CustomPickupState state);
+        public abstract void HandlePrimaryDropping(CustomPickupState state);
+        public abstract void HandleSecondaryDropping(CustomPickupState state);
         /// <summary>
         /// <para>Modify the <see cref="CustomPickupState.pickupTransform"/> in this function.</para>
         /// </summary>
-        public virtual void MovePickup(CustomPickupState state)
-        {
-            if (chainedController != null)
-                chainedController.MovePickup(state);
-        }
+        public abstract void MovePickup(CustomPickupState state);
 
-        public virtual void HandleAttaching(CustomPickupAttachedState state)
-        {
-            if (chainedController != null)
-                chainedController.HandleAttaching(state);
-        }
-
-        public virtual void HandleDetaching(CustomPickupAttachedState state)
-        {
-            if (chainedController != null)
-                chainedController.HandleDetaching(state);
-        }
-
+        public abstract void HandleAttaching(CustomPickupAttachedState state);
+        public abstract void HandleDetaching(CustomPickupAttachedState state);
         /// <summary>
         /// <para>Modify the <see cref="CustomPickupAttachedState.pickupTransform"/> in this function.</para>
         /// </summary>
-        public virtual void MoveAttachedPickup(CustomPickupAttachedState state)
-        {
-            if (chainedController != null)
-                chainedController.MoveAttachedPickup(state);
-        }
+        public abstract void MoveAttachedPickup(CustomPickupAttachedState state);
     }
 }
