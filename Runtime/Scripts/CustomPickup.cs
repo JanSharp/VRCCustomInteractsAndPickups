@@ -58,7 +58,21 @@ namespace JanSharp
             + "primary.")]
         public bool droppingTransfersPrimaryHand = true;
 
+        /// <summary>
+        /// <para>Could be <see langword="null"/>.</para>
+        /// </summary>
         public CustomPickupController pickupController;
+        /// <summary>
+        /// <para>Never <see langword="null"/>.</para>
+        /// </summary>
+        /// <returns></returns>
+        public CustomPickupController GetPickupController()
+        {
+            if (pickupController != null)
+                return pickupController;
+            EnsureHasManagerRef();
+            return manager.fallbackPickupController;
+        }
 
         [Tooltip("Each Listener can define any or all of these:\n"
             + "public override void OnPickup()\n"

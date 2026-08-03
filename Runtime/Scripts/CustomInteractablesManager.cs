@@ -101,6 +101,7 @@ namespace JanSharp.Internal
         public CustomInteractHandManager leftHand;
         public CustomInteractHandManager rightHand;
         public CustomAttachedPickupsManager attachedManager;
+        public CustomPickupController fallbackPickupController;
 
         [Space]
         public Vector3 onSelectionGainedHaptics;
