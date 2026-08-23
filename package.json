@@ -9,12 +9,11 @@
     "email": "steinmeister36@gmail.com",
     "url": "https://jansharp.github.io"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "license": "MIT",
   "vpmDependencies": {
     "com.vrchat.worlds": "^3.4.x",
-    "com.jansharp.common": ">=0.1.0"
+    "com.jansharp.common": ">=1.4.0"
   },
   "url": "https://github.com/JanSharp/VRCCustomInteractsAndPickups/releases/download/v0.1.0/com.jansharp.custom-interacts-and-pickups.zip",
   "changelogUrl": "https://github.com/JanSharp/VRCCustomInteractsAndPickups/blob/v0.1.0/CHANGELOG.md"
