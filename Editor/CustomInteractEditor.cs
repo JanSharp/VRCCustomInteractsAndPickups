@@ -8,10 +8,10 @@ using UnityEngine;
 
 namespace JanSharp
 {
-    [InitializeOnLoad]
     public static class CustomInteractOnBuild
     {
-        static CustomInteractOnBuild()
+        [OrderedInitializeOnLoad]
+        private static void OnAssemblyLoad()
         {
             OnBuildUtil.RegisterType<CustomInteract>(OnBuild);
         }
