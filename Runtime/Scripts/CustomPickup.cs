@@ -374,14 +374,14 @@ namespace JanSharp
                 Detach();
         }
 
-        public void Drop()
+        public void Drop(bool preventAttachment = false)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  Drop");
 #endif
             if (!isHeld)
                 return;
-            manager.DropPickup(this);
+            manager.DropPickup(this, preventAttachment);
         }
 
         public void Detach()

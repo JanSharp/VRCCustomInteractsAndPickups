@@ -870,6 +870,17 @@ namespace JanSharp.Internal
             PickupActivePickup(hasHitPoint: false);
         }
 
+        public void DropPickupIfHeld(CustomPickup pickup, bool preventAttachment = false)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  DropPickupIfHeld");
+#endif
+            // When isHolding is false, activePickup is always null. However the given pickup could be null,
+            // which is arguably invalid use of the API, but this way it'll simply ignore the invalid drop call.
+            if (isHolding && activePickup == pickup)
+                DropActivePickup(preventAttachment);
+        }
+
         public void DropActivePickup(bool preventAttachment = false)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG

@@ -273,15 +273,14 @@ namespace JanSharp.Internal
             fixedUpdateCounter = (fixedUpdateCounter + 1) % 4;
         }
 
-        public void DropPickup(CustomPickup pickup)
+        public void DropPickup(CustomPickup pickup, bool preventAttachment = false)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  DropPickup");
 #endif
-            if (pickup.primaryHeldTrackingType == VRCPlayerApi.TrackingDataType.RightHand)
-                rightHand.DropActivePickup();
-            else
-                leftHand.DropActivePickup();
+            leftHand.DropPickupIfHeld(pickup, preventAttachment);
+            if (isInVR)
+                rightHand.DropPickupIfHeld(pickup, preventAttachment);
         }
 
         public void DetachPickup(CustomPickup pickup)
