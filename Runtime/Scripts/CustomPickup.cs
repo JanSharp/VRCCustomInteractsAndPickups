@@ -369,7 +369,7 @@ namespace JanSharp
             if (!Utilities.IsValid(Networking.LocalPlayer))
                 return;
             if (isHeld)
-                Drop();
+                Drop(preventAttachment: true);
             else if (isAttached)
                 Detach();
         }
@@ -419,7 +419,7 @@ namespace JanSharp
                 return;
             BeginStateModification();
             if (isHeld)
-                Drop();
+                Drop(preventAttachment: true);
             else if (isAttached)
                 Detach();
             if (Networking.LocalPlayer.GetBonePosition(attachedToBone) != Vector3.zero)
