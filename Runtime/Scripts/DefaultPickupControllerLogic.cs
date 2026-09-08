@@ -122,12 +122,15 @@ namespace JanSharp
         public void MovePickup(CustomPickupState state)
         {
             GetLocationToMoveTo(state);
+            InterpolateTowardsTarget(state.pickup, state.pickupTransform);
+        }
 
-            CustomPickup pickup = state.pickup;
+        private void InterpolateTowardsTarget(CustomPickup pickup, Transform pickupTransform)
+        {
             float progress = pickup.interpolationProgress;
             if (progress >= 1f)
             {
-                state.pickupTransform.SetPositionAndRotation(targetPosition, targetRotation);
+                pickupTransform.SetPositionAndRotation(targetPosition, targetRotation);
                 return;
             }
 
@@ -139,12 +142,11 @@ namespace JanSharp
             if (progress >= 1f)
             {
                 pickup.interpolationProgress = 1f;
-                state.pickupTransform.SetPositionAndRotation(targetPosition, targetRotation);
+                pickupTransform.SetPositionAndRotation(targetPosition, targetRotation);
                 return;
             }
 
             pickup.interpolationProgress = progress;
-            Transform pickupTransform = state.pickupTransform;
             pickupTransform.SetPositionAndRotation(
                 Vector3.Lerp(pickupTransform.position, targetPosition, currentStep),
                 Quaternion.Lerp(pickupTransform.rotation, targetRotation, currentStep));
@@ -209,9 +211,11 @@ namespace JanSharp
         {
             CustomPickup pickup = state.pickup;
             Quaternion boneRotation = state.boneRotation;
-            state.pickupTransform.SetPositionAndRotation(
-                state.bonePosition + boneRotation * pickup.attachedOffsetVector,
-                boneRotation * pickup.attachedOffsetRotation);
+            targetPosition = state.bonePosition + boneRotation * pickup.attachedOffsetVector;
+            targetRotation = boneRotation * pickup.attachedOffsetRotation;
+            // This system itself does not use interpolation here at all,
+            // but other systems such as those doing syncing and attaching to remote players may.
+            InterpolateTowardsTarget(state.pickup, state.pickupTransform);
         }
     }
 }
