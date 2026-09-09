@@ -804,7 +804,7 @@ namespace JanSharp.Internal
             {
                 if (activePickup.isHeldBySecondaryHand)
                 {
-                    otherHandManager.DropActivePickup();
+                    otherHandManager.DropActivePickup(preventAttachment: true);
                     doRaiseOnPickup = true;
                 }
                 isControllingActivePickup = !activePickup.isHeldByPrimaryHand; // Only control if the other hand is not controlling it.
@@ -822,12 +822,12 @@ namespace JanSharp.Internal
             {
                 if (activePickup.isHeldByPrimaryHand)
                 {
-                    otherHandManager.DropActivePickup();
+                    otherHandManager.DropActivePickup(preventAttachment: true);
                     doRaiseOnPickup = true;
                 }
                 if (activePickup.isHeldBySecondaryHand)
                     otherHandManager.isControllingActivePickup = false;
-                isControllingActivePickup = true; // The primary hand is always the one in control, if there is primary one.
+                isControllingActivePickup = true; // The primary hand is always the one in control, if there is a primary one.
                 isPrimaryHoldingHand = true;
                 activePickup.SetControlState(CustomPickupControlState.Held);
                 activePickup.SetControllingPlayer(localPlayer);
