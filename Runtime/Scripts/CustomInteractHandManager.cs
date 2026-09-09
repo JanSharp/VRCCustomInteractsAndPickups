@@ -774,33 +774,78 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupActivePickup");
 #endif
-            if (activePickup.receivedOnDestroy)
+            if (activePickup.receivedOnDestroy) // When coming from the force pickup functions this is redundant but oh well.
                 return;
             activePickup.BeginStateModification();
-            pickupWasAttachedForHaptics = activePickup.isAttached;
-            attachedManager.DetachIfAttached(activePickup);
-
-            isHolding = true;
-            pickedUpAt = Time.time;
-            useConeModeUntilTime = -1f;
+            PrepareForPickingUp();
 
             CustomPickupController pickupController = activePickup.pickupController ?? fallbackPickupController;
             PopulatePickingUpStateForController(hasHitPoint);
             pickupController.HandlePickingUp(pickingUpStateForController);
 
+            FinishPickingUpWithGivenOffsets(
+                pickupController,
+                pickingUpStateForController.shouldBecomeSecondaryHand,
+                pickingUpStateForController.heldOffsetVector,
+                pickingUpStateForController.heldOffsetRotation);
+            activePickup.FinishStateModification();
+        }
+
+        private void PickupActivePickupExplicit(
+            bool shouldBecomeSecondaryHand,
+            Vector3 heldOffsetVector,
+            Quaternion heldOffsetRotation)
+        {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            debugLine.gameObject.SetActive(false);
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PickupActivePickupExplicit");
 #endif
+            if (activePickup.receivedOnDestroy) // When coming from the force pickup functions this is redundant but oh well.
+                return;
+            activePickup.BeginStateModification();
+            PrepareForPickingUp();
+            FinishPickingUpWithGivenOffsets(
+                activePickup.pickupController ?? fallbackPickupController,
+                shouldBecomeSecondaryHand,
+                heldOffsetVector,
+                heldOffsetRotation);
+            activePickup.FinishStateModification();
+        }
+
+        private void PrepareForPickingUp()
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PrepareForPickingUp");
+#endif
+            pickupWasAttachedForHaptics = activePickup.isAttached;
+            attachedManager.DetachIfAttached(activePickup);
             if (isInVR)
                 SendCustomEventDelayedFrames(nameof(UpdateHaptics), 1);
+
+            isHolding = true;
+            pickedUpAt = Time.time;
+            useConeModeUntilTime = -1f;
 
             activePickup.HideHighlight();
             HideInteractText();
             EnableDisableUseText();
 
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            debugLine.gameObject.SetActive(false);
+#endif
+        }
+
+        private void FinishPickingUpWithGivenOffsets(
+            CustomPickupController pickupController,
+            bool shouldBecomeSecondaryHand,
+            Vector3 heldOffsetVector,
+            Quaternion heldOffsetRotation)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  FinishPickingUpWithGivenOffsets");
+#endif
             bool doRaiseOnPickup = !activePickup.isHeld;
 
-            if (pickingUpStateForController.shouldBecomeSecondaryHand)
+            if (shouldBecomeSecondaryHand)
             {
                 if (activePickup.isHeldBySecondaryHand)
                 {
@@ -813,8 +858,8 @@ namespace JanSharp.Internal
                 activePickup.SetControllingPlayer(localPlayer);
                 activePickup.isHeldBySecondaryHand = true;
                 activePickup.secondaryHeldTrackingType = handTrackingType;
-                activePickup.secondaryOffsetVector = pickingUpStateForController.heldOffsetVector;
-                activePickup.secondaryOffsetRotation = pickingUpStateForController.heldOffsetRotation;
+                activePickup.secondaryOffsetVector = heldOffsetVector;
+                activePickup.secondaryOffsetRotation = heldOffsetRotation;
                 PopulateStateForController();
                 pickupController.HandleSecondaryPickingUp(stateForController);
             }
@@ -833,31 +878,14 @@ namespace JanSharp.Internal
                 activePickup.SetControllingPlayer(localPlayer);
                 activePickup.isHeldByPrimaryHand = true;
                 activePickup.primaryHeldTrackingType = handTrackingType;
-                activePickup.primaryOffsetVector = pickingUpStateForController.heldOffsetVector;
-                activePickup.primaryOffsetRotation = pickingUpStateForController.heldOffsetRotation;
+                activePickup.primaryOffsetVector = heldOffsetVector;
+                activePickup.primaryOffsetRotation = heldOffsetRotation;
                 PopulateStateForController();
                 pickupController.HandlePrimaryPickingUp(stateForController);
             }
 
             if (doRaiseOnPickup)
                 activePickup.DispatchOnPickup();
-            activePickup.FinishStateModification();
-        }
-
-        private bool PrepareForcePickup(CustomPickup pickup)
-        {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PrepareForcePickup");
-#endif
-            if (isHolding)
-            {
-                if (activePickup == pickup)
-                    return false;
-                DropActivePickup(preventAttachment: true);
-            }
-            // TODO: remove pointless enabling and disabling of the highlight
-            SetActivePickup(pickup);
-            return true;
         }
 
         public void ForcePickup(CustomPickup pickup)
@@ -865,9 +893,94 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickup");
 #endif
-            if (!PrepareForcePickup(pickup))
+            if (pickup.receivedOnDestroy || (isHolding && activePickup == pickup))
                 return;
+            pickup.BeginStateModification();
+            if (isHolding)
+                DropActivePickup(preventAttachment: true);
+            // TODO: remove pointless enabling and disabling of the highlight
+            SetActivePickup(pickup);
             PickupActivePickup(hasHitPoint: false);
+            pickup.FinishStateModification();
+        }
+
+        public void ForcePickupExplicit(
+            CustomPickup pickup,
+            bool shouldBecomeSecondaryHand,
+            Vector3 heldOffsetVector,
+            Quaternion heldOffsetRotation)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  ForcePickupExplicit");
+#endif
+            if (pickup.receivedOnDestroy)
+                return;
+            pickup.BeginStateModification();
+            if (isHolding)
+            {
+                if (activePickup == pickup)
+                {
+                    MakePrimaryOrSecondaryOffsetsMatch(shouldBecomeSecondaryHand, heldOffsetVector, heldOffsetRotation);
+                    pickup.FinishStateModification();
+                    return;
+                }
+                DropActivePickup(preventAttachment: true);
+            }
+
+            if (shouldBecomeSecondaryHand
+                ? pickup.isHeldBySecondaryHand
+                : pickup.isHeldByPrimaryHand)
+            {
+                otherHandManager.DropActivePickup(preventAttachment: true);
+            }
+
+            // TODO: remove pointless enabling and disabling of the highlight
+            SetActivePickup(pickup);
+            PickupActivePickupExplicit(shouldBecomeSecondaryHand, heldOffsetVector, heldOffsetRotation);
+            pickup.FinishStateModification();
+        }
+
+        private void MakePrimaryOrSecondaryOffsetsMatch(
+            bool shouldBecomeSecondaryHand,
+            Vector3 heldOffsetVector,
+            Quaternion heldOffsetRotation)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  MakePrimaryOrSecondaryOffsetsMatch");
+#endif
+            if (isPrimaryHoldingHand != shouldBecomeSecondaryHand)
+            {
+                SetHeldOffsets(heldOffsetVector, heldOffsetRotation);
+                return;
+            }
+
+            // We must swap primary/secondary, but the other hand is also holding the pickup. Free up the hand to allow swapping.
+            if (activePickup.isHeldByPrimaryHand && activePickup.isHeldBySecondaryHand)
+                otherHandManager.DropActivePickup(preventAttachment: true);
+
+            if (shouldBecomeSecondaryHand)
+                BecomeSecondaryHand(activePickup);
+            else
+                BecomePrimaryHand(activePickup);
+            SetHeldOffsets(heldOffsetVector, heldOffsetRotation);
+        }
+
+        private void SetHeldOffsets(Vector3 heldOffsetVector, Quaternion heldOffsetRotation)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  SetHeldOffsets");
+#endif
+            if (isPrimaryHoldingHand)
+            {
+                activePickup.primaryOffsetVector = heldOffsetVector;
+                activePickup.primaryOffsetRotation = heldOffsetRotation;
+            }
+            else
+            {
+                activePickup.secondaryOffsetVector = heldOffsetVector;
+                activePickup.secondaryOffsetRotation = heldOffsetRotation;
+            }
+            activePickup.StartInterpolation();
         }
 
         public void DropPickupIfHeld(CustomPickup pickup, bool preventAttachment = false)
@@ -952,7 +1065,7 @@ namespace JanSharp.Internal
             {
                 prevActivePickup.DispatchOnDrop();
                 // Vertical mouse movement counts as lookVerticalInput on desktop. Ignore desktop entirely,
-                // the user would not be able to pick up an attached item anymore.
+                // the user would not be able to pick up an attached pickup anymore.
                 if (isInVR
                     && !preventAttachment
                     && manager.lookVerticalInput <= CustomInteractablesManager.VerticalLookDownThreshold
@@ -985,6 +1098,27 @@ namespace JanSharp.Internal
             pickup.primaryHeldTrackingType = handTrackingType;
             pickup.primaryOffsetVector = pickup.secondaryOffsetVector;
             pickup.primaryOffsetRotation = pickup.secondaryOffsetRotation;
+        }
+
+        public void BecomeSecondaryHand(CustomPickup pickup)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  BecomeSecondaryHand");
+#endif
+            if (!isHolding // This hand is not holding anything.
+                || !isPrimaryHoldingHand // Holding but already secondary.
+                || pickup != activePickup // Holding a different pickup.
+                || pickup.isHeldBySecondaryHand) // The other hand is holding it. This method refuses to swap hands.
+            {
+                return;
+            }
+            isPrimaryHoldingHand = false;
+            isControllingActivePickup = true; // The other hand is not holding it.
+            pickup.isHeldByPrimaryHand = false;
+            pickup.isHeldBySecondaryHand = true;
+            pickup.secondaryHeldTrackingType = handTrackingType;
+            pickup.secondaryOffsetVector = pickup.primaryOffsetVector;
+            pickup.secondaryOffsetRotation = pickup.primaryOffsetRotation;
         }
     }
 }

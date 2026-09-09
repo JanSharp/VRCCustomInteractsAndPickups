@@ -404,6 +404,20 @@ namespace JanSharp
             hand.ForcePickup(this);
         }
 
+        public void ForceBeingPickedUpExplicit(
+            VRCPlayerApi.TrackingDataType heldTrackingType,
+            bool shouldBecomeSecondaryHand,
+            Vector3 heldOffsetVector,
+            Quaternion heldOffsetRotation)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUpExplicit");
+#endif
+            EnsureHasManagerRef();
+            CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
+            hand.ForcePickupExplicit(this, shouldBecomeSecondaryHand, heldOffsetVector, heldOffsetRotation);
+        }
+
         /// <summary>
         /// <para>Does not change the world position and rotation of the pickup, therefore also does not do
         /// any interpolation. If that is required and or desired, perform said interpolation on the local
