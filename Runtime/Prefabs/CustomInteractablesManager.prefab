@@ -157,7 +157,7 @@ MonoBehaviour:
   leftHand: {fileID: 1715548069972870745}
   rightHand: {fileID: 1715548070137871318}
   attachedManager: {fileID: 3750409550442984382}
-  fallbackPickupController: {fileID: 0}
+  fallbackPickupController: {fileID: 2977716704515916508}
   onSelectionGainedHaptics: {x: 0, y: 0, z: 0}
   onSelectionLostHaptics: {x: 0, y: 0, z: 0}
   onSelectionChangedHaptics: {x: 0, y: 0, z: 0}
