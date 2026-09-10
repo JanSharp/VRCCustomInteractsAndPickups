@@ -1,9 +1,6 @@
 using JanSharp.Internal;
 using UdonSharpEditor;
 using UnityEditor;
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-using UnityEngine;
-#endif
 
 namespace JanSharp
 {
@@ -11,6 +8,8 @@ namespace JanSharp
     [CustomEditor(typeof(CustomInteractablesManager))]
     public class CustomInteractablesManagerEditor : Editor
     {
+        private static bool internalFoldedOut = false;
+
         private SerializedObject so;
         private SerializedProperty autoHoldModeProp;
         private SerializedProperty defaultAttachmentModeProp;
@@ -29,10 +28,8 @@ namespace JanSharp
             so.Update();
             EditorGUILayout.PropertyField(autoHoldModeProp);
             EditorGUILayout.PropertyField(defaultAttachmentModeProp);
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            GUILayout.Label("Debug / Internal", EditorStyles.boldLabel);
-            DrawPropertiesExcluding(so, "m_Script", "autoHoldMode", "defaultAttachmentMode");
-#endif
+            if (internalFoldedOut = EditorGUILayout.Foldout(internalFoldedOut, "Internal", toggleOnLabelClick: true))
+                DrawPropertiesExcluding(so, "m_Script", "autoHoldMode", "defaultAttachmentMode");
             so.ApplyModifiedProperties();
         }
     }
