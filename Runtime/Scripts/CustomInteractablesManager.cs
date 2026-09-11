@@ -321,6 +321,7 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  GetHandForTrackingType");
 #endif
+            // Returns leftHand when given Head tracking type, as it should.
             return trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHand : leftHand;
         }
 
