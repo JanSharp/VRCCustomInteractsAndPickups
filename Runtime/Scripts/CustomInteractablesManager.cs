@@ -136,6 +136,19 @@ namespace JanSharp.Internal
         public override int AttachedPickupsCount => attachedManager.attachedPickupsCount;
         public override CustomPickup[] AttachedPickups => attachedManager.GetAllAttachedPickups();
 
+        private Quaternion leftHandRotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
+        private Quaternion rightHandRotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
+        private Quaternion headRotationNormalization = Quaternion.identity;
+        private Vector3 leftHandAnchorOffsetVector = Vector3.zero;
+        private Vector3 rightHandAnchorOffsetVector = Vector3.zero;
+        private Vector3 headAnchorOffsetVector = new Vector3(0.4f, -0.2f, 0.5f);
+        public override Quaternion LeftHandRotationNormalization => leftHandRotationNormalization;
+        public override Quaternion RightHandRotationNormalization => rightHandRotationNormalization;
+        public override Quaternion HeadRotationNormalization => headRotationNormalization;
+        public override Vector3 LeftHandAnchorOffsetVector => leftHandAnchorOffsetVector;
+        public override Vector3 RightHandAnchorOffsetVector => rightHandAnchorOffsetVector;
+        public override Vector3 HeadAnchorOffsetVector => headAnchorOffsetVector;
+
         private void Start()
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
@@ -155,18 +168,19 @@ namespace JanSharp.Internal
                 leftHand.pickupHandType = VRC_Pickup.PickupHand.Left;
                 leftHand.handType = HandType.LEFT;
                 leftHand.droppingHandType = DroppingHandType.Left;
-                leftHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
+                leftHand.rotationNormalization = leftHandRotationNormalization;
                 leftHand.palmDirection = Vector3.up;
                 leftHand.coneDirection = Quaternion.AngleAxis(60f, Vector3.up) * Vector3.forward;
-                leftHand.offsetVectorShift = Vector3.zero;
+                leftHand.offsetVectorShift = leftHandAnchorOffsetVector;
+
                 rightHand.handTrackingType = VRCPlayerApi.TrackingDataType.RightHand;
                 rightHand.pickupHandType = VRC_Pickup.PickupHand.Right;
                 rightHand.handType = HandType.RIGHT;
                 rightHand.droppingHandType = DroppingHandType.Right;
-                rightHand.rotationNormalization = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(45f, Vector3.right);
+                rightHand.rotationNormalization = rightHandRotationNormalization;
                 rightHand.palmDirection = Vector3.down;
                 rightHand.coneDirection = Quaternion.AngleAxis(-60f, Vector3.up) * Vector3.forward;
-                rightHand.offsetVectorShift = Vector3.zero;
+                rightHand.offsetVectorShift = rightHandAnchorOffsetVector;
             }
             else
             {
@@ -174,10 +188,10 @@ namespace JanSharp.Internal
                 leftHand.pickupHandType = VRC_Pickup.PickupHand.None;
                 leftHand.handType = HandType.LEFT; // Does not matter, is not used.
                 leftHand.droppingHandType = DroppingHandType.None; // Does not matter, is not used.
-                leftHand.rotationNormalization = Quaternion.identity;
+                leftHand.rotationNormalization = headRotationNormalization;
                 leftHand.palmDirection = Vector3.forward;
                 leftHand.coneDirection = Vector3.forward;
-                leftHand.offsetVectorShift = new Vector3(0.4f, -0.2f, 0.5f); // TODO: should this scale with eye height.
+                leftHand.offsetVectorShift = headAnchorOffsetVector; // TODO: should this scale with eye height - hopefully not.
                 Destroy(rightHand.gameObject); // Disabled scripts apparently still get VRChat's InoutFoo events, so destroy it instead.
             }
 
@@ -310,12 +324,24 @@ namespace JanSharp.Internal
             return trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHand : leftHand;
         }
 
-        public override Quaternion GetHandRotationNormalization(VRCPlayerApi.TrackingDataType trackingType)
+        public override Quaternion GetRotationNormalization(VRCPlayerApi.TrackingDataType trackingType)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  GetHandRotationNormalization");
 #endif
-            return (trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHand : leftHand).rotationNormalization;
+            return trackingType == VRCPlayerApi.TrackingDataType.LeftHand ? leftHandRotationNormalization
+                : trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHandRotationNormalization
+                : headRotationNormalization;
+        }
+
+        public override Vector3 GetAnchorOffsetVector(VRCPlayerApi.TrackingDataType trackingType)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  GetHandRotationNormalization");
+#endif
+            return trackingType == VRCPlayerApi.TrackingDataType.LeftHand ? leftHandAnchorOffsetVector
+                : trackingType == VRCPlayerApi.TrackingDataType.RightHand ? rightHandAnchorOffsetVector
+                : headAnchorOffsetVector;
         }
 
         public override Vector3 GetClosestPoint(Transform pickupTransform, Vector3 handPosition)

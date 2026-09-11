@@ -30,15 +30,33 @@ namespace JanSharp
         /// </summary>
         public abstract CustomPickup[] AttachedPickups { get; }
 
+        public abstract Quaternion LeftHandRotationNormalization { get; }
+        public abstract Quaternion RightHandRotationNormalization { get; }
+        public abstract Quaternion HeadRotationNormalization { get; }
+        public abstract Vector3 LeftHandAnchorOffsetVector { get; }
+        public abstract Vector3 RightHandAnchorOffsetVector { get; }
+        public abstract Vector3 HeadAnchorOffsetVector { get; }
+
         /// <summary>
         /// <para>Get the rotation to rotate a hand's tracking data rotation by in order to make the forward
         /// direction point close to the direction of the index finger and the up direction relatively aligned
         /// with the thumb.</para>
         /// </summary>
-        /// <param name="trackingType"><see cref="VRCPlayerApi.TrackingDataType.LeftHand"/> or
-        /// <see cref="VRCPlayerApi.TrackingDataType.RightHand"/>.</param>
+        /// <param name="trackingType">Accepts <see cref="VRCPlayerApi.TrackingDataType.LeftHand"/>,
+        /// <see cref="VRCPlayerApi.TrackingDataType.RightHand"/> and
+        /// <see cref="VRCPlayerApi.TrackingDataType.Head"/>.</param>
         /// <returns></returns>
-        public abstract Quaternion GetHandRotationNormalization(VRCPlayerApi.TrackingDataType trackingType);
+        public abstract Quaternion GetRotationNormalization(VRCPlayerApi.TrackingDataType trackingType);
+        /// <summary>
+        /// <para>Offset vector to add to the position of tracking data.</para>
+        /// <para>The offset vector must be rotated by the tracking data rotation. However it must not be
+        /// rotated by <see cref="GetRotationNormalization(VRCPlayerApi.TrackingDataType)"/>.</para>
+        /// </summary>
+        /// <param name="trackingType">Accepts <see cref="VRCPlayerApi.TrackingDataType.LeftHand"/>,
+        /// <see cref="VRCPlayerApi.TrackingDataType.RightHand"/> and
+        /// <see cref="VRCPlayerApi.TrackingDataType.Head"/>.</param>
+        /// <returns></returns>
+        public abstract Vector3 GetAnchorOffsetVector(VRCPlayerApi.TrackingDataType trackingType);
 
         public abstract Vector3 GetClosestPoint(Transform pickupTransform, Vector3 handPosition);
     }
