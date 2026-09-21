@@ -152,6 +152,7 @@
 - [x] attachment also needs to go through the controllers
 - [ ] onSelectionGainedHaptics gets "raised" when dropping a pickup. Should it?
 - [x] Add interpolation to MoveAttachedPickup default implementation, it's needed on remote clients
+- [ ] fade out use text after a while, but show again when the text changes (so detect text changes)
 
 # VR Testing
 
