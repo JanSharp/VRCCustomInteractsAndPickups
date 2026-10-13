@@ -155,6 +155,13 @@ namespace JanSharp
                 return;
             }
 #endif
+            if (player == null)
+            {
+                controllingPlayer = null;
+                controllingPlayerId = 0u;
+                controllingPlayerIsLocal = false;
+                return;
+            }
             controllingPlayer = player;
             controllingPlayerId = (uint)player.playerId;
             controllingPlayerIsLocal = player.isLocal;
