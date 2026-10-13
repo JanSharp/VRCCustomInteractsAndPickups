@@ -297,6 +297,28 @@ namespace JanSharp.Internal
                 rightHand.DropPickupIfHeld(pickup, preventAttachment);
         }
 
+        public void ForceDropByExplicitHand(CustomPickup pickup, bool isPrimary, bool preventAttachment = false)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] Manager  ForceDropByExplicitHand");
+#endif
+            VRCPlayerApi.TrackingDataType trackingType;
+            if (isPrimary)
+            {
+                if (!pickup.isHeldByPrimaryHand)
+                    return;
+                trackingType = pickup.primaryHeldTrackingType;
+            }
+            else
+            {
+                if (!pickup.isHeldBySecondaryHand)
+                    return;
+                trackingType = pickup.secondaryHeldTrackingType;
+            }
+            CustomInteractHandManager hand = GetHandForTrackingType(trackingType);
+            hand.DropPickupIfHeld(pickup);
+        }
+
         public void DetachPickup(CustomPickup pickup)
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG

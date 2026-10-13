@@ -384,6 +384,14 @@ namespace JanSharp
             manager.DropPickup(this, preventAttachment);
         }
 
+        public void ForceDropByExplicitHand(bool isPrimary, bool preventAttachment = false)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceDropByExplicitHand - isPrimary: {isPrimary}");
+#endif
+            manager.ForceDropByExplicitHand(this, isPrimary, preventAttachment);
+        }
+
         public void Detach()
         {
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
