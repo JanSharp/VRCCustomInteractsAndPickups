@@ -131,6 +131,7 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             if (this.state != state && this.state != CustomPickupControlState.None && state != CustomPickupControlState.None)
             {
+                // TODO: This does not actually matter when done on a remote player.
                 Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to change the control state of "
                     + $"a pickup without going to state None in between. For the purpose of having reliable "
                     + $"controlling player information inside of the drop or detach events raised on pickup "
@@ -148,6 +149,7 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             if (controllingPlayer != player && state != CustomPickupControlState.None)
             {
+                // TODO: This does not actually matter when done on a remote player.
                 Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to change the controlling player of "
                     + $"a pickup while the control state is not None. For the purpose of having reliable "
                     + $"controlling player information inside of the drop or detach events raised on pickup "
@@ -172,6 +174,7 @@ namespace JanSharp
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             if (controllingPlayerId != playerId && state != CustomPickupControlState.None)
             {
+                // TODO: This does not actually matter when done on a remote player.
                 Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to change the controlling player of "
                     + $"a pickup while the control state is not None. For the purpose of having reliable "
                     + $"controlling player information inside of the drop or detach events raised on pickup "
