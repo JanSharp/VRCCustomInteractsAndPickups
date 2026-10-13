@@ -177,8 +177,8 @@ namespace JanSharp.Internal
             pickup.internalAttachedIndex = attachedPickupsCount;
             ArrList.Add(ref attachedPickups, ref attachedPickupsCount, pickup);
             pickup.manager = manager;
-            pickup.SetControlState(CustomPickupControlState.Attached);
             pickup.SetControllingPlayer(localPlayer);
+            pickup.SetControlState(CustomPickupControlState.Attached);
             pickup.attachedToBone = attachedToBone;
             PopulateStateForController(pickup, attachedToBone);
             (pickup.pickupController ?? fallbackPickupController).HandleAttaching(stateForController);
