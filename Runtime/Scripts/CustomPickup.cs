@@ -1,5 +1,4 @@
-﻿using JanSharp.Internal;
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 
@@ -265,9 +264,9 @@ namespace JanSharp
         /// </summary>
         [System.NonSerialized] public Quaternion attachedOffsetRotation;
         /// <summary>
-        /// <para>For use by the <see cref="CustomAttachedPickupsManager"/> script only.</para>
+        /// <para>For use by the <see cref="Internal.CustomAttachedPickupsManager"/> script only.</para>
         /// </summary>
-        [System.NonSerialized] public int internalAttachedIndex = CustomAttachedPickupsManager.NonAttachedInternalIndex;
+        [System.NonSerialized] public int internalAttachedIndex = Internal.CustomAttachedPickupsManager.NonAttachedInternalIndex;
 
         private int ongoingStateModifications;
 
@@ -418,7 +417,7 @@ namespace JanSharp
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUp");
 #endif
             EnsureHasManagerRef();
-            CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
+            Internal.CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
             hand.ForcePickup(this);
         }
 
@@ -432,7 +431,7 @@ namespace JanSharp
             Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingPickedUpExplicit");
 #endif
             EnsureHasManagerRef();
-            CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
+            Internal.CustomInteractHandManager hand = manager.GetHandForTrackingType(heldTrackingType);
             hand.ForcePickupExplicit(this, shouldBecomeSecondaryHand, heldOffsetVector, heldOffsetRotation);
         }
 
