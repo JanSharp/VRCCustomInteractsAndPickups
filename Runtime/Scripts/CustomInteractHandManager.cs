@@ -748,6 +748,47 @@ namespace JanSharp.Internal
             DropActivePickup();
         }
 
+        private void SetPickupHeldValuesToMatchHandManagers(CustomPickup pickup)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  SetPickupHeldValuesToMatchHandManagers");
+#endif
+            bool isHeldByThisHand = isHolding && activePickup == pickup;
+            bool isHeldByOtherHand = otherHandManager.isHolding && otherHandManager.activePickup == pickup;
+            if (isHeldByThisHand)
+            {
+                if (isHeldByOtherHand)
+                    SetPickupValuesToBeHeldByTwoHands(pickup);
+                else
+                    SetPickupValuesToBeHeldByOneHand(pickup, isPrimaryHoldingHand);
+            }
+            else
+            {
+                if (isHeldByOtherHand)
+                    SetPickupValuesToBeHeldByOneHand(pickup, otherHandManager.isPrimaryHoldingHand);
+                else
+                    attachedManager.SetPickupAttachedValuesToMatchAttachedManager(pickup);
+            }
+        }
+
+        private void SetPickupValuesToBeHeldByTwoHands(CustomPickup pickup)
+        {
+            if (!pickup.controllingPlayerIsLocal)
+                pickup.SetControllingPlayer(localPlayer);
+            pickup.SetControlState(CustomPickupControlState.Held);
+            pickup.isHeldByPrimaryHand = true;
+            pickup.isHeldBySecondaryHand = true;
+        }
+
+        private void SetPickupValuesToBeHeldByOneHand(CustomPickup pickup, bool isPrimary)
+        {
+            if (!pickup.controllingPlayerIsLocal)
+                pickup.SetControllingPlayer(localPlayer);
+            pickup.SetControlState(CustomPickupControlState.Held);
+            pickup.isHeldByPrimaryHand = isPrimary;
+            pickup.isHeldBySecondaryHand = !isPrimary;
+        }
+
         private void PopulatePickingUpStateForController(bool hasHitPoint)
         {
             pickingUpStateForController.pickup = activePickup;
@@ -816,6 +857,7 @@ namespace JanSharp.Internal
 #if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  PrepareForPickingUp");
 #endif
+            SetPickupHeldValuesToMatchHandManagers(activePickup);
             pickupWasAttachedForHaptics = activePickup.isAttached;
             attachedManager.DetachIfAttached(activePickup);
             if (isInVR)
@@ -1004,6 +1046,7 @@ namespace JanSharp.Internal
                 return;
             }
 #endif
+            SetPickupHeldValuesToMatchHandManagers(activePickup);
             isHolding = false;
             isAutoHolding = false;
             if (isInVR)

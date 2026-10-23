@@ -153,8 +153,8 @@
 - [ ] onSelectionGainedHaptics gets "raised" when dropping a pickup. Should it?
 - [x] Add interpolation to MoveAttachedPickup default implementation, it's needed on remote clients
 - [ ] fade out use text after a while, but show again when the text changes (so detect text changes)
-- [ ] do not rely on the state of the pickup and its variables when it comes to which hands are holding a pickup
-  - [ ] when picking up a pickup, make sure the state of the pickup matches that of both hand managers, and it is set to be detached
+- [x] do not rely on the state of the pickup and its variables when it comes to which hands are holding a pickup
+  - [x] when picking up a pickup, make sure the state of the pickup matches that of both hand managers, and it is set to be detached
 
 # VR Testing
 

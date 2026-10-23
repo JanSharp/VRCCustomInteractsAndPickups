@@ -127,17 +127,6 @@ namespace JanSharp
 
         public void SetControlState(CustomPickupControlState state)
         {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            if (this.state != state && this.state != CustomPickupControlState.None && state != CustomPickupControlState.None)
-            {
-                // TODO: This does not actually matter when done on a remote player.
-                Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to change the control state of "
-                    + $"a pickup without going to state None in between. For the purpose of having reliable "
-                    + $"controlling player information inside of the drop or detach events raised on pickup "
-                    + $"controllers this is forbidden.");
-                return;
-            }
-#endif
             this.state = state;
             isHeld = state == CustomPickupControlState.Held;
             isAttached = state == CustomPickupControlState.Attached;
@@ -145,17 +134,6 @@ namespace JanSharp
 
         public void SetControllingPlayer(VRCPlayerApi player)
         {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            if (controllingPlayer != player && state != CustomPickupControlState.None)
-            {
-                // TODO: This does not actually matter when done on a remote player.
-                Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to change the controlling player of "
-                    + $"a pickup while the control state is not None. For the purpose of having reliable "
-                    + $"controlling player information inside of the drop or detach events raised on pickup "
-                    + $"controllers this is forbidden.");
-                return;
-            }
-#endif
             if (player == null)
             {
                 controllingPlayer = null;
@@ -170,17 +148,6 @@ namespace JanSharp
 
         public void SetControllingPlayer(uint playerId, bool isLocal)
         {
-#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
-            if (controllingPlayerId != playerId && state != CustomPickupControlState.None)
-            {
-                // TODO: This does not actually matter when done on a remote player.
-                Debug.LogError($"[CustomInteractsAndPickupsDebug] Attempt to change the controlling player of "
-                    + $"a pickup while the control state is not None. For the purpose of having reliable "
-                    + $"controlling player information inside of the drop or detach events raised on pickup "
-                    + $"controllers this is forbidden.");
-                return;
-            }
-#endif
             controllingPlayer = VRCPlayerApi.GetPlayerById((int)playerId);
             controllingPlayerId = playerId;
             controllingPlayerIsLocal = isLocal;

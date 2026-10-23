@@ -1,6 +1,5 @@
 ﻿using UdonSharp;
 using UnityEngine;
-using VRC.SDK3.Data;
 using VRC.SDKBase;
 
 namespace JanSharp.Internal
@@ -108,6 +107,19 @@ namespace JanSharp.Internal
             attachableBoneValuesLut[(int)DroppingHandType.Right] = attachableBoneValuesFromRight;
         }
 
+        public void SetPickupAttachedValuesToMatchAttachedManager(CustomPickup pickup)
+        {
+            if (pickup.internalAttachedIndex != NonAttachedInternalIndex)
+                pickup.SetControlState(CustomPickupControlState.None);
+            else
+            {
+                pickup.SetControllingPlayer(localPlayer);
+                pickup.SetControlState(CustomPickupControlState.Attached);
+            }
+            pickup.isHeldByPrimaryHand = false;
+            pickup.isHeldBySecondaryHand = false;
+        }
+
         private void PopulateStateForController(CustomPickup pickup, HumanBodyBones bone)
         {
             stateForController.pickup = pickup;
@@ -120,9 +132,10 @@ namespace JanSharp.Internal
         {
             if (pickup.internalAttachedIndex == NonAttachedInternalIndex)
                 return;
+            pickup.BeginStateModification();
+            SetPickupAttachedValuesToMatchAttachedManager(pickup);
             RemoveFromAttachedPickupsList(pickup);
 
-            pickup.BeginStateModification();
             PopulateStateForController(pickup, pickup.attachedToBone);
             (pickup.pickupController ?? fallbackPickupController).HandleDetaching(stateForController);
             pickup.SetControlState(CustomPickupControlState.None);
@@ -174,6 +187,7 @@ namespace JanSharp.Internal
             if (pickup.receivedOnDestroy)
                 return;
             pickup.BeginStateModification();
+            SetPickupAttachedValuesToMatchAttachedManager(pickup);
             pickup.internalAttachedIndex = attachedPickupsCount;
             ArrList.Add(ref attachedPickups, ref attachedPickupsCount, pickup);
             pickup.manager = manager;
@@ -192,6 +206,7 @@ namespace JanSharp.Internal
             if (pickup.receivedOnDestroy)
                 return;
             pickup.BeginStateModification();
+            SetPickupAttachedValuesToMatchAttachedManager(pickup);
             pickup.internalAttachedIndex = attachedPickupsCount;
             ArrList.Add(ref attachedPickups, ref attachedPickupsCount, pickup);
             pickup.manager = manager;
