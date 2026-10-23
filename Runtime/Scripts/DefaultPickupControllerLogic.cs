@@ -203,6 +203,10 @@ namespace JanSharp
             pickup.attachedOffsetRotation = inverseBoneRotation * pickupTransform.rotation;
         }
 
+        public void HandleForceAttaching(CustomPickupAttachedState state)
+        {
+        }
+
         public void HandleDetaching(CustomPickupAttachedState state)
         {
         }

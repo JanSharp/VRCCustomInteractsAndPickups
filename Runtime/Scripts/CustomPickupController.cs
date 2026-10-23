@@ -14,7 +14,13 @@ namespace JanSharp
         /// </summary>
         public abstract void MovePickup(CustomPickupState state);
 
+        /// <summary>
+        /// <para>Must set <see cref="CustomPickup.attachedOffsetVector"/> and
+        /// <see cref="CustomPickup.attachedOffsetRotation"/>.</para>
+        /// </summary>
+        /// <param name="state"></param>
         public abstract void HandleAttaching(CustomPickupAttachedState state);
+        public abstract void HandleForceAttaching(CustomPickupAttachedState state);
         public abstract void HandleDetaching(CustomPickupAttachedState state);
         /// <summary>
         /// <para>Modify the <see cref="CustomPickupAttachedState.pickupTransform"/> in this function.</para>

@@ -438,8 +438,7 @@ namespace JanSharp
 
         /// <summary>
         /// <para>Does not change the world position and rotation of the pickup, therefore also does not do
-        /// any interpolation. If that is required and or desired, perform said interpolation on the local
-        /// position and rotation after calling <see cref="ForceBeingAttached(HumanBodyBones)"/>.</para>
+        /// any interpolation.</para>
         /// </summary>
         /// <param name="attachedToBone"></param>
         public void ForceBeingAttached(HumanBodyBones attachedToBone)
@@ -459,6 +458,21 @@ namespace JanSharp
                 EnsureHasManagerRef();
                 manager.attachedManager.AttachToBone(this, attachedToBone);
             }
+            FinishStateModification();
+        }
+
+        public void ForceBeingAttachedExplicit(HumanBodyBones attachedToBone, Vector3 attachedOffsetVector, Quaternion attachedOffsetRotation)
+        {
+#if CUSTOM_INTERACTS_AND_PICKUPS_DEBUG
+            Debug.Log($"[CustomInteractsAndPickupsDebug] CustomPickup {this.name}  ForceBeingAttachedExplicit");
+#endif
+            BeginStateModification();
+            if (isHeld)
+                Drop(preventAttachment: true);
+            else if (isAttached)
+                Detach();
+            EnsureHasManagerRef();
+            manager.attachedManager.AttachToBone(this, attachedToBone, attachedOffsetVector, attachedOffsetRotation);
             FinishStateModification();
         }
 

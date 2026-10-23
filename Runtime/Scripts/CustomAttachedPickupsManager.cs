@@ -186,6 +186,26 @@ namespace JanSharp.Internal
             pickup.FinishStateModification();
         }
 
+        // Copy paste, except with attachedOffsetVector and attachedOffsetRotation inserted.
+        public void AttachToBone(CustomPickup pickup, HumanBodyBones attachedToBone, Vector3 attachedOffsetVector, Quaternion attachedOffsetRotation)
+        {
+            if (pickup.receivedOnDestroy)
+                return;
+            pickup.BeginStateModification();
+            pickup.internalAttachedIndex = attachedPickupsCount;
+            ArrList.Add(ref attachedPickups, ref attachedPickupsCount, pickup);
+            pickup.manager = manager;
+            pickup.SetControllingPlayer(localPlayer);
+            pickup.SetControlState(CustomPickupControlState.Attached);
+            pickup.attachedToBone = attachedToBone;
+            pickup.attachedOffsetVector = attachedOffsetVector;
+            pickup.attachedOffsetRotation = attachedOffsetRotation;
+            PopulateStateForController(pickup, attachedToBone);
+            (pickup.pickupController ?? fallbackPickupController).HandleForceAttaching(stateForController);
+            pickup.DispatchOnPickupAttach();
+            pickup.FinishStateModification();
+        }
+
         public void DetachAll()
         {
             for (int i = attachedPickupsCount - 1; i >= 0; i--)

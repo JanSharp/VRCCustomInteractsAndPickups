@@ -16,6 +16,7 @@ namespace JanSharp
         public override void MovePickup(CustomPickupState state) => defaultLogic.MovePickup(state);
 
         public override void HandleAttaching(CustomPickupAttachedState state) => defaultLogic.HandleAttaching(state);
+        public override void HandleForceAttaching(CustomPickupAttachedState state) => defaultLogic.HandleForceAttaching(state);
         public override void HandleDetaching(CustomPickupAttachedState state) => defaultLogic.HandleDetaching(state);
         public override void MoveAttachedPickup(CustomPickupAttachedState state) => defaultLogic.MoveAttachedPickup(state);
     }
