@@ -533,15 +533,15 @@ namespace JanSharp.Internal
 
         private void UpdateInteractText()
         {
-            string interactText = (hasActivePickup && isInVR && otherHandManager.isHolding && otherHandManager.activePickup == activePickup)
-                ? "" // No text when it is a pickup and said pickup is held by the other hand.
-                : activeScript.interactText;
-
             if (!isInVR)
             {
-                interactTextElemDesktop.text = interactText;
+                interactTextElemDesktop.text = activeScript.interactText;
                 return;
             }
+
+            string interactText = (hasActivePickup && otherHandManager.isHolding && otherHandManager.activePickup == activePickup)
+                ? "" // No text when it is a pickup and said pickup is held by the other hand.
+                : activeScript.interactText;
 
             interactTextElem.text = interactText;
             if (!string.IsNullOrWhiteSpace(interactText)) // Optimization.
