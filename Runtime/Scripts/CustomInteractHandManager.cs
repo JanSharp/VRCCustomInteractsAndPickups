@@ -754,7 +754,7 @@ namespace JanSharp.Internal
             Debug.Log($"[CustomInteractsAndPickupsDebug] HandManager {this.name}  SetPickupHeldValuesToMatchHandManagers");
 #endif
             bool isHeldByThisHand = isHolding && activePickup == pickup;
-            bool isHeldByOtherHand = otherHandManager.isHolding && otherHandManager.activePickup == pickup;
+            bool isHeldByOtherHand = isInVR && otherHandManager.isHolding && otherHandManager.activePickup == pickup;
             if (isHeldByThisHand)
             {
                 if (isHeldByOtherHand)
