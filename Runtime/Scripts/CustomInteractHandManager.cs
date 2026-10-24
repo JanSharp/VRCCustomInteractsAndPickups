@@ -533,7 +533,7 @@ namespace JanSharp.Internal
 
         private void UpdateInteractText()
         {
-            string interactText = (hasActivePickup && activePickup.isHeld)
+            string interactText = (hasActivePickup && isInVR && otherHandManager.isHolding && otherHandManager.activePickup == activePickup)
                 ? "" // No text when it is a pickup and said pickup is held by the other hand.
                 : activeScript.interactText;
 
